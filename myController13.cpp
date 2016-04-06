@@ -14,17 +14,6 @@
 #define TOUCHTHRESH 2000     // Threshold for fader capacitive touch ... the fader is assumed to have capacative touch even if the MOTOR is not used. 
 #define HYST 2               // Amount of hysteresis jitter suppresion for the fader. A capacitor across wiper and ground is otherwise needed.
 
-/*In your setup, call ...
-myController.Mode (mode1 pin, mode2 pin, mode3 pin)
-substituting your own pin numbers for the relevant mode
-3 modes ...1.MidiController 2.Faderport clone 3.MAME controller
-So ...
-myController.Mode (3,4,6)
-makes pin 3 the switch for mode 1, pin 4 for mode 2, pin 6 for mode 3
-Once a selection is made via the switches, there is no way to change it unless you power cycle... after selection the pins have their 'usual functions' (above)
-*/
-
-//Finally, in your loop, call myController.Loop();
 
 Controller myController13;
 
