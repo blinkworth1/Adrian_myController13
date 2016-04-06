@@ -6,11 +6,6 @@ Midi interface, midi controller, FaderPort clone, and more!
 //Obviously if you want to ditch MAME, you won't need a custom usb type
 //Also MIDI 4.2 library is required.
 
-#include <usb_midi.h>
-#include <MIDI.h>
-#include "myController13.h"
-
-#define NUM_INPUT_SWITCHES 13// Number of digital switches you are using, 13 or less ... 
 // The digital pins used are, in order, 2, 14, 7, 8, 15, 22, 23, 18, 3, 4, 5, 11, 6.
 // SO ... if you want 4 digital pins, use 2, 14, 7, and 8 (the first 4).
 // The rotary encoder is on digital 16 and 17 ...
