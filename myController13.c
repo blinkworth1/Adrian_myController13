@@ -1,5 +1,5 @@
 
-//1 Rotary encoder, 1 Motorised fader (using native FaderPort protocol "FPP"), 1 Joystick (4 switches) and 9 other switches / buttons, and a 2 x 2 USB Midi interface, merger and splitter!
+//1 Rotary Encoder, 1 Motorised fader (using native FaderPort protocol "FPP"), 1 Joystick (4 switches) and 9 other switches / buttons, and a 2 x 2 USB Midi interface, merger and splitter!
 //3 different modes choosable on startup by button press. MODE1.MidiController MODE2.Faderport clone MODE3.MAME controller. Because MAME uses keystrokes, a cutom usb type of keyboard/midi is needed
 //Obviously if you want to ditch MAME, you won't need a custom usb type
 //Also MIDI 4.2 library is required.
