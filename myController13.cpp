@@ -5,13 +5,6 @@
 #include <MIDI.h>
 #include <myController13.h>
 
-#define NUM_INPUT_SWITCHES 13// Number of digital switches you are using, 13 or less ... 
-
-
-#define TOUCHTHRESH 2000     // Threshold for fader capacitive touch ... 
-#define HYST 2               // Amount of hysteresis jitter suppresion for the fader. A capacitor across wiper and ground is otherwise needed.
-
-
 MIDI_CREATE_INSTANCE (HardwareSerial, Serial1, midiA);
 MIDI_CREATE_INSTANCE (HardwareSerial, Serial2, midiB);
 
