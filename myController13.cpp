@@ -1,17 +1,37 @@
 
 
+
 #include <usb_midi.h>
 #include <MIDI.h>
-//#include "myController13.h"
+#include <myController13.h>
+
+#define NUM_INPUT_SWITCHES 13// Number of digital switches you are using, 13 or less ... 
 
 
+#define TOUCHTHRESH 2000     // Threshold for fader capacitive touch ... 
+#define HYST 2               // Amount of hysteresis jitter suppresion for the fader. A capacitor across wiper and ground is otherwise needed.
 
-Controller myController13;
 
 MIDI_CREATE_INSTANCE (HardwareSerial, Serial1, midiA);
 MIDI_CREATE_INSTANCE (HardwareSerial, Serial2, midiB);
 
 elapsedMillis timer;
+
+
+ midiA.setHandleNoteOn(OnNoteOn);
+    midiA.setHandleNoteOff(OnNoteOff);
+    midiA.setHandleControlChange(OnControlChange);
+    midiA.setHandleAfterTouchPoly (OnVelocityChange);
+    midiA.setHandleProgramChange(OnProgramChange);
+    midiA.setHandleAfterTouchChannel(OnAfterTouch);
+    midiA.setHandlePitchBend(OnPitchChange);
+midiB.setHandleNoteOn(OnNoteOn);
+    midiB.setHandleNoteOff(OnNoteOff);
+    midiB.setHandleControlChange(OnControlChange);
+    midiB.setHandleAfterTouchPoly(OnVelocityChange);
+    midiB.setHandleProgramChange(OnProgramChange);
+    midiB.setHandleAfterTouchChannel(OnAfterTouch);
+    midiB.setHandlePitchBend(OnPitchChange);
 
 void MidiThru ()
 {
@@ -31,13 +51,7 @@ void MidiThru ()
                midiA.getData1(),
                midiA.getData2(),
                midiA.getChannel());
-    midiA.setHandleNoteOn(OnNoteOn);
-    midiA.setHandleNoteOff(OnNoteOff);
-    midiA.setHandleControlChange(OnControlChange);
-    midiA.setHandleAfterTouchPoly (OnVelocityChange);
-    midiA.setHandleProgramChange(OnProgramChange);
-    midiA.setHandleAfterTouchChannel(OnAfterTouch);
-    midiA.setHandlePitchBend(OnPitchChange);
+   
   }
   if (midiB.read())
   {
@@ -45,13 +59,7 @@ void MidiThru ()
                midiB.getData1(),
                midiB.getData2(),
                midiB.getChannel());
-    midiB.setHandleNoteOn(OnNoteOn);
-    midiB.setHandleNoteOff(OnNoteOff);
-    midiB.setHandleControlChange(OnControlChange);
-    midiB.setHandleAfterTouchPoly(OnVelocityChange);
-    midiB.setHandleProgramChange(OnProgramChange);
-    midiB.setHandleAfterTouchChannel(OnAfterTouch);
-    midiB.setHandlePitchBend(OnPitchChange);
+    
   }
 }
 
@@ -96,50 +104,7 @@ void OnPitchChange(byte channel, int bend)
   usbMIDI.sendPitchBend(bend, channel);
   usbMIDI.send_now();
 }
-/*
-void OnNoteOnB (byte channel, byte note, byte velocity)
-{
-  usbMIDI.sendNoteOn(note, velocity, channel);
-  usbMIDI.send_now();
-}
 
-void OnNoteOffB (byte channel, byte note, byte velocity)
-{
-  usbMIDI.sendNoteOff(note, velocity, channel);
-  usbMIDI.send_now();
-}
-
-void OnControlChangeB (byte channel, byte number, byte value)
-{
-  usbMIDI.sendControlChange(number, value, channel);
-  usbMIDI.send_now();
-}
-
-void OnVelocityChangeB(byte channel, byte note, byte pressure)
-{
-  usbMIDI.sendPolyPressure(note, pressure, channel);
-  usbMIDI.send_now();
-}
-
-void OnProgramChangeB (byte channel, byte program)
-{
-  usbMIDI.sendProgramChange(program, channel);
-  usbMIDI.send_now();
-}
-
-void OnAfterTouchB(byte channel, byte pressure)
-{
-  usbMIDI.sendAfterTouch(pressure, channel);
-  usbMIDI.send_now();
-}
-
-void OnPitchChangeB(byte channel, int bend)
-{
-  usbMIDI.sendPitchBend(bend, channel);
-  usbMIDI.send_now();
-}
-
-*/
 IntervalTimer RotaryTimer;
 volatile uint8_t rotaryArray [] = {0x01F, 0x01F};
 volatile uint16_t Rotary::readout = 0x000;
@@ -246,9 +211,7 @@ void Controller::Loop()
 
 void Fader::RW(int touchP, int wiperP, int dirP, int pwmP, uint8_t cho) // set up for capacitive touch
 {
-#ifdef MOTOR
   PositionUSBRead ();
-#endif
   PositionPinRead(wiperP);
   touchPinRead = touchRead (touchP);
   if (touchPinRead > TOUCHTHRESH)
@@ -258,9 +221,8 @@ void Fader::RW(int touchP, int wiperP, int dirP, int pwmP, uint8_t cho) // set u
       TOUCHSENT = true;
     }
     PinWrite();
-#ifdef MOTOR
+
     Halt (dirP, pwmP);
-#endif
   }
   else
   {
@@ -268,9 +230,7 @@ void Fader::RW(int touchP, int wiperP, int dirP, int pwmP, uint8_t cho) // set u
       usbMIDI.sendPolyPressure (127, 0, 1);
       TOUCHSENT = false;
     }
-#ifdef MOTOR
     Mota(dirP, pwmP);
-#endif
   }
 }
 
@@ -283,7 +243,6 @@ void Fader::PositionPinRead (int wiperP)
   }
 }
 
-#ifdef MOTOR
 void Fader::PositionUSBRead()
 {
   if (  usbMIDI.read()  &&  (usbMIDI.getType() == 3)  )
@@ -327,7 +286,6 @@ void Fader::Halt (int dirP, int pwmP)
   digitalWrite(dirP, HIGH);
   analogWrite(pwmP, 0);
 }
-#endif
 
 void Fader::PinWrite ()
 {
@@ -501,6 +459,5 @@ uint8_t Rotary::RW (uint8_t chan, uint8_t cho)
   }
   return chan;
 }
-
 
 

@@ -81,5 +81,5 @@ class Controller
     Fader myFader;
     Rotary myRotary;
     Switches mySwitches;
-};
+} myController13;
 
