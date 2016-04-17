@@ -1,4 +1,5 @@
-#incude <Arduino.h>
+#include <Arduino.h>
+
 
 
 class Fader
@@ -10,6 +11,8 @@ class Fader
     void Mota (int, int);
     void Halt (int, int);
     void PinWrite ();
+int HYST;
+int TOUCHTHRESH;
 
   private:
     uint16_t hystPinRead;
@@ -30,7 +33,7 @@ class Switches
     void RW (uint8_t, uint8_t);
     static volatile uint16_t pressed;
     static volatile uint16_t released;
-
+int NUM_INPUT_SWITCHES;
   private:
     uint16_t mask = 0;
     const byte MMCSTOP [6]     {240, 127, 127, 6, 1, 247};
@@ -65,11 +68,14 @@ class Rotary
 class Controller
 {
   public:
-    void Mode (int, int, int);
+    void begin (int, int, int, int, int, int);
     void Loop ();
 
   private:
-    uint8_t choice;
+    
+
+
+uint8_t choice;
     uint8_t channel = 1;
     uint8_t oldchannel = 1;
     const uint8_t switchesPinTable [15] {2, 14, 7, 8, 6, 15, 22, 23, 18, 3, 4, 5, 11, 16, 17}; // list of PULLUP_SWITCHES
@@ -81,5 +87,5 @@ class Controller
     Fader myFader;
     Rotary myRotary;
     Switches mySwitches;
-} myController13;
+};
 
