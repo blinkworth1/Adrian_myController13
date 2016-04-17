@@ -11,6 +11,8 @@ Because MAME uses keystrokes, a cutom usb type of 'keyboard/midi' is needed, so 
 
 Also arduino MIDI 4.2 library is required.... well it would be, if the Midi interface worked ...
 
+The example in the repository has further instructions on usage.  The .h and .cpp files go in your arduino library folder (assuming you are using the arduino ide), and the example should compile sweet as...
+
 The digital pins used are, in order, 2, 14, 7, 8, 15, 22, 23, 18, 3, 4, 5, 11, 6. SO ... if you want 4 digital pins, use 2, 14, 7, and 8 (the first 4).  They are the pins for the joystick.
 
 The rotary encoder is on digital 16 and 17 ...
@@ -19,5 +21,7 @@ The fader wiper in is pin A14, and the capacitive touch line is pin 19.
 
 The motor controller for the fader is 'standard' with a direction and a speed pin ... PWM speed pin is 20, and the direction pin is 21.
 
-The example in the repository has further instructions on usage.  The .h and .cpp files go in your arduino library folder (assuming you are using the arduino ide), and the example should compile sweet as...
+The 2 x 2 Midi interface attaches to Serial1 and Serial2, using standard Midi wiring (optocoupler etc etc)... but guess what ... the code is borked at the moment ... sigh.
+
+
 
