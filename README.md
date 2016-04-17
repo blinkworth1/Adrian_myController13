@@ -17,7 +17,7 @@ The rotary encoder is on digital 16 and 17 ...
 
 The fader wiper in is pin A14, and the capacitive touch line is pin 19.
 
-The motor controller for the fader is 'standard' with a direction and a speed pin ... pins X and y
+The motor controller for the fader is 'standard' with a direction and a speed pin ... PWM speed pin is 20, and the direction pin is 21.
 
 The example in the repository has further instructions on usage.  The .h and .cpp files go in your arduino library folder (assuming you are using the arduino ide), and the example should compile sweet as...
 
