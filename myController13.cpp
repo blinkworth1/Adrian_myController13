@@ -4,153 +4,17 @@
 #include <usb_midi.h>
 #include <MIDI.h>
 #include <myController13.h>
+#include <Arduino.h>
 
-MIDI_CREATE_INSTANCE (HardwareSerial, Serial1, midiA);
-MIDI_CREATE_INSTANCE (HardwareSerial, Serial2, midiB);
 
 elapsedMillis timer;
 
 
- midiA.setHandleNoteOn(OnNoteOn);
-    midiA.setHandleNoteOff(OnNoteOff);
-    midiA.setHandleControlChange(OnControlChange);
-    midiA.setHandleAfterTouchPoly (OnVelocityChange);
-    midiA.setHandleProgramChange(OnProgramChange);
-    midiA.setHandleAfterTouchChannel(OnAfterTouch);
-    midiA.setHandlePitchBend(OnPitchChange);
-midiB.setHandleNoteOn(OnNoteOn);
-    midiB.setHandleNoteOff(OnNoteOff);
-    midiB.setHandleControlChange(OnControlChange);
-    midiB.setHandleAfterTouchPoly(OnVelocityChange);
-    midiB.setHandleProgramChange(OnProgramChange);
-    midiB.setHandleAfterTouchChannel(OnAfterTouch);
-    midiB.setHandlePitchBend(OnPitchChange);
-
-void MidiThru ()
+void Controller::begin(int one, int two, int three, int HYST, int TOUCHTHRESH, int NUM_INPUT_SWITCHES)
 {
-  if (usbMIDI.read() &&  usbMIDI.getType() < 7)
-  {
-    midi::MidiType type = (midi::MidiType) usbMIDI.getType();
-    byte d1 = usbMIDI.getData1();
-    byte  d2 = usbMIDI.getData2();
-    byte Chan = usbMIDI.getChannel();
-    midiA.send(type, d1, d2, Chan);
-    midiB.send(type, d1, d2, Chan);
-  }
 
-  if (midiA.read())
-  {
-    midiB.send(midiA.getType(),
-               midiA.getData1(),
-               midiA.getData2(),
-               midiA.getChannel());
-   
-  }
-  if (midiB.read())
-  {
-    midiA.send(midiB.getType(),
-               midiB.getData1(),
-               midiB.getData2(),
-               midiB.getChannel());
-    
-  }
-}
-
-void OnNoteOn (byte channel, byte note, byte velocity)
-{
-  usbMIDI.sendNoteOn(note, velocity, channel);
-  usbMIDI.send_now();
-}
-
-void OnNoteOff (byte channel, byte note, byte velocity)
-{
-  usbMIDI.sendNoteOff(note, velocity, channel);
-  usbMIDI.send_now();
-}
-
-void OnControlChange (byte channel, byte number, byte value)
-{
-  usbMIDI.sendControlChange(number, value, channel);
-  usbMIDI.send_now();
-}
-
-void OnVelocityChange(byte channel, byte note, byte pressure)
-{
-  usbMIDI.sendPolyPressure(note, pressure, channel);
-  usbMIDI.send_now();
-}
-
-void OnProgramChange (byte channel, byte program)
-{
-  usbMIDI.sendProgramChange(program, channel);
-  usbMIDI.send_now();
-}
-
-void OnAfterTouch(byte channel, byte pressure)
-{
-  usbMIDI.sendAfterTouch(pressure, channel);
-  usbMIDI.send_now();
-}
-
-void OnPitchChange(byte channel, int bend)
-{
-  usbMIDI.sendPitchBend(bend, channel);
-  usbMIDI.send_now();
-}
-
-IntervalTimer RotaryTimer;
-volatile uint8_t rotaryArray [] = {0x01F, 0x01F};
-volatile uint16_t Rotary::readout = 0x000;
-volatile bool Rotary::rotaryState = false;
-
-void RotaryRead (void)
-{ Rotary::rotaryState = true;
-  Rotary::readout <<= 2;                   //remember previous state
-  volatile uint16_t newRead = GPIOB_PDIR;
-  for (int i = 0; i < 2; i++)
-  {
-    rotaryArray[i] <<= 1;
-    rotaryArray[i] |= (newRead >> i) & 0x001;
-    if ( (rotaryArray[i] & 0x01F ) == 0x01F) {
-      Rotary::readout |= (1 << i);
-    }
-    else if ( (rotaryArray[i] & 0x1F) == 0x000) {
-      Rotary::readout &= ~(1 << i);
-    }
-  }
-}
-
-IntervalTimer SwitchesTimer;
-volatile uint8_t switchArray [] = {0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007};
-volatile uint16_t Switches::pressed = 0;
-volatile uint16_t Switches::released = 0;
-
-void SwitchesRead (void)
-{
-  Switches::pressed = 0;
-  Switches::released = 0;
-  volatile uint16_t newRead = (digitalRead (6) << 12) | (digitalRead (3) << 11) | (digitalRead (4) << 10) | (digitalRead (5) << 9) | (digitalRead (11) << 8) | digitalRead(18) << 7 | ((GPIOC_PDIR & 7) << 4) | (GPIOD_PDIR & 0x00F);
-  for (int i = 0; i < NUM_INPUT_SWITCHES; i++)
-  {
-    switchArray[i] <<= 1;
-    switchArray[i] |= (newRead >> i) & 0x001;
-    if ((switchArray[i] & 0x007) == 0x007) {
-      Switches::released |= (1 << i);
-    }
-    else if ((switchArray[i] & 0x007) == 0x000) {
-      Switches::pressed |= (1 << i);
-    }
-  }
-}
-
-void Controller::Mode(int one, int two, int three)
-{
-  midiA.begin(MIDI_CHANNEL_OMNI);
-  midiB.begin(MIDI_CHANNEL_OMNI);
-#ifdef MOTOR
   pinMode(dirPin, OUTPUT);
   pinMode(pwmPin, OUTPUT);
-#endif
   for (int i = 0; i < 15; i++)
   {
     delay (1);
@@ -173,12 +37,14 @@ void Controller::Mode(int one, int two, int three)
   }
   while (choice == 0);
   delay(1000);
-  CHOICE [4] = choice;
-  midiA.sendSysEx (7, CHOICE, true);
-  SwitchesTimer.begin (SwitchesRead, 312);
-  RotaryTimer.begin (RotaryRead, 567);
+  //CHOICE [4] = choice;
+  //midiA.sendSysEx (7, CHOICE, true);
+myFader.HYST = HYST;
+myFader.TOUCHTHRESH = TOUCHTHRESH;
+mySwitches.NUM_INPUT_SWITCHES = NUM_INPUT_SWITCHES;
 
 }
+
 
 void Controller::Loop()
 {
@@ -187,7 +53,7 @@ void Controller::Loop()
   if (oldchannel != channel) {
   CHOICE [5] = channel;
   oldchannel = channel;
-  midiA.sendSysEx (7, CHOICE, true);
+  //midiA.sendSysEx (7, CHOICE, true);
   }
  
   if ((choice == 1) || (choice == 2))
@@ -197,8 +63,7 @@ void Controller::Loop()
       myFader.RW(touchPin, wiperPin, dirPin, pwmPin, choice);
     }
 
-    MidiThru();
-  }
+     }
   mySwitches.RW (channel, choice);
 }
 
@@ -305,16 +170,16 @@ void Switches::RW (uint8_t chan, uint8_t cho)
         {
           case 1:
             if (i < 8) {
-             midiA.sendSysEx (6, MMCTransport[i], false);
-             midiB.sendSysEx (6, MMCTransport[i], false);
+             //midiA.sendSysEx (6, MMCTransport[i], false);
+             //midiB.sendSysEx (6, MMCTransport[i], false);
              usbMIDI.sendSysEx (6, MMCTransport[i]);
              mask |= (1 << i);
            }
            else 
             {
               usbMIDI.sendNoteOn (sendNotes[i], 127, chan);
-              midiA.sendNoteOn (sendNotes[i], 127, chan);
-              midiB.sendNoteOn (sendNotes[i], 127, chan);
+              //midiA.sendNoteOn (sendNotes[i], 127, chan);
+              //midiB.sendNoteOn (sendNotes[i], 127, chan);
               mask |= (1 << i);
             }
             break;
@@ -360,8 +225,8 @@ void Switches::RW (uint8_t chan, uint8_t cho)
              else 
             {
               usbMIDI.sendNoteOff (sendNotes[i], 0, chan);
-              midiA.sendNoteOn (sendNotes[i], 0, chan);
-              midiB.sendNoteOn (sendNotes[i], 0, chan);
+              //midiA.sendNoteOn (sendNotes[i], 0, chan);
+              //midiB.sendNoteOn (sendNotes[i], 0, chan);
               mask &= ~(1 << i);
             }
             break;
@@ -443,7 +308,6 @@ uint8_t Rotary::RW (uint8_t chan, uint8_t cho)
         }
         break;
       case 2:  usbMIDI.sendPitchBend (0, 1);
-        //usbMIDI.sendPolyPressure (125, 0, 1);
         break;
       case 3: Keyboard.press(KEY_RIGHT | (0x40 << 8));
         Keyboard.release(KEY_RIGHT | (0x40 << 8));
