@@ -28,49 +28,7 @@ Also, Arduino MIDI 4.2 library is required, if using the Midi interface.
 
 See notes in the example .ino.
 
-See below for wiring and implementation nfo…
-
-Wiring	    Teesny      MODE1       MODE2		    MODE3
-__________________________________________________________________
-Fader1	    3.3V
-Fader3      AGND
-Fader2	    A14                     Pitchbend   Fader
-FaderT	    19
-
-FaderMotor hooked up as per HBridge or Ardumoto instructions. 
-NOTE: you will need at least 9V, and more amperage than a battery can supply
-
-HBrdgEN
-HBrdgI1
-HBrdgI2
-OR
-Amoto
-Amoto      
-
-JstickD	    2,GND 			            TrkDn		    KEY_DOWN
-JstickU	    14,GND			            TrkUp		    KEY_UP 
-JstickL	    7,GND 			            TrkL		    KEY_LEFT
-JstickR	    8,GND				            TrkR		    KEY_RIGHT 
-SWTCH3	    15,GND			                6       KEY_A
-SWTCH2	    22,GND			                1       KEY_B 
-SWTCH5	    23,GND 			                5       KEY_C
-SWTCH1	    18,GND			                3		    KEY_D		 
-SWTCH4	    11,GND                      4		    KEY_E
-RtrySWTCH	  5,GND				                7		    KEY_ENTER
-SWTCHslct3	4,GND 			                10		  KEY_M
-SWTCHslct1	3,GND				                9		    KEY_F1
-SWTCHslct2	6,GND				                8		    KEY_F5
-RtryL                               PanL
-RtryR                               PanR
-
-______________________________________________________
-
-Fader
-
-MODE1     10 bit messages MSB CC 00 (3bits) LSB CC 32 (7bits)
-MODE2     10 bit messages MSB CC 00 (3bits) LSB CC 32 (7bits)
-MODE3     N/A
-
+See the .rtf file in the repository, and the .png for wiring and implementation nfo…
 
 
 
