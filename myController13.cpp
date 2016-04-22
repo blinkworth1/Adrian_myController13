@@ -1,320 +1,372 @@
 
 
-
-#include <usb_midi.h>
-#include <MIDI.h>
 #include <myController13.h>
-#include <Arduino.h>
 
 
-elapsedMillis timer;
 
 
-void Controller::begin(int one, int two, int three, int HYST, int TOUCHTHRESH, int NUM_INPUT_SWITCHES)
+static Controller * Cptr;
+static void SwitchesRead(void);
+static void FaderRead(void);
+static void RotaryRead(void);
+
+
+void Controller::begin(int one, int two, int three, int hystin, int touchthreshin)
 {
 
-  pinMode(dirPin, OUTPUT);
-  pinMode(pwmPin, OUTPUT);
-  for (int i = 0; i < 15; i++)
-  {
-    delay (1);
-    pinMode(switchesPinTable [i], INPUT_PULLUP );
-  }
-  do
-  {
-    if      (!digitalRead (one)) {
-      choice = 1;
-    }
-    else if (!digitalRead (two)) {
-      choice = 2;
-    }
-    else if (!digitalRead (three)) {
-      choice = 3;
-    }
-   else  { 
-    choice=0;
-   }
-  }
-  while (choice == 0);
-  delay(1000);
-  //CHOICE [4] = choice;
-  //midiA.sendSysEx (7, CHOICE, true);
-myFader.HYST = HYST;
-myFader.TOUCHTHRESH = TOUCHTHRESH;
-mySwitches.NUM_INPUT_SWITCHES = NUM_INPUT_SWITCHES;
+touch = touchthreshin;
+hyst = hystin;
+pinMode(dirPin, OUTPUT);
+#if defined HBRIDGE
+pinMode(dirPinU, OUTPUT)
+#endif
+pinMode(pwmPin, OUTPUT);
+for (int i = 0; i < 15; i++)
+{
+delay (1);
+pinMode(switchesPinTable [i], INPUT_PULLUP );
+}
+do
+{
+if (!digitalRead (one)) {
+choice = 1;
+}
+else if (!digitalRead (two)) {
+choice = 2;
+}
+else if (!digitalRead (three)) {
+choice = 3;
+}
+else {
+choice=0;
+}
+}
+while (choice == 0);
+
+delay(1000);
+
+
+/*
+//serial sysex out message of current choice and channel
+CHOICE [4] = choice;
+midiA.sendSysEx (7, CHOICE, true);
+
+if (oldchannel != channel) {
+CHOICE [5] = channel;
+oldchannel = channel;
+midiA.sendSysEx (7, CHOICE, true);
+}
+
+*/
+
+
+
+Cptr = this;
+static IntervalTimer SwitchesTimer;
+static IntervalTimer FaderTimer;
+static IntervalTimer RotaryTimer;
+
+SwitchesTimer.begin (SwitchesRead, 151);
+FaderTimer.begin (FaderRead, 857);
+RotaryTimer.begin (RotaryRead, 599);
+
+}
+
+static void SwitchesRead (void)
+{
+Controller *o = Cptr;
+o->switchesRaw = (   (1 << 13) | digitalRead (6) << 12) | (digitalRead (3) << 11) | (digitalRead (4) << 10) | (digitalRead (5) << 9) | (digitalRead (11) << 8) | digitalRead(18) << 7 | ((GPIOC_PDIR & 0x007) << 4) | (GPIOD_PDIR & 0x00F);
+}
+
+static void FaderRead (void)
+{
+
+Controller *o = Cptr;
+o->hystPinRead = analogRead (o->wiperPin);
+o->touchPinRead = touchRead (o->touchPin);
+if ( usbMIDI.read() && (usbMIDI.getType() == 3) ){
+if (usbMIDI.getData1() == 0 ){
+uint16_t readMSB = usbMIDI.getData2();
+while (!(usbMIDI.read())){}
+uint16_t readLSB = usbMIDI.getData2();
+o->currentUSBRead = (readMSB << 7) | (readLSB & 0x07F);
+}
+}
 
 }
 
 
-void Controller::Loop()
+static void RotaryRead (void)
 {
-
-  channel = myRotary.rotaryUpdate (channel, choice);
-  if (oldchannel != channel) {
-  CHOICE [5] = channel;
-  oldchannel = channel;
-  //midiA.sendSysEx (7, CHOICE, true);
-  }
- 
-  if ((choice == 1) || (choice == 2))
-  {
-    if (timer > 15) {
-      timer = 0;
-      myFader.RW(touchPin, wiperPin, dirPin, pwmPin, choice);
-    }
-
-     }
-  mySwitches.RW (channel, choice);
+Controller *o = Cptr;
+o->rotaryRaw = GPIOB_PDIR | (1 << 3) ;
+o->rotaryCount++;
 }
 
-void Fader::RW(int touchP, int wiperP, int dirP, int pwmP, uint8_t cho) // set up for capacitive touch
-{
-  PositionUSBRead ();
-  PositionPinRead(wiperP);
-  touchPinRead = touchRead (touchP);
-  if (touchPinRead > TOUCHTHRESH)
-  {
-    if (TOUCHSENT == false) {
-      usbMIDI.sendPolyPressure (127, 1, 1);
-      TOUCHSENT = true;
-    }
-    PinWrite();
 
-    Halt (dirP, pwmP);
-  }
-  else
-  {
-    if (TOUCHSENT == true) {
-      usbMIDI.sendPolyPressure (127, 0, 1);
-      TOUCHSENT = false;
-    }
-    Mota(dirP, pwmP);
-  }
+void Controller::faderHalt ()
+{
+digitalWrite(dirPin, HIGH);
+analogWrite(pwmPin, 0);
 }
 
-void Fader::PositionPinRead (int wiperP)
+
+void Controller::faderWrite () {
+
+if (!(choice==3))
+
 {
-  hystPinRead = analogRead (wiperP);
-  if  (currentPinRead > (hystPinRead + HYST) || hystPinRead > (currentPinRead + HYST))
-  {
-    currentPinRead = hystPinRead;
-  }
+
+noInterrupts();
+if (currentPinRead > (hystPinRead + hyst) || hystPinRead > (currentPinRead + hyst)) {
+currentPinRead = hystPinRead;
+}
+if (touchPinRead > touch) {
+touchActive = true;
+}
+interrupts();
+
+if (touchActive) {
+if (TOUCHSENT == false) {
+usbMIDI.sendPolyPressure (127, 1, 1);
+TOUCHSENT = true;
+}
+sendMSB = currentPinRead >> 3;
+sendLSB = currentPinRead & 0x00F;
+usbMIDI.sendControlChange (0, sendMSB, 1);
+usbMIDI.sendControlChange (32, sendLSB, 1);
+faderHalt ();
 }
 
-void Fader::PositionUSBRead()
-{
-  if (  usbMIDI.read()  &&  (usbMIDI.getType() == 3)  )
-  {
-    if (usbMIDI.getData1() == 0 )
-    {
-      readMSB = (usbMIDI.getData2());
-      delay (1);
-      usbMIDI.read();
-      readLSB = usbMIDI.getData2();
-      currentUSBRead = (readMSB << 7) | (readLSB & 0x07F);
-    }
-  }
+else{
+if (TOUCHSENT == true) {
+usbMIDI.sendPolyPressure (127, 0, 1);
+TOUCHSENT = false;
+}
+if (currentPinRead < (currentUSBRead - 150)) {
+digitalWrite(dirPin, LOW);
+#if defined HBRIDGE
+digitalWrite(dirPinU, HIGH)
+#endif
+analogWrite(pwmPin, 167);
+}
+else if ( (currentPinRead < (currentUSBRead - hyst) ) && (currentPinRead >= (currentUSBRead - 150)) ) {
+digitalWrite(dirPin, LOW);
+#if defined HBRIDGE
+digitalWrite(dirPinU, HIGH)
+#endif
+analogWrite(pwmPin, 130);
+}
+else if (currentPinRead > (currentUSBRead + 150)) {
+digitalWrite(dirPin, HIGH);
+#if defined HBRIDGE
+digitalWrite(dirPinU, LOW)
+#endif
+analogWrite(pwmPin, 167);
+}
+else if ( (currentPinRead > (currentUSBRead + hyst) ) && (currentPinRead <= (currentUSBRead + 150)) ) {
+digitalWrite(dirPin, HIGH);
+#if defined HBRIDGE
+digitalWrite(dirPinU, LOW)
+#endif
+analogWrite(pwmPin, 130);
+}
+else {
+faderHalt();
+}
+}
+}
 }
 
-void Fader::Mota(int dirP, int pwmP)
+void Controller::switchesWrite ()
 {
-  if (currentPinRead < (currentUSBRead - 150)) {
-    digitalWrite(dirP, LOW);
-    analogWrite(pwmP, 167);
-  }
-  else if ( (currentPinRead < (currentUSBRead - 5) ) && (currentPinRead >= (currentUSBRead - 150)) ) {
-    digitalWrite(dirP, LOW);
-    analogWrite(pwmP, 135);
-  }
-  else if (currentPinRead > (currentUSBRead + 150)) {
-    digitalWrite(dirP, HIGH);
-    analogWrite(pwmP, 167);
-  }
-  else if ( (currentPinRead > (currentUSBRead + 5) ) && (currentPinRead <= (currentUSBRead + 150)) ) {
-    digitalWrite(dirP, HIGH);
-    analogWrite(pwmP, 135);
-  }
-  else {
-    Halt(dirP, pwmP);
-  }
+noInterrupts();
+if (switchesRaw & (1 << 13)){
+switchesRaw &= ~(1 << 13);
+for (int i = 0; i < switchesNo; i++)
+{
+switchesArray[i] <<= 1;
+switchesArray[i] |= ((switchesRaw >> i) & 0x001);
+interrupts();
+if ((switchesArray[i] & 0x007) == 0x007) {
+switchesData &= ~(1 << i); // active low, 
+}
+else if ((switchesArray[i] & 0x007) == 0x000) {
+switchesData |= (1 << i);
+}
+}
+}
+for (int i = 0; i < switchesNo; i++)
+{
+if (switchesData & (1 << i))
+{
+if (!(pressed & (1 << i) ))
+{
+switch (choice)
+{
+case 1:
+if (i < 8) {
+//midiA.sendSysEx (6, MMCTransport[i], false);
+//midiB.sendSysEx (6, MMCTransport[i], false);
+usbMIDI.sendSysEx (6, MMCTransport[i]);
+pressed |= (1 << i);
+}
+else
+{
+usbMIDI.sendNoteOn (sendNotes[i], 127, channel);
+//midiA.sendNoteOn (sendNotes[i], 127, channel);
+//midiB.sendNoteOn (sendNotes[i], 127, channel);
+pressed |= (1 << i);
+}
+break;
+case 2:
+if (i == 1) {
+usbMIDI.sendPolyPressure (20, 1, 1);
+usbMIDI.sendPolyPressure (21, 1, 1);
+pressed |= (1 << i);
+}
+else if (i == 0) {
+usbMIDI.sendPolyPressure (20, 1, 1);
+usbMIDI.sendPolyPressure (19, 1, 1);
+pressed |= (1 << i);
+}
+else if (i == 2) {
+usbMIDI.sendPolyPressure (19, 1, 1);
+pressed |= (1 << i);
+}
+else if (i == 3) {
+usbMIDI.sendPolyPressure (21, 1, 1);
+pressed |= (1 << i);
+}
+else {
+usbMIDI.sendPolyPressure (sendFPPdata[i], 1, 1);
+pressed |= (1 << i);
+}
+break;
+case 3:
+Keyboard.press(sendKeys [i] | (0x40 << 8));
+pressed |= (1 << i);
+break;
+}
+}
+}
+else {
+if ((pressed & (1 << i)))
+{
+switch (choice)
+{
+case 1:
+if (i < 8) {pressed &= ~(1 << i); }
+else
+{
+usbMIDI.sendNoteOff (sendNotes[i], 0, channel);
+//midiA.sendNoteOn (sendNotes[i], 0, channel);
+//midiB.sendNoteOn (sendNotes[i], 0, channel);
+pressed &= ~(1 << i);
+}
+break;
+case 2:
+if (i == 1) {
+usbMIDI.sendPolyPressure (20, 0, 1);
+usbMIDI.sendPolyPressure (21, 0, 1);
+pressed &= ~(1 << i);
+}
+else if (i == 0) {
+usbMIDI.sendPolyPressure (20, 0, 1);
+usbMIDI.sendPolyPressure (19, 0, 1);
+pressed &= ~(1 << i);
+}
+else if (i == 2) {
+usbMIDI.sendPolyPressure (19, 0, 1);
+pressed &= ~(1 << i);
+}
+else if (i == 3) {
+usbMIDI.sendPolyPressure (21, 0, 1);
+pressed &= ~(1 << i);
+}
+else {
+usbMIDI.sendPolyPressure (sendFPPdata[i], 0, 1);
+pressed &= ~(1 << i);
+}
+break;
+case 3:
+Keyboard.release(sendKeys [i] | (0x40 << 8));
+pressed &= ~(1 << i);
+break;
+}
+}
+}
 }
 
-void Fader::Halt (int dirP, int pwmP)
-{
-  digitalWrite(dirP, HIGH);
-  analogWrite(pwmP, 0);
 }
 
-void Fader::PinWrite ()
+
+
+
+
+void Controller::rotaryWrite()
+{ 
+
+noInterrupts();
+if (rotaryCount != oldRotaryCount) {
+oldRotaryCount = rotaryCount;
+rotaryData <<= 2; //remember previous state
+for (int i = 0; i < 2; i++)
 {
-  sendMSB = currentPinRead >> 3;
-  sendLSB = currentPinRead & 0x00F;
-  usbMIDI.sendControlChange (0, sendMSB, 1);
-  //delay(1); // 500 micros is probably better here??? is it even needed??
-  usbMIDI.sendControlChange (32, sendLSB, 1);
+rotaryArray[i] <<= 1;
+rotaryArray[i] |= ((rotaryRaw >> i) & 0x001);
+
+if ( (rotaryArray[i] & 0x01F ) == 0x01F) {
+rotaryData |= (1 << i);
+}
+else if ( (rotaryArray[i] & 0x01F) == 0x000) {
+rotaryData &= ~(1 << i);
 }
 
-void Switches::RW (uint8_t chan, uint8_t cho)
-{
-  noInterrupts();
-  int pre = Switches::pressed;
-  int rel = Switches::released;
-  interrupts();
-  for (int i = 0; i < NUM_INPUT_SWITCHES; i++)
-  {
-    if (pre & (1 << i))
-    {
-      if  (!(mask & (1 << i) ))
-      {
-        switch (cho)
-        {
-          case 1:
-            if (i < 8) {
-             //midiA.sendSysEx (6, MMCTransport[i], false);
-             //midiB.sendSysEx (6, MMCTransport[i], false);
-             usbMIDI.sendSysEx (6, MMCTransport[i]);
-             mask |= (1 << i);
-           }
-           else 
-            {
-              usbMIDI.sendNoteOn (sendNotes[i], 127, chan);
-              //midiA.sendNoteOn (sendNotes[i], 127, chan);
-              //midiB.sendNoteOn (sendNotes[i], 127, chan);
-              mask |= (1 << i);
-            }
-            break;
-          case 2:
-            if (i == 1) {
-              usbMIDI.sendPolyPressure (20, 1, 1);
-              usbMIDI.sendPolyPressure (21, 1, 1);
-              mask |= (1 << i);
-            }
-            else if (i == 0) {
-              usbMIDI.sendPolyPressure (20, 1, 1);
-              usbMIDI.sendPolyPressure (19, 1, 1);
-              mask |= (1 << i);
-            }
-            else if (i == 2) {
-              usbMIDI.sendPolyPressure (19, 1, 1);
-              mask |= (1 << i);
-            }
-            else if (i == 3) {
-              usbMIDI.sendPolyPressure (21, 1, 1);
-              mask |= (1 << i);
-            }
-            else    {
-              usbMIDI.sendPolyPressure (sendFPPdata[i], 1, 1);
-              mask |= (1 << i);
-            }
-            break;
-          case 3:
-            Keyboard.press(sendKeys [i] | (0x40 << 8));
-            mask |= (1 << i);
-            break;
-        }
-      }
-    }
-    else if (rel & (1 << i)) {
-      if ((mask & (1 << i)))
-      {
-        switch (cho)
-        {
-          case 1:
-           if (i < 8) {mask &= ~(1 << i); }
-              
-             else 
-            {
-              usbMIDI.sendNoteOff (sendNotes[i], 0, chan);
-              //midiA.sendNoteOn (sendNotes[i], 0, chan);
-              //midiB.sendNoteOn (sendNotes[i], 0, chan);
-              mask &= ~(1 << i);
-            }
-            break;
-          case 2:
-            if (i == 1) {
-              usbMIDI.sendPolyPressure (20, 0, 1);
-              usbMIDI.sendPolyPressure (21, 0, 1);
-              mask &= ~(1 << i);
-            }
-            else if (i == 0) {
-              usbMIDI.sendPolyPressure (20, 0, 1);
-              usbMIDI.sendPolyPressure (19, 0, 1);
-              mask &= ~(1 << i);
-            }
-            else if (i == 2) {
-              usbMIDI.sendPolyPressure (19, 0, 1);
-              mask &= ~(1 << i);
-            }
-            else if (i == 3) {
-              usbMIDI.sendPolyPressure (21, 0, 1);
-              mask &= ~(1 << i);
-            }
-            else    {
-              usbMIDI.sendPolyPressure (sendFPPdata[i], 0, 1);
-              mask &= ~(1 << i);
-            }
-            break;
-          case 3:
-            Keyboard.release(sendKeys [i] | (0x40 << 8));
-            mask &= ~(1 << i);
-            break;
-        }
-      }
-    }
-  }
 }
 
-uint8_t Rotary::rotaryUpdate (uint8_t chan, uint8_t cho)
+if (rotaryCount==4){
+rotaryCount = 0;
+interrupts();
+rotaryState = ( enc_states[(rotaryData & 0x0F )]);
+if (rotaryState > 0)
 {
-  noInterrupts();
-  readin = ( enc_states[( readout & 0x0F )]);
-  if (rotaryState) {
-    rotaryState = false;
-    count += 1;
-  }
-  interrupts();
-  if (count == 2) {
-    count = 0;
-    chan = Rotary::RW (chan, cho);
-  }
-  return chan;
+switch (choice)
+{
+case 1: channel++; if (channel > 16)
+{
+channel = 16;
+}
+break;
+case 2: usbMIDI.sendPitchBend (-8192, 1);
+break;
+case 3: Keyboard.press(KEY_LEFT | (0x40 << 8));
+Keyboard.release(KEY_LEFT | (0x40 << 8));
+break;
+}
+}
+if (rotaryState < 0)
+{
+switch (choice)
+{
+case 1: channel--; if (channel < 1)
+{
+channel = 1;
+}
+break;
+case 2: usbMIDI.sendPitchBend (0, 1);
+break;
+case 3: Keyboard.press(KEY_RIGHT | (0x40 << 8));
+Keyboard.release(KEY_RIGHT | (0x40 << 8));
+break;
+}
 }
 
-uint8_t Rotary::RW (uint8_t chan, uint8_t cho)
-{
-  if (readin > 0)
-  {
-    switch (cho)
-    {
-      case 1: chan++; if (chan > 16)
-        {
-          chan = 16;
-        }
-        break;
-      case 2:  usbMIDI.sendPitchBend (-8192, 1);
-        break;
-      case 3:      Keyboard.press(KEY_LEFT | (0x40 << 8));
-        Keyboard.release(KEY_LEFT | (0x40 << 8));
-        break;
-    }
-  }
-  if (readin < 0)
-  {
-    switch (cho)
-    {
-      case 1: chan--; if (chan < 1)
-        {
-          chan = 1;
-        }
-        break;
-      case 2:  usbMIDI.sendPitchBend (0, 1);
-        break;
-      case 3: Keyboard.press(KEY_RIGHT | (0x40 << 8));
-        Keyboard.release(KEY_RIGHT | (0x40 << 8));
-        break;
-    }
-  }
-  return chan;
 }
 
+
+}
+
+
+}
 
