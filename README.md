@@ -18,7 +18,7 @@ MODE1.MidiController/USB Midi interface.
 MODE2.Faderport clone. 
 MODE3.MAME controller. 
 
-Because MAME uses keystrokes, a custom usb type of keyboard/midi is needed. To make a custom usb type, replace your current usb_desc.h file with the one in the repository. Usb_desc.h is found in: 
+Because MAME uses keystrokes, a custom usb type of keyboard/midi is needed. To make a custom usb type, replace your current usb_desc.h file with the one in the repository. The current usb_desc.h is found in: 
 
 Arduino/hardware/teensy/avr/cores/teensy3/
 
