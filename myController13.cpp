@@ -99,7 +99,7 @@ o->currentUSBRead = (readMSB << 7) | (readLSB & 0x07F);
 static void RotaryRead (void)
 {
 Controller *o = Cptr;
-o->rotaryRaw = GPIOB_PDIR | (1 << 3) ;
+o->rotaryRaw = (GPIOB_PDIR  & 3)| (1 << 3) ;
 o->rotaryCount++;
 }
 
