@@ -7,7 +7,7 @@ OR
 1 L298N HBridge (or similar) with 3.3V logic 
 1 Joystick (4 switches) and 9 other switches / buttons
 
-1 x 1 USB Midi interface (see pjrc.com/
+1 x 1 Midi interface (see https://www.pjrc.com/teensy/td_libs_MIDI.html)
 
 A Teensy 3.x!
 
@@ -29,6 +29,8 @@ Then, use the MIDI type in the Arduino IDE dropdown USB Type menu for
 compiling.
 
 Also, Arduino MIDI 4.2 library is required, if using the Midi interface.
+
+The myController13.h and .cpp go in your arduino libraries folder
 
 See notes in the example .ino.
 
