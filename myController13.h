@@ -10,7 +10,8 @@ class Controller
     volatile uint16_t switchesRaw = 0x000;
     volatile uint16_t rotaryRaw = 0x000;
 volatile uint8_t rotaryCount = 0x000;    
-volatile uint16_t currentUSBRead = 0x000;
+volatile uint8_t faderCount = 0x000;    
+volatile uint16_t currentUSBRead = 600;
     volatile uint16_t hystPinRead;
     volatile uint16_t touchPinRead;
 
@@ -22,7 +23,8 @@ volatile uint16_t currentUSBRead = 0x000;
     int touchPin = 19;
 
   private: 
-    uint8_t switchesArray [13] = {0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007};
+void Motor();    
+uint8_t switchesArray [13] = {0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007};
     uint16_t switchesData;       
     uint16_t pressed = 0; // mask
     
@@ -44,11 +46,13 @@ volatile uint16_t currentUSBRead = 0x000;
 
     void faderHalt ();    
     uint16_t currentPinRead = 640;
+uint16_t oldPinRead = 640;
+
     bool touchActive=true;
     uint8_t sendMSB;
     uint8_t sendLSB;
     bool TOUCHSENT = false;
-    
+    uint8_t oldFaderCount; 
     int touch;
     int hyst;
     
