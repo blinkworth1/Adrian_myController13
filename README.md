@@ -28,7 +28,7 @@ Also, Arduino MIDI 4.2 library is required, if using the Midi interface.
 
 See notes in the example .ino.
 
-See the .rtf file in the repository, and the .png for wiring and implementation nfo…
+See the .txt file in the repository, and the .png for wiring and implementation nfo…
 
 
 
