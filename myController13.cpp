@@ -121,10 +121,7 @@ void Controller::faderWrite () {
       Serial.println(touchPinRead);
       TOUCHSENT = true;
     }
-    if ((!(touchActive)) && (TOUCHSENT == true)) {
-      usbMIDI.sendPolyPressure (127, 0, 1);
-      TOUCHSENT = false;
-    }
+    
     if ((touchActive) && (currentPinRead != oldPinRead)) {
       oldPinRead = currentPinRead;
       sendMSB = currentPinRead >> 3;
@@ -136,15 +133,19 @@ void Controller::faderWrite () {
 }
 
 void Controller::Motor() {
-    if (currentPinRead < (currentUSBRead - 150)) {
+    
+if (TOUCHSENT == true) {
+      usbMIDI.sendPolyPressure (127, 0, 1);
+      TOUCHSENT = false;
+    }
+if (currentPinRead < (currentUSBRead - 150)) {
         digitalWrite(dirPin, LOW);
-        Serial.println(String("a") + currentUSBRead);
 #if defined HBRIDGE
         digitalWrite(dirPinU, HIGH)
 #endif
         analogWrite(pwmPin, 167);
       }
-      else if ( (currentPinRead < (currentUSBRead - hyst) ) && (currentPinRead >= (currentUSBRead - 150)) ) {
+      else if ( (currentPinRead < (currentUSBRead - 8) ) && (currentPinRead >= (currentUSBRead - 150)) ) {
         digitalWrite(dirPin, LOW);
 #if defined HBRIDGE
         digitalWrite(dirPinU, HIGH)
@@ -158,7 +159,7 @@ void Controller::Motor() {
 #endif
         analogWrite(pwmPin, 167);
       }
-      else if ( (currentPinRead > (currentUSBRead + hyst) ) && (currentPinRead <= (currentUSBRead + 150)) ) {
+      else if ( (currentPinRead > (currentUSBRead + 8) ) && (currentPinRead <= (currentUSBRead + 150)) ) {
         digitalWrite(dirPin, HIGH);
 #if defined HBRIDGE
         digitalWrite(dirPinU, LOW)
