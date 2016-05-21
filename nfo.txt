@@ -7,9 +7,11 @@ OR
 1 L298N HBridge (or similar) with 3.3V logic 
 1 Joystick (4 switches) and 9 other switches / buttons
 
-1 x 1 USB Midi interface (see pjrc.com/
+1 x 1 Midi interface (see https://www.pjrc.com/teensy/td_libs_MIDI.html)
 
 A Teensy 3.x!
+Frank B's connector board
+macaba's usb B connector board (and a hole-through usb B receptacle)
 
 3 different modes, chosen on startup by button press. Also, chosen in the 
 .ino: the mode select buttons (3,6,4 are default), hysteresis (fader 
@@ -30,6 +32,8 @@ compiling.
 
 Also, Arduino MIDI 4.2 library is required, if using the Midi interface.
 
+The myController13.h and .cpp go in your arduino libraries folder
+
 See notes in the example .ino.
 
 See below for wiring and implementation nfo.
@@ -37,7 +41,7 @@ See below for wiring and implementation nfo.
 Wiring	  Teesny	MODE1		MODE2		MODE3
 Fader1	  3.3V
 Fader3	  AGND
-Fader2	  A14		                Pitchbend	Fader
+Fader2	  A14				Pitchbend	Fader
 FaderT	  19
 
 FaderMotor hooked up as per HBridge or Ardumoto instructions. 
@@ -50,22 +54,22 @@ OR
 Amoto
 Amoto      
 
-JstickD	  2,GND 			TrkDn		KEY_DOWN
-JstickU	  14,GND			TrkUp		KEY_UP 
-JstickL	  7,GND 			TrkL		KEY_LEFT
-JstickR	  8,GND				TrkR		KEY_RIGHT 
-SWTCH3	  15,GND			6		KEY_A
-SWTCH2	  22,GND			1		KEY_B 
-SWTCH5	  23,GND 			5		KEY_C
-SWTCH1	  18,GND			3		KEY_D		 
-SWTCH4	  11,GND 			4		KEY_E
-RtrySWTCH 5,GND				7		KEY_ENTER
-Sselect3  4,GND 			10		KEY_M
-Sselect1  3,GND				9		KEY_F1
-Sselect2  6,GND				8		KEY_F5
+JstickD	  22,GND 			TrkDn		KEY_DOWN
+JstickU	  23,GND			TrkUp		KEY_UP 
+JstickL	  9,GND 			TrkL		KEY_LEFT
+JstickR	  10,GND			TrkR		KEY_RIGHT 
+SWTCH3	  13,GND			6		KEY_A
+SWTCH2	  11,GND			1		KEY_B 
+SWTCH5	  12,GND 			5		KEY_C
+SWTCH1	  28,GND			3		KEY_D		 
+SWTCH4	  27,GND 			4		KEY_E
+RtrySWTCH 16,GND			7		KEY_ENTER
+Sselect3  17,GND 			10		KEY_M
+Sselect1  19,GND			9		KEY_F1
+Sselect2  18,GND			8		KEY_F5
+
 RtryL					PanL
 RtryR					PanR
-
 
 MMCSTOP, MMCPLAY, MMCFFWD, MMCRWD, MMCPUNCHIN, MMCPUNCHOUT, MMCPAUSE
 
