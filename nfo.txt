@@ -34,7 +34,6 @@ Also, Arduino MIDI 4.2 library is required, if using the Midi interface.
 
 The myController13.h and .cpp go in your arduino libraries folder
 
-See notes in the example .ino.
 
 See below for wiring and implementation nfo.
 
