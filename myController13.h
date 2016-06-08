@@ -4,14 +4,17 @@
 
 class Controller
 {
-  public:
-    
+  public: 
     void begin (int, int, int, int, int);
     volatile uint16_t switchesRaw = 0x000;
-    volatile uint16_t rotaryRaw = 0x000;
+ 
+
+volatile uint8_t rotaryAraw = 0; 
+uint8_t rotaryBraw = 0;
 volatile uint8_t rotaryCount = 0x000;    
 volatile uint8_t faderCount = 0x000;    
-volatile uint16_t currentUSBRead = 600;
+volatile uint16_t rotaryData = 0x000;
+uint16_t currentUSBRead = 600;
     volatile uint16_t hystPinRead;
     volatile uint16_t touchPinRead;
 
@@ -20,7 +23,7 @@ volatile uint16_t currentUSBRead = 600;
     void rotaryWrite();
     
     int wiperPin = A14;
-    int touchPin = 19;
+    int touchPin = 33;
 
   private: 
 void Motor();    
@@ -40,14 +43,13 @@ uint8_t switchesArray [13] = {0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0
     //MAME keys for arcade control DEFENDER
     //KEY_M is my key in the MAME UI for 'escape' key...
     
-    const int sendNotes [13] {0, 0, 0, 0, 0, 0, 0, 70, 71, 72, 73, 74, 75};
+    const int sendNotes [NUM_SWITCHES] {0, 0, 0, 0, 0, 0, 0, 70, 71, 72, 73, 74, 75};
 
-    const int sendFPPdata [13]{0,0,0,0,6,1,5,3,4,7,10,9,8}; //last one needs to be changed to SHIFT
+    const int sendFPPdata [NUM_SWITCHES]{0,0,0,0,6,1,5,3,4,7,10,9,8}; //last one needs to be changed to SHIFT
 
     void faderHalt ();    
     uint16_t currentPinRead = 640;
-uint16_t oldPinRead = 640;
-
+    uint16_t oldPinRead = 640;
     bool touchActive=true;
     uint8_t sendMSB;
     uint8_t sendLSB;
@@ -55,23 +57,26 @@ uint16_t oldPinRead = 640;
     uint8_t oldFaderCount; 
     int touch;
     int hyst;
-    
-uint8_t rotaryArray [2] = {0x01F, 0x01F};
-uint16_t rotaryData = 0x000;
-uint8_t oldRotaryCount = 0x000; 
+    uint16_t oldUSBRead; 
+uint8_t RDDB;
+uint8_t currentRotaryCount; 
+uint8_t oldRotaryCount; 
+uint8_t rotaryA = 0; 
+uint8_t rotaryB = 0;
 const int8_t enc_states[16] {0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0};
-uint16_t rotaryState;
+int rotaryState;
 uint8_t choice;
     uint8_t channel = 1;
    // uint8_t oldchannel = 1;
    // byte CHOICE [7] {240,127,127,127,0,0,247};
   
   
-    const uint8_t switchesPinTable [15] {2, 14, 7, 8, 6, 15, 22, 23, 18, 3, 4, 5, 11, 16, 17}; //16 and 17 are the rotary
+    const uint8_t switchesPinTable [15] {22, 23, 9, 10, 13, 11, 12, 28, 27, 16, 17, 19, 18, 2, 14}; 
+// 2 and 14 are the rotary inputs
     int switchesNo = NUM_SWITCHES;    
-    int pwmPin = 20;
-    int dirPin = 21;
-    int dirPinU = 9;
+    int pwmPin = 21;
+    int dirPin = 20;
+    int dirPinU = 15;
 };
 
 

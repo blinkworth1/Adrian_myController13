@@ -1,21 +1,18 @@
 1 Rotary encoder, with pushbutton switch (Adafruit 24 step)
-
-1 Motorised fader, linear 10K from Sparkfun
-
-1 Ardumoto controller (3.3V logic) from Sparkfun 
-OR 
+1 Motorised fader, linear 10K from Sparkfun 
 1 L298N HBridge (or similar) with 3.3V logic 
 1 Joystick (4 switches) and 9 other switches / buttons
 
-1 x 1 Midi interface (see https://www.pjrc.com/teensy/td_libs_MIDI.html)
+2 x 2 Midi interface (see https://www.pjrc.com/teensy/td_libs_MIDI.html)
 
-A Teensy 3.x!
-Frank B's connector board
-macaba's usb B connector board (and a hole-through usb B receptacle)
+A Teensy 3.2!
+Frank B's connector board (see https://oshpark.com/shared_projects/0T6ZdhhG)
+macaba's usb B connector board (see https://oshpark.com/shared_projects/eDlPs3sD) 
+a hole-through usb B receptacle
 
 3 different modes, chosen on startup by button press. Also, chosen in the 
-.ino: the mode select buttons (3,6,4 are default), hysteresis (fader 
-deadspot), touch sensitivity (fader touch sensitivity), and HBridge mode.
+.ino: the mode select buttons (17,19,18 are default), hysteresis (fader 
+deadspot), touch sensitivity (fader touch sensitivity).
 
 MODE1.MidiController/USB Midi interface. 
 MODE2.Faderport clone. 
@@ -23,16 +20,16 @@ MODE3.MAME controller.
 
 Because MAME uses keystrokes, a custom usb type of keyboard/midi is needed. 
 To make a custom usb type, replace your current usb_desc.h file with the 
-one in the repository. Usb_desc.h is found in: 
+one in the repository. On Windows 7, usb_desc.h is found in: 
 
 Arduino/hardware/teensy/avr/cores/teensy3/
 
 Then, use the MIDI type in the Arduino IDE dropdown USB Type menu for 
 compiling.
 
-Also, Arduino MIDI 4.2 library is required, if using the Midi interface.
+Also, Arduino MIDI 4.2 library is required, in your arduino libraries folder, if using the Midi interface.
 
-The myController13.h and .cpp go in your arduino libraries folder
+The myController13.h and .cpp go in your arduino libraries folder, too, in a folder named "myCOntroller13".
 
 
 See below for wiring and implementation nfo.
