@@ -1,6 +1,6 @@
 1 Rotary encoder, with pushbutton switch (Adafruit 24 step)
 1 Motorised fader, linear 10K from Sparkfun 
-1 L298N HBridge (or similar) with 3.3V logic 
+1 L298N HBridge (or similar) with 3.3V logic and a 9v power supply 
 1 Joystick (4 switches) and 9 other switches / buttons
 
 2 x 2 Midi interface (see https://www.pjrc.com/teensy/td_libs_MIDI.html)
@@ -33,14 +33,9 @@ Fader1	  3.3V
 Fader3	  AGND
 Fader2	  A14		Pitchbend	FaderPort
 FaderT	  33
-
-FaderMotor hooked up as per HBridge or instructions. 
-NOTE: you will need at least 9V, and more amperage than a battery can supply
-
 HBrdgEN
 HBrdgI1
 HBrdgI2
-
 JstickD   22,GND			TrkDn		KEY_DOWN
 JstickU	  23,GND			TrkUp		KEY_UP 
 JstickL	  9,GND 			TrkL		KEY_LEFT
@@ -54,17 +49,10 @@ RtrySWTCH 16,GND			7       	KEY_ENTER
 Sselect3  17,GND 			10      	KEY_M
 Sselect1  19,GND			9       	KEY_F1
 Sselect2  18,GND			8       	KEY_F5
-
 RtryL     2		PanL
 RtryR     14		PanR
 
 MMCSTOP, MMCPLAY, MMCFFWD, MMCRWD, MMCPUNCHIN, MMCPUNCHOUT, MMCPAUSE
-
-Fader
-
-MODE1     Pitchbend
-MODE2     10 bit messages MSB CC 00 (3bits) LSB CC 32 (7bits)
-MODE3     N/A
 
 
 
