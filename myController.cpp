@@ -100,7 +100,7 @@ void Switches::SetHandleB13OFF(void(*fptr) (void)) {
 	switchesPointersOFF[12] = fptr;
 }
 void Switches::ReadWrite() {
-	if ((SwitchesTimer - 333) > 0) {
+	if ((SwitchesTimer - 301) > 0) {
 		SwitchesTimer = 0;
 		SwitchesRead();
 		for (int i = 0; i < Sobj->numberOfSwitches; i++)
@@ -158,7 +158,7 @@ void Rotary::SetHandleRight (void (*Right) (void)) {
 }
 
 void Rotary::ReadWrite() {
-	if ((RotaryTimer - 425) >= 0) {
+	if ((RotaryTimer - 399) >= 0) {
 		RotaryTimer = 0;
 		RotaryRead();
 		for (int i = 0; i < 4; i++) {
@@ -168,16 +168,16 @@ void Rotary::ReadWrite() {
 				RobjArray[i]->rotaryA |= RobjArray[i]->rotaryAraw;
 				RobjArray[i]->rotaryB |= RobjArray[i]->rotaryBraw;
 				RobjArray[i]->RDDB = 0;
-				RobjArray[i]->rotaryA &= 0x01F;
-				RobjArray[i]->rotaryB &= 0x01F;
-				if (RobjArray[i]->rotaryA == 31) {
+				RobjArray[i]->rotaryA &= 0x0F;
+				RobjArray[i]->rotaryB &= 0x0F;
+				if (RobjArray[i]->rotaryA == 15) {
 					RobjArray[i]->RDDB = 1;
 				}
 				else if (RobjArray[i]->rotaryA == 0) {}
 				else {
 					return;
 				}
-				if (RobjArray[i]->rotaryB == 31) {
+				if (RobjArray[i]->rotaryB == 15) {
 					RobjArray[i]->RDDB |= (1 << 1);
 				}
 				else if (RobjArray[i]->rotaryB == 0) {}
