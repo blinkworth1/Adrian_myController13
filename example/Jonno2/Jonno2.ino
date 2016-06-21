@@ -55,7 +55,7 @@ Switches Buttons (6);// 6 is the number of switches ... in the following order .
   Button2     22
   Button3     9
   Button4     10
-  Button5     13
+  Button5     7
   Button6     11
    etc.      etc.
  ************************/
@@ -91,25 +91,24 @@ void slider4Inc (int);
 void slider4Dec (int);
 
 /*Pointer Assignments*/
-const char * ZERODisplayUpdate = "ZERO";
-const char * ONEDisplayUpdate = "ONE";
-const char * BIASFXDisplayUpdate = "BIASFX";
-const char * AMPLITUDEDisplayUpdate = "AMPLITUDE";
+const char Zero[] = "ZERO";
+const char One [] = "ONE";
+const char Biasfx[]= "BIASFX";
+const char Amplitude[] = "AMPLITUDE";
 const char * presetArrayDisplayUpdate [4] {
-  ZERODisplayUpdate, ONEDisplayUpdate, BIASFXDisplayUpdate, AMPLITUDEDisplayUpdate
-};
-const char *B1DisplayUpdate = "B1";
-const char *B2DisplayUpdate = "B2";
-const char *B3DisplayUpdate = "B3";
-const char *B4DisplayUpdate = "B4";
-const char *S1DisplayUpdate = "S1";
-const char *S2DisplayUpdate = "S2";
-const char *S3DisplayUpdate = "S3";
-const char *S4DisplayUpdate = "S4";
+  Zero, One, Biasfx, Amplitude
+  };
+const char Butt1[] = "B1";
+const char Butt2[] = "B2";
+const char Butt3[] = "B3";
+const char Butt4[] = "B4";
+const char Sli1[] = "S1";
+const char Sli2[] = "S2";
+const char Sli3[] = "S3";
+const char Sli4[] = "S4";
 const char *peripheralArrayDisplayUpdate [8] {
-  B1DisplayUpdate, B2DisplayUpdate, B3DisplayUpdate, B4DisplayUpdate,
-  S1DisplayUpdate, S2DisplayUpdate, S3DisplayUpdate, S4DisplayUpdate
-};
+  Butt1, Butt2, Butt3, Butt4, Sli1, Sli2, Sli3, Sli4
+  };
 const char alpha [] {65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80};
 
 /*Menu structure*/
@@ -183,7 +182,7 @@ void loop() {
 void presetDisplayUpdate (void) {
   display.clearDisplay();
   display.setCursor(0, 0);
-  display.println(*(presetArrayDisplayUpdate [PRESET]) );
+  display.println(presetArrayDisplayUpdate [PRESET]);
   switch (PRESET) {
     case ZERO:
       display.println (program);
@@ -201,8 +200,8 @@ void presetDisplayUpdate (void) {
 void peripheralDisplayUpdate (void) {
   display.clearDisplay();
   display.setCursor(0, 0);
-  display.println(*(peripheralArrayDisplayUpdate [PERIPHERAL]) );
-  display.println (CCnumber); // TODO preset numbers displays
+  display.println(peripheralArrayDisplayUpdate [PERIPHERAL]);
+  display.println (CCnumber);
   display.display();
 }
 
@@ -225,6 +224,7 @@ void SelectRelease (void) {
   switch (ENCMODE) {
     case PROG:
       if ((switchesPressTimer - 1200) > 0) {
+        switchesPressTimer = 0;
         midiA.sendProgramChange (program, 1);
         display.clearDisplay();
         display.setCursor(0, 0);
@@ -244,8 +244,9 @@ void EditPress (void) {
 }
 void EditRelease (void) {
   if ((switchesPressTimer - 3500) > 0) {
+    switchesPressTimer = 0;
     ENCMODE = EDITMENU;
-    //code to display the fucking menu
+    ms.display ();
   }
   else {
     ENCMODE = PROG;
@@ -313,7 +314,7 @@ void Left (void) {
         CCnumber = 127;
       }
       peripheralDisplayUpdate();
-      break; //MUST FINSIH MENU SYSTEM
+      break;
   }
 }
 void Right (void) {
