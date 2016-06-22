@@ -38,14 +38,16 @@ bool stomp3 = false;
 bool stomp4 = false;
 int program = 0;
 uint8_t CCnumber = 0;
+uint8_t lcount;
+uint8_t rcount;
 uint8_t storedCCnumber [] {0, 1, 2, 3, 4, 5, 6, 7};
 RotaryMode ENCMODE = PROG;
 Preset PRESET = ZERO;
 peripheral PERIPHERAL;
-Fader slider1 (A1, 3); //Teensy pin and jitter suppression amount
-Fader slider2 (A2, 3);
-Fader slider3 (A3, 3);
-Fader slider4 (A6, 3);
+Fader slider1 (A1, 5); //Teensy pin and jitter suppression amount
+Fader slider2 (A2, 5);
+Fader slider3 (A3, 5);
+Fader slider4 (A6, 5);
 Rotary encoder1 (2, 6); // 2 and 6 are Teensy pin numbers, left and right
 Switches Buttons (6);// 6 is the number of switches ... in the following order ...
 
@@ -93,11 +95,11 @@ void slider4Dec (int);
 /*Pointer Assignments*/
 const char Zero[] = "ZERO";
 const char One [] = "ONE";
-const char Biasfx[]= "BIASFX";
+const char Biasfx[] = "BIASFX";
 const char Amplitude[] = "AMPLITUDE";
 const char * presetArrayDisplayUpdate [4] {
   Zero, One, Biasfx, Amplitude
-  };
+};
 const char Butt1[] = "B1";
 const char Butt2[] = "B2";
 const char Butt3[] = "B3";
@@ -108,7 +110,7 @@ const char Sli3[] = "S3";
 const char Sli4[] = "S4";
 const char *peripheralArrayDisplayUpdate [8] {
   Butt1, Butt2, Butt3, Butt4, Sli1, Sli2, Sli3, Sli4
-  };
+};
 const char alpha [] {65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80};
 
 /*Menu structure*/
@@ -298,44 +300,60 @@ void Stomp4ON(void) {
 void Left (void) {
   switch (ENCMODE) {
     case PROG:
-      program--;
-      if (program <= -1) {
-        program = 127;
+      lcount++;
+      if (lcount > 3) {
+        lcount = 0;
+        program--;
+        if (program <= -1) {
+          program = 127;
+        }
+        presetDisplayUpdate ();
       }
-      presetDisplayUpdate ();
       break;
     case EDITMENU:
       ms.prev ();
       ms.display ();
       break;
     case CC:
-      CCnumber--;
-      if (CCnumber <= -1) {
-        CCnumber = 127;
+      lcount++;
+      if (lcount > 3) {
+        lcount = 0;
+        CCnumber--;
+        if (CCnumber <= -1) {
+          CCnumber = 127;
+        }
+        peripheralDisplayUpdate();
       }
-      peripheralDisplayUpdate();
       break;
   }
 }
 void Right (void) {
   switch (ENCMODE) {
     case PROG:
-      program++;
-      if (program >= 128) {
-        program = 0;
+      rcount++;
+      if (rcount > 3) {
+        lcount = 0;
+        program++;
+        if (program >= 128) {
+          program = 0;
+        }
+        presetDisplayUpdate ();
       }
-      presetDisplayUpdate ();
       break;
     case EDITMENU:
       ms.next ();
       ms.display ();
       break;
     case CC:
-      CCnumber++;
-      if (CCnumber >= 128) {
-        CCnumber = 0;
+      rcount++;
+      if (rcount > 3) {
+        lcount = 0;
+        CCnumber++;
+        if (CCnumber >= 128) {
+          CCnumber = 0;
+        }
+        peripheralDisplayUpdate();
       }
-      peripheralDisplayUpdate();
       break;
   }
 }
