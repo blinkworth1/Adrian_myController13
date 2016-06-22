@@ -158,7 +158,7 @@ void Rotary::SetHandleRight (void (*Right) (void)) {
 }
 
 void Rotary::ReadWrite() {
-	if ((RotaryTimer - 399) >= 0) {
+	if ((RotaryTimer - 389) >= 0) {
 		RotaryTimer = 0;
 		RotaryRead();
 		for (int i = 0; i < 4; i++) {
@@ -168,16 +168,16 @@ void Rotary::ReadWrite() {
 				RobjArray[i]->rotaryA |= RobjArray[i]->rotaryAraw;
 				RobjArray[i]->rotaryB |= RobjArray[i]->rotaryBraw;
 				RobjArray[i]->RDDB = 0;
-				RobjArray[i]->rotaryA &= 0x0F;
-				RobjArray[i]->rotaryB &= 0x0F;
-				if (RobjArray[i]->rotaryA == 15) {
+				RobjArray[i]->rotaryA &= 0x07;
+				RobjArray[i]->rotaryB &= 0x07;
+				if (RobjArray[i]->rotaryA == 7) {
 					RobjArray[i]->RDDB = 1;
 				}
 				else if (RobjArray[i]->rotaryA == 0) {}
 				else {
 					return;
 				}
-				if (RobjArray[i]->rotaryB == 15) {
+				if (RobjArray[i]->rotaryB == 7) {
 					RobjArray[i]->RDDB |= (1 << 1);
 				}
 				else if (RobjArray[i]->rotaryB == 0) {}
