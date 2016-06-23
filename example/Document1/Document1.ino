@@ -62,7 +62,7 @@ void presetDisplayUpdate (void) {
 
 /*Rotary Callbacks*/
 void Left (void) {
-  lcount++
+  lcount++;
   if (lcount > 3){
 lcount = 0;
   program--;
@@ -73,7 +73,7 @@ lcount = 0;
   }
 }
 void Right (void) {
-  rcount++
+  rcount++;
   if (lcount > 3){
     rcount=0;
   program++;
