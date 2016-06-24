@@ -5,7 +5,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 //#include <Adafruit_ssd1306syp.h>
-#include <MenuSystem.h>
+//#include <MenuSystem.h>
 #include "MyRenderer.h"
 #include <myController.h>
 //#define SDA_PIN 4
@@ -15,14 +15,16 @@
 /*TO USE i2C you have to jumper the back of the display,
   as per the adafruit instructions.
   Pins are 18, 19, 4, as below
-*/
+
 
 #define OLED_DATA   18
 #define OLED_CLK    19
 #define OLED_RESET  4
 
 Adafruit_SSD1306 display(OLED_RESET);
+*/
 
+extern Adafruit_SSD1306 display;
 MyRenderer my_renderer;
 MenuSystem ms(my_renderer);
 //Adafruit_ssd1306syp display(SDA_PIN, SCL_PIN);
@@ -38,16 +40,14 @@ bool stomp3 = false;
 bool stomp4 = false;
 int program = 0;
 uint8_t CCnumber = 0;
-uint8_t lcount;
-uint8_t rcount;
 uint8_t storedCCnumber [] {0, 1, 2, 3, 4, 5, 6, 7};
 RotaryMode ENCMODE = PROG;
 Preset PRESET = ZERO;
 peripheral PERIPHERAL;
-Fader slider1 (A1, 5); //Teensy pin and jitter suppression amount
-Fader slider2 (A2, 5);
-Fader slider3 (A3, 5);
-Fader slider4 (A6, 5);
+Fader slider1 (A1, 3); //Teensy pin and jitter suppression amount
+Fader slider2 (A2, 3);
+Fader slider3 (A3, 3);
+Fader slider4 (A6, 3);
 Rotary encoder1 (2, 6); // 2 and 6 are Teensy pin numbers, left and right
 Switches Buttons (6);// 6 is the number of switches ... in the following order ...
 
@@ -57,7 +57,7 @@ Switches Buttons (6);// 6 is the number of switches ... in the following order .
   Button2     22
   Button3     9
   Button4     10
-  Button5     7
+  Button5     13
   Button6     11
    etc.      etc.
  ************************/
@@ -93,23 +93,24 @@ void slider4Inc (int);
 void slider4Dec (int);
 
 /*Pointer Assignments*/
-const char Zero[] = "ZERO";
-const char One [] = "ONE";
-const char Biasfx[] = "BIASFX";
-const char Amplitude[] = "AMPLITUDE";
+const char * ZERODisplayUpdate = "ZERO";
+const char * ONEDisplayUpdate = "ONE";
+const char * BIASFXDisplayUpdate = "BIASFX";
+const char * AMPLITUDEDisplayUpdate = "AMPLITUDE";
 const char * presetArrayDisplayUpdate [4] {
-  Zero, One, Biasfx, Amplitude
+  ZERODisplayUpdate, ONEDisplayUpdate, BIASFXDisplayUpdate, AMPLITUDEDisplayUpdate
 };
-const char Butt1[] = "B1";
-const char Butt2[] = "B2";
-const char Butt3[] = "B3";
-const char Butt4[] = "B4";
-const char Sli1[] = "S1";
-const char Sli2[] = "S2";
-const char Sli3[] = "S3";
-const char Sli4[] = "S4";
+const char *B1DisplayUpdate = "B1";
+const char *B2DisplayUpdate = "B2";
+const char *B3DisplayUpdate = "B3";
+const char *B4DisplayUpdate = "B4";
+const char *S1DisplayUpdate = "S1";
+const char *S2DisplayUpdate = "S2";
+const char *S3DisplayUpdate = "S3";
+const char *S4DisplayUpdate = "S4";
 const char *peripheralArrayDisplayUpdate [8] {
-  Butt1, Butt2, Butt3, Butt4, Sli1, Sli2, Sli3, Sli4
+  B1DisplayUpdate, B2DisplayUpdate, B3DisplayUpdate, B4DisplayUpdate,
+  S1DisplayUpdate, S2DisplayUpdate, S3DisplayUpdate, S4DisplayUpdate
 };
 const char alpha [] {65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80};
 
@@ -184,7 +185,7 @@ void loop() {
 void presetDisplayUpdate (void) {
   display.clearDisplay();
   display.setCursor(0, 0);
-  display.println(presetArrayDisplayUpdate [PRESET]);
+  display.println(*(presetArrayDisplayUpdate [PRESET]) );
   switch (PRESET) {
     case ZERO:
       display.println (program);
@@ -202,8 +203,8 @@ void presetDisplayUpdate (void) {
 void peripheralDisplayUpdate (void) {
   display.clearDisplay();
   display.setCursor(0, 0);
-  display.println(peripheralArrayDisplayUpdate [PERIPHERAL]);
-  display.println (CCnumber);
+  display.println(*(peripheralArrayDisplayUpdate [PERIPHERAL]) );
+  display.println (CCnumber); // TODO preset numbers displays
   display.display();
 }
 
@@ -226,7 +227,6 @@ void SelectRelease (void) {
   switch (ENCMODE) {
     case PROG:
       if ((switchesPressTimer - 1200) > 0) {
-        switchesPressTimer = 0;
         midiA.sendProgramChange (program, 1);
         display.clearDisplay();
         display.setCursor(0, 0);
@@ -246,9 +246,8 @@ void EditPress (void) {
 }
 void EditRelease (void) {
   if ((switchesPressTimer - 3500) > 0) {
-    switchesPressTimer = 0;
     ENCMODE = EDITMENU;
-    ms.display ();
+    //code to display the fucking menu
   }
   else {
     ENCMODE = PROG;
@@ -300,60 +299,44 @@ void Stomp4ON(void) {
 void Left (void) {
   switch (ENCMODE) {
     case PROG:
-      lcount++;
-      if (lcount > 3) {
-        lcount = 0;
-        program--;
-        if (program <= -1) {
-          program = 127;
-        }
-        presetDisplayUpdate ();
+      program--;
+      if (program <= -1) {
+        program = 127;
       }
+      presetDisplayUpdate ();
       break;
     case EDITMENU:
       ms.prev ();
       ms.display ();
       break;
     case CC:
-      lcount++;
-      if (lcount > 3) {
-        lcount = 0;
-        CCnumber--;
-        if (CCnumber <= -1) {
-          CCnumber = 127;
-        }
-        peripheralDisplayUpdate();
+      CCnumber--;
+      if (CCnumber <= -1) {
+        CCnumber = 127;
       }
-      break;
+      peripheralDisplayUpdate();
+      break; //MUST FINSIH MENU SYSTEM
   }
 }
 void Right (void) {
   switch (ENCMODE) {
     case PROG:
-      rcount++;
-      if (rcount > 3) {
-        lcount = 0;
-        program++;
-        if (program >= 128) {
-          program = 0;
-        }
-        presetDisplayUpdate ();
+      program++;
+      if (program >= 128) {
+        program = 0;
       }
+      presetDisplayUpdate ();
       break;
     case EDITMENU:
       ms.next ();
       ms.display ();
       break;
     case CC:
-      rcount++;
-      if (rcount > 3) {
-        lcount = 0;
-        CCnumber++;
-        if (CCnumber >= 128) {
-          CCnumber = 0;
-        }
-        peripheralDisplayUpdate();
+      CCnumber++;
+      if (CCnumber >= 128) {
+        CCnumber = 0;
       }
+      peripheralDisplayUpdate();
       break;
   }
 }
