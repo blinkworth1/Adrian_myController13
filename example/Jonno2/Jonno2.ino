@@ -1,13 +1,14 @@
 
+#include "MyRenderer.h"
 #include <MIDI.h> // MIDI 4.2 library
-#include <SPI.h>
+//#include <SPI.h>
 #include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+//#include <Adafruit_GFX.h>
+//#include <Adafruit_SSD1306.h>
 //#include <Adafruit_ssd1306syp.h>
 //#include <MenuSystem.h>
-#include "MyRenderer.h"
 #include <myController.h>
+
 //#define SDA_PIN 4
 //#define SCL_PIN 5
 
@@ -15,17 +16,15 @@
 /*TO USE i2C you have to jumper the back of the display,
   as per the adafruit instructions.
   Pins are 18, 19, 4, as below
-
+*/
 
 #define OLED_DATA   18
 #define OLED_CLK    19
 #define OLED_RESET  4
 
 Adafruit_SSD1306 display(OLED_RESET);
-*/
-
-extern Adafruit_SSD1306 display;
-MyRenderer my_renderer;
+Adafruit_SSD1306 * dptr = &display;
+MyRenderer my_renderer (dptr);
 MenuSystem ms(my_renderer);
 //Adafruit_ssd1306syp display(SDA_PIN, SCL_PIN);
 MIDI_CREATE_INSTANCE (HardwareSerial, Serial1, midiA);
@@ -40,6 +39,8 @@ bool stomp3 = false;
 bool stomp4 = false;
 int program = 0;
 uint8_t CCnumber = 0;
+uint8_t lcount = 0;
+uint8_t rcount = 0;
 uint8_t storedCCnumber [] {0, 1, 2, 3, 4, 5, 6, 7};
 RotaryMode ENCMODE = PROG;
 Preset PRESET = ZERO;
@@ -57,7 +58,7 @@ Switches Buttons (6);// 6 is the number of switches ... in the following order .
   Button2     22
   Button3     9
   Button4     10
-  Button5     13
+  Button5     7
   Button6     11
    etc.      etc.
  ************************/
@@ -157,7 +158,7 @@ void setup() {
   display.begin (SSD1306_SWITCHCAPVCC, 0x3D);
   //display.clear();
   display.clearDisplay();
-  display.setTextSize(2);
+  display.setTextSize(1);
   display.setTextColor(WHITE);
   presetDisplayUpdate (); //initial display of PRESET, hopefully!
   ms.get_root_menu().add_menu(&mu1);
@@ -172,7 +173,6 @@ void setup() {
   mu2.add_item(&mu2_mi3);
   mu2.add_item(&mu2_mi4);
   mu2.add_item(&mu2_mi0);
-  //ms.display();
 }
 
 void loop() {
@@ -204,7 +204,7 @@ void peripheralDisplayUpdate (void) {
   display.clearDisplay();
   display.setCursor(0, 0);
   display.println(*(peripheralArrayDisplayUpdate [PERIPHERAL]) );
-  display.println (CCnumber); // TODO preset numbers displays
+  display.println (CCnumber);
   display.display();
 }
 
@@ -220,6 +220,14 @@ void SelectPress (void) {
       break;
     case CC:
       storedCCnumber [PERIPHERAL] = CCnumber;
+      ENCMODE = EDITMENU;
+      display.clearDisplay();
+      display.setCursor(0, 0);
+      display.println("STORED");
+      display.display();
+      delay (200);
+      display.clearDisplay();
+      ms.display();
       break;
   }
 }
@@ -247,7 +255,8 @@ void EditPress (void) {
 void EditRelease (void) {
   if ((switchesPressTimer - 3500) > 0) {
     ENCMODE = EDITMENU;
-    //code to display the fucking menu
+    display.clearDisplay();
+    ms.display();
   }
   else {
     ENCMODE = PROG;
@@ -297,47 +306,57 @@ void Stomp4ON(void) {
 
 /*Rotary Callbacks*/
 void Left (void) {
-  switch (ENCMODE) {
-    case PROG:
-      program--;
-      if (program <= -1) {
-        program = 127;
-      }
-      presetDisplayUpdate ();
-      break;
-    case EDITMENU:
-      ms.prev ();
-      ms.display ();
-      break;
-    case CC:
-      CCnumber--;
-      if (CCnumber <= -1) {
-        CCnumber = 127;
-      }
-      peripheralDisplayUpdate();
-      break; //MUST FINSIH MENU SYSTEM
+  lcount++;
+  if (lcount > 5) {
+    lcount = 0;
+    switch (ENCMODE) {
+      case PROG:
+        program--;
+        if (program <= -1) {
+          program = 127;
+        }
+        presetDisplayUpdate ();
+        break;
+      case EDITMENU:
+        ms.prev ();
+        display.clearDisplay();
+        ms.display ();
+        break;
+      case CC:
+        CCnumber--;
+        if (CCnumber <= -1) {
+          CCnumber = 127;
+        }
+        peripheralDisplayUpdate();
+        break;
+    }
   }
 }
 void Right (void) {
-  switch (ENCMODE) {
-    case PROG:
-      program++;
-      if (program >= 128) {
-        program = 0;
-      }
-      presetDisplayUpdate ();
-      break;
-    case EDITMENU:
-      ms.next ();
-      ms.display ();
-      break;
-    case CC:
-      CCnumber++;
-      if (CCnumber >= 128) {
-        CCnumber = 0;
-      }
-      peripheralDisplayUpdate();
-      break;
+  lcount++;
+  if (rcount > 5) {
+    rcount = 0;
+    switch (ENCMODE) {
+      case PROG:
+        program++;
+        if (program >= 128) {
+          program = 0;
+        }
+        presetDisplayUpdate ();
+        break;
+      case EDITMENU:
+        ms.next ();
+        display.clearDisplay();
+        ms.display ();
+        break;
+      case CC:
+        CCnumber++;
+        if (CCnumber >= 128) {
+          CCnumber = 0;
+        }
+        peripheralDisplayUpdate();
+        break;
+    }
   }
 }
 
@@ -379,18 +398,26 @@ void slider4Dec (int currentValue) {
 void on_item1_selected(MenuItem* p_menu_item)
 {
   PRESET = ZERO;
+  presetDisplayUpdate ();
+
 }
 void on_item2_selected(MenuItem* p_menu_item)
 {
   PRESET = ONE;
+  presetDisplayUpdate ();
+
 }
 void on_item3_selected(MenuItem* p_menu_item)
 {
   PRESET = BIASFX;
+  presetDisplayUpdate ();
+
 }
 void on_item4_selected(MenuItem* p_menu_item)
 {
   PRESET = AMPLITUDE;
+  presetDisplayUpdate ();
+
 }
 void on_back1_item_selected(MenuItem* p_menu_item)
 {
@@ -399,21 +426,25 @@ void on_item5_selected(MenuItem* p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Button1;
+  peripheralDisplayUpdate () ;
 }
 void on_item6_selected(MenuItem* p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Button2;
+  peripheralDisplayUpdate () ;
 }
 void on_item7_selected(MenuItem* p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Button3;
+  peripheralDisplayUpdate () ;
 }
 void on_item8_selected(MenuItem* p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Button4;
+  peripheralDisplayUpdate () ;
 }
 void on_back2_item_selected(MenuItem* p_menu_item)
 {
