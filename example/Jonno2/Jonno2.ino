@@ -28,7 +28,7 @@ MyRenderer my_renderer (dptr);
 MenuSystem ms(my_renderer);
 //Adafruit_ssd1306syp display(SDA_PIN, SCL_PIN);
 MIDI_CREATE_INSTANCE (HardwareSerial, Serial1, midiA);
-enum Preset : uint8_t  {ZERO, ONE, BIASFX, AMPLITUDE};
+enum Preset : uint8_t  {TONESTACK_onSTAGE, TONESTACK_PRESET_MGR, BIASFX, AMPLITUBE, NI_GUITAR_RIG};
 enum RotaryMode : uint8_t {PROG, EDITMENU, CC};
 enum peripheral : uint8_t {Button1, Button2, Button3, Button4, Slider1, Slider2, Slider3, Slider4};
 elapsedMillis switchesPressTimer;
@@ -94,12 +94,12 @@ void slider4Inc (int);
 void slider4Dec (int);
 
 /*Pointer Assignments*/
-const char * ZERODisplayUpdate = "ZERO";
-const char * ONEDisplayUpdate = "ONE";
+const char * ZERODisplayUpdate = "TONESTACK_onSTAGE";
+const char * ONEDisplayUpdate = "TONESTACK_PRESET_MGR";
 const char * BIASFXDisplayUpdate = "BIASFX";
-const char * AMPLITUDEDisplayUpdate = "AMPLITUDE";
-const char * presetArrayDisplayUpdate [4] {
-  ZERODisplayUpdate, ONEDisplayUpdate, BIASFXDisplayUpdate, AMPLITUDEDisplayUpdate
+const char * AMPLITUDEDisplayUpdate = "AMPLITUBE";
+const char * presetArrayDisplayUpdate [5] {
+  ZERODisplayUpdate, ONEDisplayUpdate, BIASFXDisplayUpdate, AMPLITUDEDisplayUpdate, NIDisplayUpdate
 };
 const char *B1DisplayUpdate = "B1";
 const char *B2DisplayUpdate = "B2";
@@ -118,10 +118,12 @@ const char alpha [] {65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
 /*Menu structure*/
 Menu mu1("PRESET");
 Menu mu2("STOMP");
-MenuItem mu1_mi1("ZERO", &on_item1_selected);
-MenuItem mu1_mi2("ONE", &on_item2_selected);
+Menu mu3("CHANNEL");
+MenuItem mu1_mi1("TONESTACK_onSTAGE", &on_item1_selected);
+MenuItem mu1_mi2("TONESTACK_PRESET_MGR", &on_item2_selected);
 MenuItem mu1_mi3("BIASFX", &on_item3_selected);
-MenuItem mu1_mi4("AMPLITUDE", &on_item4_selected);
+MenuItem mu1_mi4("AMPLITUBE", &on_item4_selected);
+MenuItem mu1_mi5("NI_GUITAR_RIG", &on_item4_selected);
 BackMenuItem mu1_mi0("back", &on_back1_item_selected, &ms);
 MenuItem mu2_mi1("STOMP1", &on_item5_selected);
 MenuItem mu2_mi2("STOMP2", &on_item6_selected);
@@ -187,15 +189,20 @@ void presetDisplayUpdate (void) {
   display.setCursor(0, 0);
   display.println(*(presetArrayDisplayUpdate [PRESET]) );
   switch (PRESET) {
-    case ZERO:
+    case TONESTACK_onSTAGE:
       display.println (program);
-    case ONE:
+      break;
+    case TONESTACK_PRESET_MGR:
+    case AMPLITUBE:
+    case NI_GUITAR_RIG:
       display.println (program + 1);
+      break;
     case BIASFX:
       int no = ((program + 8) % 8) + 1;
       int index = program + 1;
       index = map (index, 1, 128, 1, 16);
       display.print(alpha [index - 1]); display.println (no);
+      break;
   }
   display.display();
 }
@@ -397,13 +404,13 @@ void slider4Dec (int currentValue) {
 /*Menu Callbacks*/
 void on_item1_selected(MenuItem* p_menu_item)
 {
-  PRESET = ZERO;
+  PRESET = TONESTACK_onSTAGE;
   presetDisplayUpdate ();
 
 }
 void on_item2_selected(MenuItem* p_menu_item)
 {
-  PRESET = ONE;
+  PRESET = TONESTACK_PRESET_MGR;
   presetDisplayUpdate ();
 
 }
@@ -415,7 +422,13 @@ void on_item3_selected(MenuItem* p_menu_item)
 }
 void on_item4_selected(MenuItem* p_menu_item)
 {
-  PRESET = AMPLITUDE;
+  PRESET = AMPLITUBE;
+  presetDisplayUpdate ();
+
+}
+void on_item5_selected(MenuItem* p_menu_item)
+{
+  PRESET = NI_GUITAR_RIG;
   presetDisplayUpdate ();
 
 }
