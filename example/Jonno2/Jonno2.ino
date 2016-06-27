@@ -113,7 +113,7 @@ const char *peripheralArrayDisplayUpdate [8] {
   B1DisplayUpdate, B2DisplayUpdate, B3DisplayUpdate, B4DisplayUpdate,
   S1DisplayUpdate, S2DisplayUpdate, S3DisplayUpdate, S4DisplayUpdate
 };
-const char alpha [] {65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80};
+const char alpha [] {65, 66, 67, 68};
 
 /*Menu structure*/
 Menu mu1("PRESET");
@@ -123,12 +123,12 @@ MenuItem mu1_mi1("TONESTACK_onSTAGE", &on_item1_selected);
 MenuItem mu1_mi2("TONESTACK_PRESET_MGR", &on_item2_selected);
 MenuItem mu1_mi3("BIASFX", &on_item3_selected);
 MenuItem mu1_mi4("AMPLITUBE", &on_item4_selected);
-MenuItem mu1_mi5("NI_GUITAR_RIG", &on_item4_selected);
+MenuItem mu1_mi5("NI_GUITAR_RIG", &on_item5_selected);
 BackMenuItem mu1_mi0("back", &on_back1_item_selected, &ms);
-MenuItem mu2_mi1("STOMP1", &on_item5_selected);
-MenuItem mu2_mi2("STOMP2", &on_item6_selected);
-MenuItem mu2_mi3("STOMP3", &on_item7_selected);
-MenuItem mu2_mi4("STOMP4", &on_item8_selected);
+MenuItem mu2_mi1("STOMP1", &on_item6_selected);
+MenuItem mu2_mi2("STOMP2", &on_item7_selected);
+MenuItem mu2_mi3("STOMP3", &on_item8_selected);
+MenuItem mu2_mi4("STOMP4", &on_item9_selected);
 BackMenuItem mu2_mi0("back", &on_back2_item_selected, &ms);
 //TODO ... SLIDERMENU and SLIDERMENU callbacks
 
@@ -169,6 +169,7 @@ void setup() {
   mu1.add_item(&mu1_mi2);
   mu1.add_item(&mu1_mi3);
   mu1.add_item(&mu1_mi4);
+  mu1.add_item(&mu1_mi5);
   mu1.add_item(&mu1_mi0);
   mu2.add_item(&mu2_mi1);
   mu2.add_item(&mu2_mi2);
@@ -435,25 +436,25 @@ void on_item5_selected(MenuItem* p_menu_item)
 void on_back1_item_selected(MenuItem* p_menu_item)
 {
 }
-void on_item5_selected(MenuItem* p_menu_item)
+void on_item6_selected(MenuItem* p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Button1;
   peripheralDisplayUpdate () ;
 }
-void on_item6_selected(MenuItem* p_menu_item)
+void on_item7_selected(MenuItem* p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Button2;
   peripheralDisplayUpdate () ;
 }
-void on_item7_selected(MenuItem* p_menu_item)
+void on_item8_selected(MenuItem* p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Button3;
   peripheralDisplayUpdate () ;
 }
-void on_item8_selected(MenuItem* p_menu_item)
+void on_item9_selected(MenuItem* p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Button4;
