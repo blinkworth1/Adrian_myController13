@@ -337,6 +337,7 @@ void Left (void) {
         ms.prev ();
         display.clearDisplay();
         ms.display ();
+        display.display();
         break;
       case CC:
         CCnumber--;
@@ -364,6 +365,7 @@ void Right (void) {
         ms.next ();
         display.clearDisplay();
         ms.display ();
+        display.display();
         break;
       case CC:
         CCnumber++;
