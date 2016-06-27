@@ -12,7 +12,7 @@
 //#define SDA_PIN 4
 //#define SCL_PIN 5
 
-/*******ATTEMPT TO USE i2c ADA326***************/
+/*******TO USE i2c ADA326***************/
 /*TO USE i2C you have to jumper the back of the display,
   as per the adafruit instructions.
   Pins are 18, 19, 4, as below
@@ -100,6 +100,7 @@ const char * ZERODisplayUpdate = "TONESTACK_onSTAGE";
 const char * ONEDisplayUpdate = "TONESTACK_PRESET_MGR";
 const char * BIASFXDisplayUpdate = "BIASFX";
 const char * AMPLITUDEDisplayUpdate = "AMPLITUBE";
+const char * NIDisplayUpdate = "NI_GUITAR_RIG";
 const char * presetArrayDisplayUpdate [5] {
   ZERODisplayUpdate, ONEDisplayUpdate, BIASFXDisplayUpdate, AMPLITUDEDisplayUpdate, NIDisplayUpdate
 };
@@ -227,7 +228,9 @@ void SelectPress (void) {
       break;
     case EDITMENU:
       ms.select();
+      display.clearDisplay();
       ms.display();
+      display.display();
       break;
     case CC:
       storedCCnumber [PERIPHERAL] = CCnumber;
@@ -239,6 +242,7 @@ void SelectPress (void) {
       delay (200);
       display.clearDisplay();
       ms.display();
+      display.display();
       break;
   }
 }
@@ -268,6 +272,7 @@ void EditRelease (void) {
     ENCMODE = EDITMENU;
     display.clearDisplay();
     ms.display();
+    display.display();
   }
   else {
     ENCMODE = PROG;
