@@ -43,7 +43,7 @@ uint8_t lcount = 0;
 uint8_t rcount = 0;
 uint8_t storedCCnumber [] {0, 1, 2, 3, 4, 5, 6, 7};
 RotaryMode ENCMODE = PROG;
-Preset PRESET = ZERO;
+Preset PRESET = TONESTACK_onSTAGE;
 peripheral PERIPHERAL;
 Fader slider1 (A1, 3); //Teensy pin and jitter suppression amount
 Fader slider2 (A2, 3);
