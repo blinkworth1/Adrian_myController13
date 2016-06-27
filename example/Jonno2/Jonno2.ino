@@ -344,7 +344,7 @@ void Left (void) {
   }
 }
 void Right (void) {
-  lcount++;
+  rcount++;
   if (rcount > 5) {
     rcount = 0;
     switch (ENCMODE) {
