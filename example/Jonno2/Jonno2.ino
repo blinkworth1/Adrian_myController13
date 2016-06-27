@@ -1,7 +1,7 @@
 
 #include "MyRenderer.h"
 #include <MIDI.h> // MIDI 4.2 library
-//#include <SPI.h>
+#include <SPI.h>
 #include <Wire.h>
 //#include <Adafruit_GFX.h>
 //#include <Adafruit_SSD1306.h>
@@ -198,10 +198,10 @@ void presetDisplayUpdate (void) {
       display.println (program + 1);
       break;
     case BIASFX:
-      int no = ((program + 8) % 8) + 1;
-      int index = program + 1;
-      index = map (index, 1, 128, 1, 16);
-      display.print(alpha [index - 1]); display.println (no);
+      int letter = ((program + 4) % 4);
+      int number = (program + 4) / 4;
+      
+      display.print(number); display.println (letter);
       break;
   }
   display.display();
