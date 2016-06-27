@@ -64,6 +64,7 @@ Switches Buttons (6);// 6 is the number of switches ... in the following order .
  ************************/
 
 /*Forward Declarations*/
+void on_item0_selected(MenuItem* p_menu_item);
 void on_item1_selected(MenuItem* p_menu_item);
 void on_item2_selected(MenuItem* p_menu_item);
 void on_item3_selected(MenuItem* p_menu_item);
@@ -73,6 +74,7 @@ void on_item5_selected(MenuItem* p_menu_item);
 void on_item6_selected(MenuItem* p_menu_item);
 void on_item7_selected(MenuItem* p_menu_item);
 void on_item8_selected(MenuItem* p_menu_item);
+void on_item9_selected(MenuItem* p_menu_item);
 void on_back2_item_selected (MenuItem* p_menu_item);
 void SelectPress (void);
 void SelectRelease (void);
@@ -118,7 +120,7 @@ const char alpha [] {65, 66, 67, 68};
 /*Menu structure*/
 Menu mu1("PRESET");
 Menu mu2("STOMP");
-Menu mu3("CHANNEL");
+MenuItem mm_mi1 ("CHANNEL", &on_item0_selected);
 MenuItem mu1_mi1("TONESTACK_onSTAGE", &on_item1_selected);
 MenuItem mu1_mi2("TONESTACK_PRESET_MGR", &on_item2_selected);
 MenuItem mu1_mi3("BIASFX", &on_item3_selected);
@@ -165,6 +167,7 @@ void setup() {
   presetDisplayUpdate (); //initial display of PRESET, hopefully!
   ms.get_root_menu().add_menu(&mu1);
   ms.get_root_menu().add_menu(&mu2);
+  ms.get_root_menu().add_item(&mm_mi1);
   mu1.add_item(&mu1_mi1);
   mu1.add_item(&mu1_mi2);
   mu1.add_item(&mu1_mi3);
@@ -403,35 +406,34 @@ void slider4Dec (int currentValue) {
   midiA.sendControlChange (storedCCnumber[7], Value, 1);
 }
 /*Menu Callbacks*/
+void on_item0_selected(MenuItem* p_menu_item)
+{
+}
+
 void on_item1_selected(MenuItem* p_menu_item)
 {
   PRESET = TONESTACK_onSTAGE;
   presetDisplayUpdate ();
-
 }
 void on_item2_selected(MenuItem* p_menu_item)
 {
   PRESET = TONESTACK_PRESET_MGR;
   presetDisplayUpdate ();
-
 }
 void on_item3_selected(MenuItem* p_menu_item)
 {
   PRESET = BIASFX;
   presetDisplayUpdate ();
-
 }
 void on_item4_selected(MenuItem* p_menu_item)
 {
   PRESET = AMPLITUBE;
   presetDisplayUpdate ();
-
 }
 void on_item5_selected(MenuItem* p_menu_item)
 {
   PRESET = NI_GUITAR_RIG;
   presetDisplayUpdate ();
-
 }
 void on_back1_item_selected(MenuItem* p_menu_item)
 {
