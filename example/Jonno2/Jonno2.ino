@@ -38,6 +38,7 @@ bool stomp2 = false;
 bool stomp3 = false;
 bool stomp4 = false;
 int program = 0;
+int bfxprogram;
 uint8_t CCnumber = 0;
 uint8_t lcount = 0;
 uint8_t rcount = 0;
@@ -54,12 +55,12 @@ Switches Buttons (6);// 6 is the number of switches ... in the following order .
 
 /************************
   ____________PIN_______
-  Button1     23
-  Button2     22
-  Button3     9
-  Button4     10
-  Button5     7
-  Button6     11
+  Button1     23 select
+  Button2     22 edit
+  Button3     9  stomp1
+  Button4     10 stomp2
+  Button5     7  stomp3
+  Button6     11 stomp4
    etc.      etc.
  ************************/
 
@@ -100,6 +101,7 @@ const char * ZERODisplayUpdate = "TONESTACK_onSTAGE";
 const char * ONEDisplayUpdate = "TONESTACK_PRESET_MGR";
 const char * BIASFXDisplayUpdate = "BIASFX";
 const char * AMPLITUDEDisplayUpdate = "AMPLITUBE";
+const char * NIDisplayUpdate = "NI_GUITAR_RIG";
 const char * presetArrayDisplayUpdate [5] {
   ZERODisplayUpdate, ONEDisplayUpdate, BIASFXDisplayUpdate, AMPLITUDEDisplayUpdate, NIDisplayUpdate
 };
@@ -325,6 +327,7 @@ void Left (void) {
         program--;
         if (program <= -1) {
           program = 127;
+          if (PRESET == BIASFX) {bfxprogram = map(program, 0, 127, 0, 31);}
         }
         presetDisplayUpdate ();
         break;
@@ -352,6 +355,7 @@ void Right (void) {
         program++;
         if (program >= 128) {
           program = 0;
+          if (PRESET == BIASFX){bfxprogram = map(program, 0, 127, 0, 31);}
         }
         presetDisplayUpdate ();
         break;
