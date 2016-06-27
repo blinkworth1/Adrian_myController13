@@ -54,12 +54,12 @@ Switches Buttons (6);// 6 is the number of switches ... in the following order .
 
 /************************
   ____________PIN_______
-  Button1     23
-  Button2     22
-  Button3     9
-  Button4     10
-  Button5     7
-  Button6     11
+  Button1     23  select
+  Button2     22  edit
+  Button3     9   stomp1
+  Button4     10  stomp2
+  Button5     7   stomp3
+  Button6     11  stomp4
    etc.      etc.
  ************************/
 
@@ -205,7 +205,7 @@ void presetDisplayUpdate (void) {
     case BIASFX:
       int letter = ((program + 4) % 4);
       int number = (program + 4) / 4;
-      
+  
       display.print(number); display.println (letter);
       break;
   }
