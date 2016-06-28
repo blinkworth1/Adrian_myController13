@@ -96,22 +96,22 @@ void slider4Inc (int);
 void slider4Dec (int);
 
 /*Pointer Assignments*/
-const char * ZERODisplayUpdate = "TONESTACK_onSTAGE";
-const char * ONEDisplayUpdate = "TONESTACK_PRESET_MGR";
-const char * BIASFXDisplayUpdate = "BIASFX";
-const char * AMPLITUDEDisplayUpdate = "AMPLITUBE";
-const char * NIDisplayUpdate = "NI_GUITAR_RIG";
-const char * presetArrayDisplayUpdate [5] {
+const char ZERODisplayUpdate [] = "TONESTACK_onSTAGE";
+const char ONEDisplayUpdate [] = "TONESTACK_PRESET_MGR";
+const char BIASFXDisplayUpdate [] = "BIASFX";
+const char AMPLITUDEDisplayUpdate [] = "AMPLITUBE";
+const char NIDisplayUpdate [] = "NI_GUITAR_RIG";
+const char presetArrayDisplayUpdate [5] {
   ZERODisplayUpdate, ONEDisplayUpdate, BIASFXDisplayUpdate, AMPLITUDEDisplayUpdate, NIDisplayUpdate
 };
-const char *B1DisplayUpdate = "B1";
-const char *B2DisplayUpdate = "B2";
-const char *B3DisplayUpdate = "B3";
-const char *B4DisplayUpdate = "B4";
-const char *S1DisplayUpdate = "S1";
-const char *S2DisplayUpdate = "S2";
-const char *S3DisplayUpdate = "S3";
-const char *S4DisplayUpdate = "S4";
+const char B1DisplayUpdate [] = "B1";
+const char B2DisplayUpdate [] = "B2";
+const char B3DisplayUpdate [] = "B3";
+const char B4DisplayUpdate [] = "B4";
+const char S1DisplayUpdate [] = "S1";
+const char S2DisplayUpdate [] = "S2";
+const char S3DisplayUpdate [] = "S3";
+const char S4DisplayUpdate [] = "S4";
 const char *peripheralArrayDisplayUpdate [8] {
   B1DisplayUpdate, B2DisplayUpdate, B3DisplayUpdate, B4DisplayUpdate,
   S1DisplayUpdate, S2DisplayUpdate, S3DisplayUpdate, S4DisplayUpdate
@@ -192,7 +192,7 @@ void loop() {
 void presetDisplayUpdate (void) {
   display.clearDisplay();
   display.setCursor(0, 0);
-  display.println(*(presetArrayDisplayUpdate [PRESET]) );
+  display.println((presetArrayDisplayUpdate [PRESET]) );
   switch (PRESET) {
     case TONESTACK_onSTAGE:
       display.println (program);
@@ -215,7 +215,7 @@ void presetDisplayUpdate (void) {
 void peripheralDisplayUpdate (void) {
   display.clearDisplay();
   display.setCursor(0, 0);
-  display.println(*(peripheralArrayDisplayUpdate [PERIPHERAL]) );
+  display.println((peripheralArrayDisplayUpdate [PERIPHERAL]) );
   display.println (CCnumber);
   display.display();
 }
@@ -323,7 +323,7 @@ void Stomp4ON(void) {
 /*Rotary Callbacks*/
 void Left (void) {
   lcount++;
-  if (lcount > 5) {
+  if (lcount > 3) {
     lcount = 0;
     switch (ENCMODE) {
       case PROG:
@@ -351,7 +351,7 @@ void Left (void) {
 }
 void Right (void) {
   lcount++;
-  if (rcount > 5) {
+  if (rcount > 3) {
     rcount = 0;
     switch (ENCMODE) {
       case PROG:
