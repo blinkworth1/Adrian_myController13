@@ -101,7 +101,7 @@ const char ONEDisplayUpdate [] = "TONESTACK_PRESET_MGR";
 const char BIASFXDisplayUpdate [] = "BIASFX";
 const char AMPLITUDEDisplayUpdate [] = "AMPLITUBE";
 const char NIDisplayUpdate [] = "NI_GUITAR_RIG";
-const char presetArrayDisplayUpdate [5] {
+const char * presetArrayDisplayUpdate [5] {
   ZERODisplayUpdate, ONEDisplayUpdate, BIASFXDisplayUpdate, AMPLITUDEDisplayUpdate, NIDisplayUpdate
 };
 const char B1DisplayUpdate [] = "B1";
