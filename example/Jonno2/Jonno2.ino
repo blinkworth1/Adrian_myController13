@@ -55,21 +55,12 @@ Switches Buttons (6);// 6 is the number of switches ... in the following order .
 
 /************************
   ____________PIN_______
-<<<<<<< HEAD
-  Button1     23 select
-  Button2     22 edit
-  Button3     9  stomp1
-  Button4     10 stomp2
-  Button5     7  stomp3
-  Button6     11 stomp4
-=======
   Button1     23  select
   Button2     22  edit
   Button3     9   stomp1
   Button4     10  stomp2
   Button5     7   stomp3
   Button6     11  stomp4
->>>>>>> origin/master
    etc.      etc.
  ************************/
 
@@ -106,19 +97,11 @@ void slider4Inc (int);
 void slider4Dec (int);
 
 /*Pointer Assignments*/
-<<<<<<< HEAD
-const char * ZERODisplayUpdate = "TONESTACK_onSTAGE";
-const char * ONEDisplayUpdate = "TONESTACK_PRESET_MGR";
-const char * BIASFXDisplayUpdate = "BIASFX";
-const char * AMPLITUDEDisplayUpdate = "AMPLITUBE";
-const char * NIDisplayUpdate = "NI_GUITAR_RIG";
-=======
 const char ZERODisplayUpdate [] = "TONESTACK_onSTAGE";
 const char ONEDisplayUpdate [] = "TONESTACK_PRESET_MGR";
 const char BIASFXDisplayUpdate [] = "BIASFX";
 const char AMPLITUDEDisplayUpdate [] = "AMPLITUBE";
 const char NIDisplayUpdate [] = "NI_GUITAR_RIG";
->>>>>>> origin/master
 const char * presetArrayDisplayUpdate [5] {
   ZERODisplayUpdate, ONEDisplayUpdate, BIASFXDisplayUpdate, AMPLITUDEDisplayUpdate, NIDisplayUpdate
 };
@@ -377,13 +360,8 @@ void Left (void) {
   }
 }
 void Right (void) {
-<<<<<<< HEAD
   rcount++;
-  if (rcount > 5) {
-=======
-  lcount++;
   if (rcount > 3) {
->>>>>>> origin/master
     rcount = 0;
     switch (ENCMODE) {
       case PROG:
