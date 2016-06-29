@@ -12,7 +12,7 @@
 //#define SDA_PIN 4
 //#define SCL_PIN 5
 
-/*******ATTEMPT TO USE i2c ADA326***************/
+/*******TO USE i2c ADA326***************/
 /*TO USE i2C you have to jumper the back of the display,
   as per the adafruit instructions.
   Pins are 18, 19, 4, as below
@@ -55,12 +55,21 @@ Switches Buttons (6);// 6 is the number of switches ... in the following order .
 
 /************************
   ____________PIN_______
+<<<<<<< HEAD
   Button1     23 select
   Button2     22 edit
   Button3     9  stomp1
   Button4     10 stomp2
   Button5     7  stomp3
   Button6     11 stomp4
+=======
+  Button1     23  select
+  Button2     22  edit
+  Button3     9   stomp1
+  Button4     10  stomp2
+  Button5     7   stomp3
+  Button6     11  stomp4
+>>>>>>> origin/master
    etc.      etc.
  ************************/
 
@@ -97,22 +106,30 @@ void slider4Inc (int);
 void slider4Dec (int);
 
 /*Pointer Assignments*/
+<<<<<<< HEAD
 const char * ZERODisplayUpdate = "TONESTACK_onSTAGE";
 const char * ONEDisplayUpdate = "TONESTACK_PRESET_MGR";
 const char * BIASFXDisplayUpdate = "BIASFX";
 const char * AMPLITUDEDisplayUpdate = "AMPLITUBE";
 const char * NIDisplayUpdate = "NI_GUITAR_RIG";
+=======
+const char ZERODisplayUpdate [] = "TONESTACK_onSTAGE";
+const char ONEDisplayUpdate [] = "TONESTACK_PRESET_MGR";
+const char BIASFXDisplayUpdate [] = "BIASFX";
+const char AMPLITUDEDisplayUpdate [] = "AMPLITUBE";
+const char NIDisplayUpdate [] = "NI_GUITAR_RIG";
+>>>>>>> origin/master
 const char * presetArrayDisplayUpdate [5] {
   ZERODisplayUpdate, ONEDisplayUpdate, BIASFXDisplayUpdate, AMPLITUDEDisplayUpdate, NIDisplayUpdate
 };
-const char *B1DisplayUpdate = "B1";
-const char *B2DisplayUpdate = "B2";
-const char *B3DisplayUpdate = "B3";
-const char *B4DisplayUpdate = "B4";
-const char *S1DisplayUpdate = "S1";
-const char *S2DisplayUpdate = "S2";
-const char *S3DisplayUpdate = "S3";
-const char *S4DisplayUpdate = "S4";
+const char B1DisplayUpdate [] = "B1";
+const char B2DisplayUpdate [] = "B2";
+const char B3DisplayUpdate [] = "B3";
+const char B4DisplayUpdate [] = "B4";
+const char S1DisplayUpdate [] = "S1";
+const char S2DisplayUpdate [] = "S2";
+const char S3DisplayUpdate [] = "S3";
+const char S4DisplayUpdate [] = "S4";
 const char *peripheralArrayDisplayUpdate [8] {
   B1DisplayUpdate, B2DisplayUpdate, B3DisplayUpdate, B4DisplayUpdate,
   S1DisplayUpdate, S2DisplayUpdate, S3DisplayUpdate, S4DisplayUpdate
@@ -164,7 +181,7 @@ void setup() {
   display.begin (SSD1306_SWITCHCAPVCC, 0x3D);
   //display.clear();
   display.clearDisplay();
-  display.setTextSize(1);
+  //display.setTextSize(1);
   display.setTextColor(WHITE);
   presetDisplayUpdate (); //initial display of PRESET, hopefully!
   ms.get_root_menu().add_menu(&mu1);
@@ -193,20 +210,23 @@ void loop() {
 void presetDisplayUpdate (void) {
   display.clearDisplay();
   display.setCursor(0, 0);
-  display.println(*(presetArrayDisplayUpdate [PRESET]) );
+  display.setTextSize(2);
+  display.println((presetArrayDisplayUpdate [PRESET]) );
   switch (PRESET) {
     case TONESTACK_onSTAGE:
+      display.setTextSize(3);
       display.println (program);
       break;
     case TONESTACK_PRESET_MGR:
     case AMPLITUBE:
     case NI_GUITAR_RIG:
+      display.setTextSize(3);
       display.println (program + 1);
       break;
     case BIASFX:
       int letter = ((program + 4) % 4);
       int number = (program + 4) / 4;
-      
+  
       display.print(number); display.println (letter);
       break;
   }
@@ -216,7 +236,9 @@ void presetDisplayUpdate (void) {
 void peripheralDisplayUpdate (void) {
   display.clearDisplay();
   display.setCursor(0, 0);
-  display.println(*(peripheralArrayDisplayUpdate [PERIPHERAL]) );
+  display.setTextSize(2);
+  display.println((peripheralArrayDisplayUpdate [PERIPHERAL]) );
+  display.setTextSize(3);
   display.println (CCnumber);
   display.display();
 }
@@ -229,18 +251,23 @@ void SelectPress (void) {
       break;
     case EDITMENU:
       ms.select();
+      display.clearDisplay();
       ms.display();
+      display.display();
       break;
     case CC:
       storedCCnumber [PERIPHERAL] = CCnumber;
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 0);
+      display.setTextSize(2);
       display.println("STORED");
       display.display();
       delay (200);
       display.clearDisplay();
+      display.setTextSize(1);
       ms.display();
+      display.display();
       break;
   }
 }
@@ -251,10 +278,9 @@ void SelectRelease (void) {
         midiA.sendProgramChange (program, 1);
         display.clearDisplay();
         display.setCursor(0, 0);
+        display.setTextSize(2);
         display.println("SENT");
         display.display();
-        delay (200);
-        presetDisplayUpdate ();
       }
       break;
     case EDITMENU:
@@ -268,8 +294,10 @@ void EditPress (void) {
 void EditRelease (void) {
   if ((switchesPressTimer - 3500) > 0) {
     ENCMODE = EDITMENU;
+    display.setTextSize(1);
     display.clearDisplay();
     ms.display();
+    display.display();
   }
   else {
     ENCMODE = PROG;
@@ -320,7 +348,7 @@ void Stomp4ON(void) {
 /*Rotary Callbacks*/
 void Left (void) {
   lcount++;
-  if (lcount > 5) {
+  if (lcount > 3) {
     lcount = 0;
     switch (ENCMODE) {
       case PROG:
@@ -334,7 +362,9 @@ void Left (void) {
       case EDITMENU:
         ms.prev ();
         display.clearDisplay();
+        display.setTextSize(1);
         ms.display ();
+        display.display();
         break;
       case CC:
         CCnumber--;
@@ -347,8 +377,13 @@ void Left (void) {
   }
 }
 void Right (void) {
+<<<<<<< HEAD
   rcount++;
   if (rcount > 5) {
+=======
+  lcount++;
+  if (rcount > 3) {
+>>>>>>> origin/master
     rcount = 0;
     switch (ENCMODE) {
       case PROG:
@@ -362,7 +397,9 @@ void Right (void) {
       case EDITMENU:
         ms.next ();
         display.clearDisplay();
+        display.setTextSize(1);
         ms.display ();
+        display.display();
         break;
       case CC:
         CCnumber++;
