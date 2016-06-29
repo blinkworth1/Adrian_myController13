@@ -255,8 +255,6 @@ void SelectRelease (void) {
         display.setCursor(0, 0);
         display.println("SENT");
         display.display();
-        delay (200);
-        presetDisplayUpdate ();
       }
       break;
     case EDITMENU:
