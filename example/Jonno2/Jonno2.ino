@@ -163,7 +163,7 @@ void setup() {
   display.begin (SSD1306_SWITCHCAPVCC, 0x3D);
   //display.clear();
   display.clearDisplay();
-  display.setTextSize(1);
+  //display.setTextSize(1);
   display.setTextColor(WHITE);
   presetDisplayUpdate (); //initial display of PRESET, hopefully!
   ms.get_root_menu().add_menu(&mu1);
@@ -192,14 +192,17 @@ void loop() {
 void presetDisplayUpdate (void) {
   display.clearDisplay();
   display.setCursor(0, 0);
+  display.setTextSize(2);
   display.println((presetArrayDisplayUpdate [PRESET]) );
   switch (PRESET) {
     case TONESTACK_onSTAGE:
+      display.setTextSize(3);
       display.println (program);
       break;
     case TONESTACK_PRESET_MGR:
     case AMPLITUBE:
     case NI_GUITAR_RIG:
+      display.setTextSize(3);
       display.println (program + 1);
       break;
     case BIASFX:
@@ -215,7 +218,9 @@ void presetDisplayUpdate (void) {
 void peripheralDisplayUpdate (void) {
   display.clearDisplay();
   display.setCursor(0, 0);
+  display.setTextSize(2);
   display.println((peripheralArrayDisplayUpdate [PERIPHERAL]) );
+  display.setTextSize(3);
   display.println (CCnumber);
   display.display();
 }
@@ -237,10 +242,12 @@ void SelectPress (void) {
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 0);
+      display.setTextSize(2);
       display.println("STORED");
       display.display();
       delay (200);
       display.clearDisplay();
+      display.setTextSize(1);
       ms.display();
       display.display();
       break;
@@ -253,6 +260,7 @@ void SelectRelease (void) {
         midiA.sendProgramChange (program, 1);
         display.clearDisplay();
         display.setCursor(0, 0);
+        display.setTextSize(2);
         display.println("SENT");
         display.display();
       }
@@ -268,6 +276,7 @@ void EditPress (void) {
 void EditRelease (void) {
   if ((switchesPressTimer - 3500) > 0) {
     ENCMODE = EDITMENU;
+    display.setTextSize(1);
     display.clearDisplay();
     ms.display();
     display.display();
@@ -334,6 +343,7 @@ void Left (void) {
       case EDITMENU:
         ms.prev ();
         display.clearDisplay();
+        display.setTextSize(1);
         ms.display ();
         display.display();
         break;
@@ -362,6 +372,7 @@ void Right (void) {
       case EDITMENU:
         ms.next ();
         display.clearDisplay();
+        display.setTextSize(1);
         ms.display ();
         display.display();
         break;
