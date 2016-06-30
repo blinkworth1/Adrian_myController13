@@ -109,7 +109,7 @@ const char *peripheralArrayDisplayUpdate [8] {
   B1DisplayUpdate, B2DisplayUpdate, B3DisplayUpdate, B4DisplayUpdate,
   S1DisplayUpdate, S2DisplayUpdate, S3DisplayUpdate, S4DisplayUpdate
 };
-const char alpha [] {65, 66, 67, 68};
+const int alpha [] {65, 66, 67, 68};
 
 /*Menu structure*/
 Menu mu1("PRESET");
@@ -201,11 +201,11 @@ void presetNumberDisplayUpdate (void) {
       display.println (program + 1);
       break;
     case BIASFX:
-      //int letter = ((program + 4) % 4);
+      int letter = (program / 4);
       int number = ((program + 4) % 4) + 1;
 
       display.println (number);
-      //display.println (letter);
+      display.println (static_cast<char>(alpha [letter]));
       break;
   }
 }
