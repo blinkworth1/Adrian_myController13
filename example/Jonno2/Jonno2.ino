@@ -23,7 +23,6 @@ enum Preset : uint8_t  {TONESTACK_onSTAGE, TONESTACK_PRESET_MGR, BIASFX, AMPLITU
 enum RotaryMode : uint8_t {PROG, EDITMENU, CC};
 enum peripheral : uint8_t {Button1, Button2, Button3, Button4, Slider1, Slider2, Slider3, Slider4};
 elapsedMillis switchesPressTimer;
-bool newCC = false;
 bool stomp1 = false;
 bool stomp2 = false;
 bool stomp3 = false;
