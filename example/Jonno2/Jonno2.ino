@@ -1,10 +1,16 @@
 
 #include "MyRenderer.h"
 #include <MIDI.h> // MIDI 4.2 library
-//#include <SPI.h>
+#include <SPI.h>
 #include <Wire.h>
 #include <myController.h>
 
+<<<<<<< HEAD
+=======
+//#define SDA_PIN 4
+//#define SCL_PIN 5
+
+>>>>>>> origin/master
 /*******TO USE i2c ADA326***************/
 /*TO USE i2C you have to jumper the back of the display,
   as per the adafruit instructions.
@@ -30,8 +36,13 @@ bool stomp2 = false;
 bool stomp3 = false;
 bool stomp4 = false;
 int program = 0;
+<<<<<<< HEAD
 int CCnumber = 0;
 int bfxprogram;
+=======
+int bfxprogram;
+uint8_t CCnumber = 0;
+>>>>>>> origin/master
 uint8_t lcount = 0;
 uint8_t rcount = 0;
 uint8_t storedCCnumber [] {0, 1, 2, 3, 4, 5, 6, 7};
@@ -90,7 +101,11 @@ void slider4Dec (int);
 
 /*Pointer Assignments*/
 const char ZERODisplayUpdate [] = "TONESTACK_onSTAGE";
+<<<<<<< HEAD
 const char ONEDisplayUpdate [] = "TONESTACK_MGR";
+=======
+const char ONEDisplayUpdate [] = "TONESTACK_PRESET_MGR";
+>>>>>>> origin/master
 const char BIASFXDisplayUpdate [] = "BIASFX";
 const char AMPLITUDEDisplayUpdate [] = "AMPLITUBE";
 const char NIDisplayUpdate [] = "NI_GUITAR_RIG";
@@ -116,7 +131,11 @@ Menu mu1("PRESET");
 Menu mu2("STOMP");
 MenuItem mm_mi1 ("CHANNEL", &on_item0_selected);
 MenuItem mu1_mi1("TONESTACK_onSTAGE", &on_item1_selected);
+<<<<<<< HEAD
 MenuItem mu1_mi2("TONESTACK_MGR", &on_item2_selected);
+=======
+MenuItem mu1_mi2("TONESTACK_PRESET_MGR", &on_item2_selected);
+>>>>>>> origin/master
 MenuItem mu1_mi3("BIASFX", &on_item3_selected);
 MenuItem mu1_mi4("AMPLITUBE", &on_item4_selected);
 MenuItem mu1_mi5("NI_GUITAR_RIG", &on_item5_selected);
@@ -154,6 +173,10 @@ void setup() {
   slider4.SetHandleDecrease (slider4Dec);
   display.begin (SSD1306_SWITCHCAPVCC, 0x3D);
   display.clearDisplay();
+<<<<<<< HEAD
+=======
+  //display.setTextSize(1);
+>>>>>>> origin/master
   display.setTextColor(WHITE);
   presetDisplayUpdate ();
   ms.get_root_menu().add_menu(&mu1);
@@ -184,11 +207,14 @@ void presetDisplayUpdate (void) {
   display.setCursor(0, 0);
   display.setTextSize(2);
   display.println((presetArrayDisplayUpdate [PRESET]) );
+<<<<<<< HEAD
   presetNumberDisplayUpdate();
   display.display();
 }
 
 void presetNumberDisplayUpdate (void) {
+=======
+>>>>>>> origin/master
   switch (PRESET) {
     case TONESTACK_onSTAGE:
       display.setTextSize(3);
@@ -201,11 +227,18 @@ void presetNumberDisplayUpdate (void) {
       display.println (program + 1);
       break;
     case BIASFX:
+<<<<<<< HEAD
       //int letter = ((program + 4) % 4);
       int number = ((program + 4) % 4) + 1;
 
       display.println (number);
       //display.println (letter);
+=======
+      int letter = ((program + 4) % 4);
+      int number = (program + 4) / 4;
+  
+      display.print(number); display.println (letter);
+>>>>>>> origin/master
       break;
   }
 }
@@ -235,6 +268,7 @@ void SelectPress (void) {
       switchesPressTimer = 0;
       break;
     case EDITMENU:
+<<<<<<< HEAD
     case CC:
       break;
   }
@@ -253,6 +287,12 @@ void SelectRelease (void) {
           display.display();
         }
       }
+=======
+      ms.select();
+      display.clearDisplay();
+      ms.display();
+      display.display();
+>>>>>>> origin/master
       break;
     case EDITMENU:
       ms.select();
@@ -265,14 +305,32 @@ void SelectRelease (void) {
       display.println("STORED");
       display.display();
       delay (200);
+<<<<<<< HEAD
       editMenuDisplayUpdate ();
+=======
+      display.clearDisplay();
+      display.setTextSize(1);
+      ms.display();
+      display.display();
+>>>>>>> origin/master
       break;
   }
 }
 void EditPress (void) {
   switch (ENCMODE) {
     case PROG:
+<<<<<<< HEAD
       switchesPressTimer = 0;
+=======
+      if ((switchesPressTimer - 1200) > 0) {
+        midiA.sendProgramChange (program, 1);
+        display.clearDisplay();
+        display.setCursor(0, 0);
+        display.setTextSize(2);
+        display.println("SENT");
+        display.display();
+      }
+>>>>>>> origin/master
       break;
     case EDITMENU:
     case CC:
@@ -280,6 +338,7 @@ void EditPress (void) {
   }
 }
 void EditRelease (void) {
+<<<<<<< HEAD
   switch (ENCMODE) {
     case PROG: {
         int time = switchesPressTimer - 2000;
@@ -294,6 +353,18 @@ void EditRelease (void) {
       ENCMODE = PROG;
       presetDisplayUpdate();
       break;
+=======
+  if ((switchesPressTimer - 3500) > 0) {
+    ENCMODE = EDITMENU;
+    display.setTextSize(1);
+    display.clearDisplay();
+    ms.display();
+    display.display();
+  }
+  else {
+    ENCMODE = PROG;
+    presetDisplayUpdate();
+>>>>>>> origin/master
   }
 }
 void Stomp1ON(void) {
@@ -340,22 +411,37 @@ void Stomp4ON(void) {
 /*Rotary Callbacks*/
 void Left (void) {
   lcount++;
+<<<<<<< HEAD
   if (lcount > 4) {
+=======
+  if (lcount > 3) {
+>>>>>>> origin/master
     lcount = 0;
     switch (ENCMODE) {
       case PROG:
         program--;
         if (program <= -1) {
           program = 127;
+<<<<<<< HEAD
           if (PRESET == BIASFX) {
             bfxprogram = map(program, 0, 127, 0, 31);
           }
+=======
+          if (PRESET == BIASFX) {bfxprogram = map(program, 0, 127, 0, 31);}
+>>>>>>> origin/master
         }
         presetDisplayUpdate ();
         break;
       case EDITMENU:
         ms.prev ();
+<<<<<<< HEAD
         editMenuDisplayUpdate();
+=======
+        display.clearDisplay();
+        display.setTextSize(1);
+        ms.display ();
+        display.display();
+>>>>>>> origin/master
         break;
       case CC:
         CCnumber--;
@@ -369,22 +455,37 @@ void Left (void) {
 }
 void Right (void) {
   rcount++;
+<<<<<<< HEAD
   if (rcount > 4) {
+=======
+  if (rcount > 3) {
+>>>>>>> origin/master
     rcount = 0;
     switch (ENCMODE) {
       case PROG:
         program++;
         if (program >= 128) {
           program = 0;
+<<<<<<< HEAD
           if (PRESET == BIASFX) {
             bfxprogram = map(program, 0, 127, 0, 31);
           }
+=======
+          if (PRESET == BIASFX){bfxprogram = map(program, 0, 127, 0, 31);}
+>>>>>>> origin/master
         }
         presetDisplayUpdate ();
         break;
       case EDITMENU:
         ms.next ();
+<<<<<<< HEAD
         editMenuDisplayUpdate();
+=======
+        display.clearDisplay();
+        display.setTextSize(1);
+        ms.display ();
+        display.display();
+>>>>>>> origin/master
         break;
       case CC:
         CCnumber++;
@@ -439,13 +540,19 @@ void on_item0_selected(MenuItem* p_menu_item)
 void on_item1_selected(MenuItem* p_menu_item)
 {
   PRESET = TONESTACK_onSTAGE;
+<<<<<<< HEAD
   ENCMODE = PROG;
+=======
+>>>>>>> origin/master
   presetDisplayUpdate ();
 }
 void on_item2_selected(MenuItem* p_menu_item)
 {
   PRESET = TONESTACK_PRESET_MGR;
+<<<<<<< HEAD
   ENCMODE = PROG;
+=======
+>>>>>>> origin/master
   presetDisplayUpdate ();
 }
 void on_item3_selected(MenuItem* p_menu_item)
@@ -457,13 +564,19 @@ void on_item3_selected(MenuItem* p_menu_item)
 void on_item4_selected(MenuItem* p_menu_item)
 {
   PRESET = AMPLITUBE;
+<<<<<<< HEAD
   ENCMODE = PROG;
+=======
+>>>>>>> origin/master
   presetDisplayUpdate ();
 }
 void on_item5_selected(MenuItem* p_menu_item)
 {
   PRESET = NI_GUITAR_RIG;
+<<<<<<< HEAD
   ENCMODE = PROG;
+=======
+>>>>>>> origin/master
   presetDisplayUpdate ();
 }
 void on_back1_item_selected(MenuItem* p_menu_item)
