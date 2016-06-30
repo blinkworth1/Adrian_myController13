@@ -1,7 +1,6 @@
 
 #include "MyRenderer.h"
 #include <MIDI.h> // MIDI 4.2 library
-//#include <SPI.h>
 #include <Wire.h>
 #include <myController.h>
 
@@ -97,14 +96,14 @@ const char NIDisplayUpdate [] = "NI_GUITAR_RIG";
 const char * presetArrayDisplayUpdate [5] {
   ZERODisplayUpdate, ONEDisplayUpdate, BIASFXDisplayUpdate, AMPLITUDEDisplayUpdate, NIDisplayUpdate
 };
-const char B1DisplayUpdate [] = "B1";
-const char B2DisplayUpdate [] = "B2";
-const char B3DisplayUpdate [] = "B3";
-const char B4DisplayUpdate [] = "B4";
-const char S1DisplayUpdate [] = "S1";
-const char S2DisplayUpdate [] = "S2";
-const char S3DisplayUpdate [] = "S3";
-const char S4DisplayUpdate [] = "S4";
+const char B1DisplayUpdate [] = "STOMP1";
+const char B2DisplayUpdate [] = "STOMP2";
+const char B3DisplayUpdate [] = "STOMP3";
+const char B4DisplayUpdate [] = "STOMP4";
+const char S1DisplayUpdate [] = "FADER1";
+const char S2DisplayUpdate [] = "FADER2";
+const char S3DisplayUpdate [] = "FADER3";
+const char S4DisplayUpdate [] = "FADER4";
 const char *peripheralArrayDisplayUpdate [8] {
   B1DisplayUpdate, B2DisplayUpdate, B3DisplayUpdate, B4DisplayUpdate,
   S1DisplayUpdate, S2DisplayUpdate, S3DisplayUpdate, S4DisplayUpdate
@@ -137,13 +136,9 @@ void setup() {
   Buttons.SetHandleB2ON (EditPress);
   Buttons.SetHandleB2OFF (EditRelease);
   Buttons.SetHandleB3ON (Stomp1ON);
-  //Buttons.SetHandleB3OFF (Stomp1OFF);
   Buttons.SetHandleB4ON (Stomp2ON);
-  //Buttons.SetHandleB4OFF (Stomp2OFF);
   Buttons.SetHandleB5ON (Stomp3ON);
-  //Buttons.SetHandleB5OFF (Stomp3OFF);
   Buttons.SetHandleB6ON (Stomp4ON);
-  //Buttons.SetHandleB6OFF (Stomp4OFF);
   slider1.SetHandleIncrease (slider1Inc);
   slider1.SetHandleDecrease (slider1Dec);
   slider2.SetHandleIncrease (slider2Inc);
@@ -256,6 +251,10 @@ void SelectRelease (void) {
       break;
     case EDITMENU:
       ms.select();
+      if (ENCMODE == PROG) {presetDisplayUpdate();}
+      else if (ENCMODE == CC) {peripheralDisplayUpdate();}
+      else {editMenuDisplayUpdate ();}
+      break;
     case CC:
     storedCCnumber [PERIPHERAL] = CCnumber;
       ENCMODE = EDITMENU;
@@ -263,6 +262,8 @@ void SelectRelease (void) {
       display.setCursor(0, 0);
       display.setTextSize(2);
       display.println("STORED");
+      display.setTextSize(3);
+      display.println(CCnumber);
       display.display();
       delay (200);
       editMenuDisplayUpdate ();
@@ -305,7 +306,6 @@ void Stomp1ON(void) {
     stomp1 = false;
   }
 }
-//void Stomp1OFF(void) {}
 void Stomp2ON(void) {
   if (stomp2 == false) {
     midiA.sendControlChange (storedCCnumber[1], 0, 1);
@@ -315,7 +315,6 @@ void Stomp2ON(void) {
     stomp2 = false;
   }
 }
-//void Stomp2OFF(void) {}
 void Stomp3ON(void) {
   if (stomp3 == false) {
     midiA.sendControlChange (storedCCnumber[2], 0, 1);
@@ -325,7 +324,6 @@ void Stomp3ON(void) {
     stomp3 = false;
   }
 }
-//void Stomp3OFF(void) {}
 void Stomp4ON(void) {
   if (stomp4 == false) {
     midiA.sendControlChange (storedCCnumber[3], 0, 1);
@@ -335,7 +333,6 @@ void Stomp4ON(void) {
     stomp4 = false;
   }
 }
-//void Stomp4OFF(void) {}
 
 /*Rotary Callbacks*/
 void Left (void) {
@@ -435,36 +432,30 @@ void slider4Dec (int currentValue) {
 void on_item0_selected(MenuItem* p_menu_item)
 {
 }
-
 void on_item1_selected(MenuItem* p_menu_item)
 {
   PRESET = TONESTACK_onSTAGE;
   ENCMODE = PROG;
-  presetDisplayUpdate ();
 }
 void on_item2_selected(MenuItem* p_menu_item)
 {
   PRESET = TONESTACK_PRESET_MGR;
   ENCMODE = PROG;
-  presetDisplayUpdate ();
 }
 void on_item3_selected(MenuItem* p_menu_item)
 {
   PRESET = BIASFX;
   ENCMODE = PROG;
-  presetDisplayUpdate ();
 }
 void on_item4_selected(MenuItem* p_menu_item)
 {
   PRESET = AMPLITUBE;
   ENCMODE = PROG;
-  presetDisplayUpdate ();
 }
 void on_item5_selected(MenuItem* p_menu_item)
 {
   PRESET = NI_GUITAR_RIG;
   ENCMODE = PROG;
-  presetDisplayUpdate ();
 }
 void on_back1_item_selected(MenuItem* p_menu_item)
 {
@@ -473,25 +464,21 @@ void on_item6_selected(MenuItem* p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Button1;
-  peripheralDisplayUpdate () ;
 }
 void on_item7_selected(MenuItem* p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Button2;
-  peripheralDisplayUpdate () ;
 }
 void on_item8_selected(MenuItem* p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Button3;
-  peripheralDisplayUpdate () ;
 }
 void on_item9_selected(MenuItem* p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Button4;
-  peripheralDisplayUpdate () ;
 }
 void on_back2_item_selected(MenuItem* p_menu_item)
 {
