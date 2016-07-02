@@ -242,8 +242,15 @@ void Rotary::ReadWrite() {
 void Rotary::RotaryRead () {
 	for (int i = 0; i < 4; i++) {
     if (RobjArray[i]) {
-      RobjArray[i]->rotaryAraw = digitalReadFast (RobjArray[i]->leftPin);
+#if defined (__MK20DX128__)
+RobjArray[i]->rotaryAraw = digitalReadFast (RobjArray[i]->leftPin);
       RobjArray[i]->rotaryBraw = digitalReadFast (RobjArray[i]->rightPin);
+#else
+        RobjArray[i]->rotaryAraw = digitalRead (RobjArray[i]->leftPin);
+      RobjArray[i]->rotaryBraw = digitalRead (RobjArray[i]->rightPin);
+#endif      
+
+
     }
   }
 }
@@ -333,9 +340,12 @@ void Fader::FaderRead() {
 	for (int i = 0; i < 4; i++) {
 		if (FobjArray[i]){
 			FobjArray[i]->hystPinRead = analogRead(FobjArray[i]->wiperPin);
-			if (FobjArray[i]->MOTOR) {
+#if defined (__MK20DX128__)
+if (FobjArray[i]->MOTOR) {
 			FobjArray[i]->touchPinRead = touchRead(FobjArray[i]->touchPin);
-			}
+}
+#endif
+			
 		}
 	}
 }
