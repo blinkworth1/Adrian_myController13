@@ -166,8 +166,13 @@ void Switches::ReadWrite() {
 
 void Switches::SwitchesRead () {
 	for (int i = 0; i < Sobj->numberOfSwitches; i++) {
+		//#ifdef (yada)
 	Sobj->switchesRaw |= (digitalReadFast(i)  ;
         Sobj->switchesRaw <<= 1;
+        //#else
+        Sobj->switchesRaw |= (digital(i)  ;
+        Sobj->switchesRaw <<= 1;
+        //#endif
 	}	
 }
 
@@ -276,6 +281,7 @@ void Fader::begin(uint8_t touch, int touchthresh, uint8_t pwm, uint8_t dirD, uin
 	dirPinU = dirU;
 	touchPin = touch;
 	touchthreshold = touchthresh;
+	MOTOR = true;
 }
 
 void Fader::ReadWrite() {
@@ -327,7 +333,9 @@ void Fader::FaderRead() {
 	for (int i = 0; i < 4; i++) {
 		if (FobjArray[i]){
 			FobjArray[i]->hystPinRead = analogRead(FobjArray[i]->wiperPin);
+			if (MOTOR) {
 			FobjArray[i]->touchPinRead = touchRead(FobjArray[i]->touchPin);
+			}
 		}
 	}
 }
