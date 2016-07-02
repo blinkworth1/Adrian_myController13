@@ -165,7 +165,10 @@ void Switches::ReadWrite() {
 }
 
 void Switches::SwitchesRead () {
-	Sobj->switchesRaw = ( ((GPIOB_PDIR & 0x00F) << 9) |      (  ( (GPIOC_PDIR & 0x3FF) >> 1) & (~(1<<4))  )    ) | (digitalReadFast(7) <<4)  ;
+	for (int i = 0; i < Sobj->numberOfSwitches; i++) {
+	Sobj->switchesRaw |= (digitalReadFast(i)  ;
+        Sobj->switchesRaw <<= 1;
+	}	
 }
 
 Rotary::Rotary (uint8_t left, uint8_t right) {
