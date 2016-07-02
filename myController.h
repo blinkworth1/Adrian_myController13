@@ -32,8 +32,9 @@ class
     void SetHandleB13ON (void (void));
     void SetHandleB13OFF (void (void));
   private:
+    bool MOTOR = false;
     static void SwitchesRead();
-    const uint8_t switchesPinTable [13] {22, 23, 9, 10, 13, 11, 12, 28, 27, 16, 17, 19, 18};
+    const uint8_t switchesPinTable [13];
     uint8_t switchesArray [13] = {0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007};
     uint16_t switchesRaw;
     uint16_t switchesData;
