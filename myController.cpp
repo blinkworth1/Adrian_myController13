@@ -11,15 +11,44 @@ elapsedMicros RotaryTimer;
 elapsedMillis FaderTimer;
 elapsedMicros SwitchesTimer;
 
-Switches::Switches (uint8_t no) {
-  numberOfSwitches = no;
+Switches::Switches (uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4, uint8_t pin5, uint8_t pin6) {
+  numberOfSwitches = 6;
   Sobj = this;
+  pintable [0] = pin1;
+  pintable [1] = pin2;
+  pintable [2] = pin3;
+  pintable [3] = pin4;
+  pintable [4] = pin5;
+  pintable [5] = pin6;
   for (int i = 0; i < numberOfSwitches; i++) {
     delay (1);
-    pinMode(switchesPinTable [i], INPUT_PULLUP );
-  
+    pinMode(pintable [i], INPUT_PULLUP );
   }
-  delay (2000);
+  delay (1000);
+}
+Switches::Switches (uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4, 
+  uint8_t pin5, uint8_t pin6, uint8_t pin7, uint8_t pin8, uint8_t pin9, 
+  uint8_t pin10, uint8_t pin11, uint8_t pin12, uint8_t pin13) {
+  numberOfSwitches = 6;
+  Sobj = this;
+  pintable [0] = pin1;
+  pintable [1] = pin2;
+  pintable [2] = pin3;
+  pintable [3] = pin4;
+  pintable [4] = pin5;
+  pintable [5] = pin6;
+  pintable [6] = pin6;
+  pintable [7] = pin6;
+  pintable [8] = pin6;
+  pintable [9] = pin6;
+  pintable [10] = pin6;
+  pintable [11] = pin6;
+  pintable [12] = pin6;
+  for (int i = 0; i < numberOfSwitches; i++) {
+    delay (1);
+    pinMode(pintable [i], INPUT_PULLUP );
+  }
+  delay (1000);
 }
 void Switches::SetHandleB1ON (void (*fptr) (void)) {
   switchesPointersON[0] = fptr;
@@ -158,7 +187,7 @@ void Rotary::SetHandleRight (void (*Right) (void)) {
 }
 
 void Rotary::ReadWrite() {
-	if ((RotaryTimer - 389) >= 0) {
+	if ((RotaryTimer - 319) >= 0) {
 		RotaryTimer = 0;
 		RotaryRead();
 		for (int i = 0; i < 4; i++) {
