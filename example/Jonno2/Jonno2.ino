@@ -43,7 +43,7 @@ Fader slider2 (A2, 3);
 Fader slider3 (A3, 3);
 Fader slider4 (A6, 3);
 Rotary encoder1 (2, 6); // 2 and 6 are Teensy pin numbers, left and right
-Switches Buttons (6);// 6 is the number of switches ... in the following order ...
+Switches Buttons (23, 22, 9, 10, 7, 11);
 
 /************************
   ____________PIN_______
@@ -53,7 +53,6 @@ Switches Buttons (6);// 6 is the number of switches ... in the following order .
   Button4     10  stomp2
   Button5     7   stomp3
   Button6     11  stomp4
-   etc.      etc.
  ************************/
 
 /*Forward Declarations*/
