@@ -14,15 +14,15 @@ elapsedMicros SwitchesTimer;
 Switches::Switches (uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4, uint8_t pin5, uint8_t pin6) {
   numberOfSwitches = 6;
   Sobj = this;
-  pintable [0] = pin1;
-  pintable [1] = pin2;
-  pintable [2] = pin3;
-  pintable [3] = pin4;
-  pintable [4] = pin5;
-  pintable [5] = pin6;
+  switchesPinTable [0] = pin1;
+  switchesPinTable [1] = pin2;
+  switchesPinTable [2] = pin3;
+  switchesPinTable [3] = pin4;
+  switchesPinTable [4] = pin5;
+  switchesPinTable [5] = pin6;
   for (int i = 0; i < numberOfSwitches; i++) {
     delay (1);
-    pinMode(pintable [i], INPUT_PULLUP );
+    pinMode(switchesPinTable [i], INPUT_PULLUP );
   }
   delay (1000);
 }
@@ -31,22 +31,22 @@ Switches::Switches (uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4,
   uint8_t pin10, uint8_t pin11, uint8_t pin12, uint8_t pin13) {
   numberOfSwitches = 6;
   Sobj = this;
-  pintable [0] = pin1;
-  pintable [1] = pin2;
-  pintable [2] = pin3;
-  pintable [3] = pin4;
-  pintable [4] = pin5;
-  pintable [5] = pin6;
-  pintable [6] = pin6;
-  pintable [7] = pin6;
-  pintable [8] = pin6;
-  pintable [9] = pin6;
-  pintable [10] = pin6;
-  pintable [11] = pin6;
-  pintable [12] = pin6;
+  switchesPinTable [0] = pin1;
+  switchesPinTable [1] = pin2;
+  switchesPinTable [2] = pin3;
+  switchesPinTable [3] = pin4;
+  switchesPinTable [4] = pin5;
+  switchesPinTable [5] = pin6;
+  switchesPinTable [6] = pin6;
+  switchesPinTable [7] = pin6;
+  switchesPinTable [8] = pin6;
+  switchesPinTable [9] = pin6;
+  switchesPinTable [10] = pin6;
+  switchesPinTable [11] = pin6;
+  switchesPinTable [12] = pin6;
   for (int i = 0; i < numberOfSwitches; i++) {
     delay (1);
-    pinMode(pintable [i], INPUT_PULLUP );
+    pinMode(switchesPinTable [i], INPUT_PULLUP );
   }
   delay (1000);
 }
@@ -170,7 +170,7 @@ void Switches::SwitchesRead () {
 	Sobj->switchesRaw |= digitalReadFast(i)  ;
         Sobj->switchesRaw <<= 1;
 #else
-        Sobj->switchesRaw |= (digitalRead(i)  ;
+        Sobj->switchesRaw |= digitalRead(i)  ;
         Sobj->switchesRaw <<= 1;
 #endif
 	}	
@@ -333,7 +333,7 @@ void Fader::FaderRead() {
 	for (int i = 0; i < 4; i++) {
 		if (FobjArray[i]){
 			FobjArray[i]->hystPinRead = analogRead(FobjArray[i]->wiperPin);
-			if (MOTOR) {
+			if (FobjArray[i]->MOTOR) {
 			FobjArray[i]->touchPinRead = touchRead(FobjArray[i]->touchPin);
 			}
 		}

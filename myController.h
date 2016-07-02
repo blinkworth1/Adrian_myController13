@@ -3,7 +3,12 @@
 class
   Switches {
   public:
-    Switches (uint8_t);
+    Switches (uint8_t, uint8_t, uint8_t, 
+    uint8_t, uint8_t, uint8_t);
+    Switches (uint8_t, uint8_t, uint8_t, 
+    uint8_t, uint8_t, uint8_t, uint8_t, 
+    uint8_t, uint8_t, uint8_t, uint8_t, 
+    uint8_t, uint8_t);
     static void ReadWrite();
     void SetHandleB1ON (void (void));
     void SetHandleB1OFF (void (void));
@@ -32,9 +37,8 @@ class
     void SetHandleB13ON (void (void));
     void SetHandleB13OFF (void (void));
   private:
-    bool MOTOR = false;
     static void SwitchesRead();
-    const uint8_t switchesPinTable [13];
+    uint8_t switchesPinTable [13] = {};
     uint8_t switchesArray [13] = {0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007};
     uint16_t switchesRaw;
     uint16_t switchesData;
@@ -113,8 +117,10 @@ public:
 	void SetHandleSame(void(int));
 	void SetHandleTouchON(void(int));
 	void SetHandleTouchOFF(void(int));
+     
 private:
-	static void FaderRead();
+bool MOTOR = false;	
+static void FaderRead();
 	void(*pIncrease) (int) = NULL;
 	void(*pDecrease) (int) = NULL;
 	void(*pSame) (int) = NULL;
