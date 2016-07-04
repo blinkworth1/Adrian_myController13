@@ -61,13 +61,18 @@ void on_item1_selected(MenuItem* p_menu_item);
 void on_item2_selected(MenuItem* p_menu_item);
 void on_item3_selected(MenuItem* p_menu_item);
 void on_item4_selected(MenuItem* p_menu_item);
-void on_back1_item_selected (MenuItem* p_menu_item);
 void on_item5_selected(MenuItem* p_menu_item);
+void on_back1_item_selected (MenuItem* p_menu_item);
 void on_item6_selected(MenuItem* p_menu_item);
 void on_item7_selected(MenuItem* p_menu_item);
 void on_item8_selected(MenuItem* p_menu_item);
 void on_item9_selected(MenuItem* p_menu_item);
 void on_back2_item_selected (MenuItem* p_menu_item);
+void on_item10_selected(MenuItem* p_menu_item);
+void on_item11_selected(MenuItem* p_menu_item);
+void on_item12_selected(MenuItem* p_menu_item);
+void on_item13_selected(MenuItem* p_menu_item);
+void on_back3_item_selected (MenuItem* p_menu_item);
 void SelectPress (void);
 void SelectRelease (void);
 void Left (void);
@@ -111,21 +116,27 @@ const char *peripheralArrayDisplayUpdate [8] {
 const int alpha [] {65, 66, 67, 68};
 
 /*Menu structure*/
-Menu mu1("PRESET");
-Menu mu2("STOMP");
-MenuItem mm_mi1 ("CHANNEL", &on_item0_selected);
-MenuItem mu1_mi1("TONESTACK_onSTAGE", &on_item1_selected);
-MenuItem mu1_mi2("TONESTACK_MGR", &on_item2_selected);
-MenuItem mu1_mi3("BIASFX", &on_item3_selected);
-MenuItem mu1_mi4("AMPLITUBE", &on_item4_selected);
-MenuItem mu1_mi5("NI_GUITAR_RIG", &on_item5_selected);
-BackMenuItem mu1_mi0("back", &on_back1_item_selected, &ms);
-MenuItem mu2_mi1("STOMP1", &on_item6_selected);
-MenuItem mu2_mi2("STOMP2", &on_item7_selected);
-MenuItem mu2_mi3("STOMP3", &on_item8_selected);
-MenuItem mu2_mi4("STOMP4", &on_item9_selected);
-BackMenuItem mu2_mi0("back", &on_back2_item_selected, &ms);
-//TODO ... SLIDERMENU and SLIDERMENU callbacks
+Menu mu1("* choose EXT HOST");
+Menu mu2("* set STOMP CC#'s");
+Menu mu3("* set FADER CC#'s");
+MenuItem mm_mi1 ("* global MIDI CH#", &on_item0_selected);
+MenuItem mu1_mi1("TONESTACK onSTAGE", &on_item1_selected);
+MenuItem mu1_mi2("TONESTACK manager", &on_item2_selected);
+MenuItem mu1_mi3("BIAS FX          ", &on_item3_selected);
+MenuItem mu1_mi4("AMPLITUBE        ", &on_item4_selected);
+MenuItem mu1_mi5("NI GUITAR RIG    ", &on_item5_selected);
+BackMenuItem mu1_mi0("... back to menu ", &on_back1_item_selected, &ms);
+MenuItem mu2_mi1("STOMP - 1   ", &on_item6_selected);
+MenuItem mu2_mi2("STOMP - 2   ", &on_item7_selected);
+MenuItem mu2_mi3("STOMP - 3   ", &on_item8_selected);
+MenuItem mu2_mi4("STOMP - 4   ", &on_item9_selected);
+BackMenuItem mu2_mi0("... back to menu ", &on_back2_item_selected, &ms);
+MenuItem mu3_mi1("FADER - 1   ", &on_item10_selected);
+MenuItem mu3_mi2("FADER - 2   ", &on_item11_selected);
+MenuItem mu3_mi3("FADER - 3   ", &on_item12_selected);
+MenuItem mu3_mi4("FADER - 4   ", &on_item13_selected);
+BackMenuItem mu3_mi0("... back to menu ", &on_back3_item_selected, &ms);
+
 
 void setup() {
   PRESET = (Preset)EEPROM.read(111);
@@ -159,6 +170,7 @@ void setup() {
   presetDisplayUpdate ();
   ms.get_root_menu().add_menu(&mu1);
   ms.get_root_menu().add_menu(&mu2);
+  ms.get_root_menu().add_menu(&mu3);
   ms.get_root_menu().add_item(&mm_mi1);
   mu1.add_item(&mu1_mi1);
   mu1.add_item(&mu1_mi2);
@@ -171,6 +183,11 @@ void setup() {
   mu2.add_item(&mu2_mi3);
   mu2.add_item(&mu2_mi4);
   mu2.add_item(&mu2_mi0);
+  mu3.add_item(&mu3_mi1);
+  mu3.add_item(&mu3_mi2);
+  mu3.add_item(&mu3_mi3);
+  mu3.add_item(&mu3_mi4);
+  mu3.add_item(&mu3_mi0);
 }
 
 void loop() {
@@ -183,23 +200,31 @@ void loop() {
 void presetDisplayUpdate (void) {
   display.clearDisplay();
   display.setCursor(0, 0);
-  display.setTextSize(2);
-  display.println((presetArrayDisplayUpdate [PRESET]) );
-  presetNumberDisplayUpdate();
+  display.setTextSize(1);
+  display.println("select a preset..."); //((presetArrayDisplayUpdate [PRESET]) );
+  display.setCursor(0, 12);
+  presetNumberDisplayUpdate(program, 3);
+  display.setCursor(73, 12);
+  display.print ("[");
+  presetNumberDisplayUpdate(EEPROM.read(115), 1);
   display.display();
 }
 
-void presetNumberDisplayUpdate (void) {
+void presetNumberDisplayUpdate (int prog, int txtsize) {
   switch (PRESET) {
-    case TONESTACK_onSTAGE:
-      display.setTextSize(3);
-      display.println (program);
+     case TONESTACK_onSTAGE:
+      display.setTextSize(txtsize);
+      if ((prog / 10) < 1) {display.printf ("%02d\n", prog);}
+      else if ((prog / 10) < 2) {display.printf ("%01d\n", prog);}
+      else {display.println (program);}
       break;
     case TONESTACK_PRESET_MGR:
     case AMPLITUBE:
     case NI_GUITAR_RIG:
       display.setTextSize(3);
-      display.println (program + 1);
+      if (((prog + 1) / 10) < 1) {display.printf ("%02d\n", (prog+1));}
+      else if (((prog + 1) / 10) < 2) {display.printf ("%01d\n", (prog+1));}
+      else {display.printf ("%d\n", (prog+1));}
       break;
     case BIASFX:
       int letter = ((bfxprogram + 4) / 4);
@@ -252,9 +277,7 @@ void SelectPress (void) {
 }
 void SelectRelease (void) {
   switch (ENCMODE) {
-    case PROG: {
-        int time = switchesPressTimer - 900;
-        if (time > 0) {
+    case PROG:
           if (PRESET == BIASFX) {
             midiA.sendProgramChange  (bfxprogram, channel);
             EEPROM.write (113, bfxprogram);
@@ -264,13 +287,14 @@ void SelectRelease (void) {
             EEPROM.write (115, program);
           }
           display.clearDisplay();
-          display.setCursor(0, 0);
-          display.setTextSize(2);
-          display.println("PROG SENT");
-          presetNumberDisplayUpdate ();
+          display.setCursor(55, 0);
+          display.setTextSize(1);
+          display.println("preset SENT!");
+          display.setCursor(73, 12);
+          presetNumberDisplayUpdate (program, 3);
           display.display();
-        }
-      }
+          delay(500);
+          //globalReset();
       break;
     case EDITMENU:
       ms.select();
@@ -330,12 +354,14 @@ void EditPress (void) {
 void EditRelease (void) {
   switch (ENCMODE) {
     case PROG: {
-        int time = switchesPressTimer - 1500;
-        if (time > 0) {
-          ENCMODE = EDITMENU;
-          editMenuDisplayUpdate();
+        int time = switchesPressTimer - 1000;
+        if (time < 0) {
+          presetDisplayUpdate();
         }
-      }
+          else {
+            ENCMODE = EDITMENU;
+          }
+        }
       break;
     case EDITMENU:
     case CC:
@@ -545,5 +571,26 @@ void on_item9_selected(MenuItem* p_menu_item)
 void on_back2_item_selected(MenuItem* p_menu_item)
 {
 }
-
-//TODO SLIDER CALLBACKS
+void on_item10_selected(MenuItem* p_menu_item)
+{
+  ENCMODE = CC;
+  PERIPHERAL = Slider1;
+}
+void on_item11_selected(MenuItem* p_menu_item)
+{
+  ENCMODE = CC;
+  PERIPHERAL = Slider2;
+}
+void on_item12_selected(MenuItem* p_menu_item)
+{
+  ENCMODE = CC;
+  PERIPHERAL = Slider3;
+}
+void on_item13_selected(MenuItem* p_menu_item)
+{
+  ENCMODE = CC;
+  PERIPHERAL = Slider4;
+}
+void on_back3_item_selected(MenuItem* p_menu_item)
+{
+}
