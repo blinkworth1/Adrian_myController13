@@ -205,6 +205,7 @@ void presetDisplayUpdate (void) {
   display.setCursor(0, 12);
   presetNumberDisplayUpdate(program, 3);
   display.setCursor(73, 12);
+  display.setTextSize(1);
   display.print ("[");
   presetNumberDisplayUpdate(EEPROM.read(115), 1);
   display.display();
@@ -221,12 +222,13 @@ void presetNumberDisplayUpdate (int prog, int txtsize) {
     case TONESTACK_PRESET_MGR:
     case AMPLITUBE:
     case NI_GUITAR_RIG:
-      display.setTextSize(3);
+      display.setTextSize(txtsize);
       if (((prog + 1) / 10) < 1) {display.printf ("%02d\n", (prog+1));}
       else if (((prog + 1) / 10) < 2) {display.printf ("%01d\n", (prog+1));}
       else {display.printf ("%d\n", (prog+1));}
       break;
     case BIASFX:
+    display.setTextSize(txtsize);
       int letter = ((bfxprogram + 4) / 4);
       int number = ((bfxprogram + 4) % 4) + 1;
       display.print (number);
