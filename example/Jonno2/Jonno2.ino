@@ -331,13 +331,13 @@ void globalReset () {
       case NI_GUITAR_RIG:
         display.setTextSize(txtsize);
         if (((prog + 1) / 10) < 1) {
-          display.printf ("%02d\n", (prog + 1));
+          display.printf ("%02d", (prog + 1));
         }
         else if (((prog + 1) / 10) < 2) {
-          display.printf ("%01d\n", (prog + 1));
+          display.printf ("%01d", (prog + 1));
         }
         else {
-          display.printf ("%d\n", (prog + 1));
+          display.printf ("%d", (prog + 1));
         }
         break;
       case BIASFX:
@@ -345,7 +345,7 @@ void globalReset () {
         int letter = ((bfxprogram + 4) / 4);
         int number = ((bfxprogram + 4) % 4) + 1;
         display.print (number);
-        display.println (static_cast<char>(alpha [letter]));
+        display.printf ("%c\r", alpha [letter]);
         break;
     }
   }
