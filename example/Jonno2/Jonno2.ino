@@ -189,7 +189,7 @@ const char *peripheralArrayDisplayUpdate [8] {
 const int alpha [] {65, 66, 67, 68};
 
 /*Menu structure*/
-Menu mm("-------EDIT------")
+Menu mm("-------EDIT------");
 Menu mu1("* choose EXT HOST");
 Menu mu2("* set STOMP CC#'s");
 Menu mu3("* set FADER CC#'s");
@@ -243,7 +243,7 @@ void setup() {
   slider2.SetHandleSame (slider2SAME);
   slider3.SetHandleSame (slider3SAME);
   slider4.SetHandleSame (slider3SAME);
-  ms.set_root_menu (&mm);
+//  ms.get_root_menu (&mm);
   ms.get_root_menu().add_menu(&mu1);
   ms.get_root_menu().add_menu(&mu2);
   ms.get_root_menu().add_menu(&mu3);
@@ -489,7 +489,7 @@ void globalReset () {
       case CHANNEL:
         ENCMODE = EDITMENU;
         ms.reset();
-        menuDisplayUpdate();
+        editMenuDisplayUpdate();
         break;
     }
   }
