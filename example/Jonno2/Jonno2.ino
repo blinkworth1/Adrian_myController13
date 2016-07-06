@@ -189,7 +189,7 @@ const char *peripheralArrayDisplayUpdate [8] {
 const int alpha [] {65, 66, 67, 68};
 
 /*Menu structure*/
-Menu mm("-------EDIT------");
+
 Menu mu1("* choose EXT HOST");
 Menu mu2("* set STOMP CC#'s");
 Menu mu3("* set FADER CC#'s");
@@ -212,8 +212,10 @@ MenuItem mu3_mi3("FADER - 3   ", &on_item12_selected);
 MenuItem mu3_mi4("FADER - 4   ", &on_item13_selected);
 BackMenuItem mu3_mi0("... back to menu ", &on_back3_item_selected, &ms);
 
-
 void setup() {
+  for (int i = 0; i < 117; i++){
+  if (EEPROM.read(i) > 127) {EEPROM.write (i, 1);}
+  }
   PRESET = (Preset)EEPROM.read(111);
   bfxprogram = EEPROM.read(113);
   program = EEPROM.read(115);
@@ -315,10 +317,10 @@ void globalReset () {
       case TONESTACK_onSTAGE:
         display.setTextSize(txtsize);
         if ((prog / 10) < 1) {
-          display.printf ("%02d\n", prog);
+          display.printf ("%d", prog);
         }
         else if ((prog / 10) < 2) {
-          display.printf ("%01d\n", prog);
+          display.printf ("%d", prog);
         }
         else {
           display.println (program);
