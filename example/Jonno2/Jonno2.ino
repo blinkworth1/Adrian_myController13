@@ -306,7 +306,7 @@ void globalReset () {
     presetNumberDisplayUpdate(program, 3);
     display.setCursor(73, 12);
     display.setTextSize(1);
-    display.print ("[");
+    display.print ("*");
     presetNumberDisplayUpdate(EEPROM.read(115), 1);
     display.display();
   }
@@ -366,7 +366,6 @@ void globalReset () {
 
   /*Button Callbacks*/
   void SelectPress (void) {
-   Serial.print ("Hello");
     switch (ENCMODE) {
       case PROG:
         switchesPressTimer = 0;
