@@ -21,15 +21,15 @@ Switches::Switches (uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4, uint
   switchesPinTable [4] = pin5;
   switchesPinTable [5] = pin6;
   for (int i = 0; i < numberOfSwitches; i++) {
-    delay (1);
+    //delay (1);
     pinMode(switchesPinTable [i], INPUT_PULLUP );
   }
-  delay (1000);
+ //delay (1000);
 }
 Switches::Switches (uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4, 
   uint8_t pin5, uint8_t pin6, uint8_t pin7, uint8_t pin8, uint8_t pin9, 
   uint8_t pin10, uint8_t pin11, uint8_t pin12, uint8_t pin13) {
-  numberOfSwitches = 6;
+  numberOfSwitches = 13;
   Sobj = this;
   switchesPinTable [0] = pin1;
   switchesPinTable [1] = pin2;
@@ -167,10 +167,10 @@ void Switches::ReadWrite() {
 void Switches::SwitchesRead () {
 	for (int i = 0; i < Sobj->numberOfSwitches; i++) {
 #if defined (__MK20DX128__)
-	Sobj->switchesRaw |= digitalReadFast(i)  ;
+	Sobj->switchesRaw |= digitalReadFast(Sobj->switchesPinTable[i])  ;
         Sobj->switchesRaw <<= 1;
 #else
-        Sobj->switchesRaw |= digitalRead(i)  ;
+        Sobj->switchesRaw |= digitalRead(Sobj->switchesPinTable[i])  ;
         Sobj->switchesRaw <<= 1;
 #endif
 	}	

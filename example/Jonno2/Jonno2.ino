@@ -110,7 +110,7 @@ Fader slider1 (A1, 3); //Teensy pin and jitter suppression amount
 Fader slider2 (A2, 3);
 Fader slider3 (A3, 3);
 Fader slider4 (A6, 3);
-Rotary encoder1 (2, 6); // 2 and 6 are Teensy pin numbers, left and right
+Rotary encoder1 (2, 14); // 2 and 6 are Teensy pin numbers, left and right
 Switches Buttons (23, 22, 9, 10, 7, 11); //pins
 
 /************************
@@ -189,10 +189,7 @@ const char *peripheralArrayDisplayUpdate [8] {
 const int alpha [] {65, 66, 67, 68};
 
 /*Menu structure*/
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/master
 Menu mu1("* choose EXT HOST");
 Menu mu2("* set STOMP CC#'s");
 Menu mu3("* set FADER CC#'s");
@@ -279,7 +276,7 @@ void setup() {
   delay (500);
   display.setCursor(0, 0);
   display.setTextSize(1);
-  display.println("effects control system");
+  display.println("effect control system");
   display.display();
   delay (2000);
   display.clearDisplay();
@@ -318,14 +315,14 @@ void globalReset () {
     display.setTextSize(txtsize);
     switch (PRESET) {
       case TONESTACK_onSTAGE:
-          display.print (prog);
-          //display.printf ("%03d", prog);
+          //display.print (prog);
+          display.printf ("%03d", prog);
         break;
       case TONESTACK_PRESET_MGR:
       case AMPLITUBE:
       case NI_GUITAR_RIG:
-          display.print ((prog + 1))
-          //display.printf ("%03d", (prog + 1))
+          //display.print ((prog + 1));
+          display.printf ("%03d", (prog + 1));
         break;
       case BIASFX:
         display.setTextSize(txtsize);
@@ -369,6 +366,7 @@ void globalReset () {
 
   /*Button Callbacks*/
   void SelectPress (void) {
+   Serial.print ("Hello");
     switch (ENCMODE) {
       case PROG:
         switchesPressTimer = 0;
