@@ -316,13 +316,14 @@ void globalReset () {
     display.setTextSize(txtsize);
     switch (PRESET) {
       case TONESTACK_onSTAGE:
-          display.printf ("%03d", prog);
+          display.print (prog);
+          //display.printf ("%03d", prog);
         break;
       case TONESTACK_PRESET_MGR:
       case AMPLITUBE:
       case NI_GUITAR_RIG:
-        display.setTextSize(txtsize);
-          display.printf ("%03d", (prog + 1))
+          display.print ((prog + 1))
+          //display.printf ("%03d", (prog + 1))
         break;
       case BIASFX:
         display.setTextSize(txtsize);
