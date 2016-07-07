@@ -36,9 +36,10 @@ class
     void SetHandleB12OFF (void (void));
     void SetHandleB13ON (void (void));
     void SetHandleB13OFF (void (void));
-  private:
+uint8_t switchesPinTable [13];  
+private:
     static void SwitchesRead();
-    uint8_t switchesPinTable [13] = {};
+    
     uint8_t switchesArray [13] = {0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007};
     uint16_t switchesRaw;
     uint16_t switchesData;
