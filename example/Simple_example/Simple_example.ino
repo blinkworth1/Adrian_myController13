@@ -1,11 +1,9 @@
 #include <myController.h> // that the name of my library
 
-/*I have no idea about the t2++ pins, so I have just put random ones in ...*/
-
 Rotary encoder1 (4, 6); //a new encoder with left and right pins
 Rotary encoder2 (5, 7);
 Fader slider1 (A5, 4); // a new slider with an analog read pin, and "4" as the jitter-suppression setting
-Switches Buttons ( 8, 9, 10, 11, 12, 13); // pins for buttons ... note 8 is button 1, 9 is button 2.
+Switches Buttons (8,9,10,11,14, 22); // pins for buttons ... note 8 is button 1, 9 is button 2.
 int rotary1mod = 0;
 int rotary2mod = 0;
 int pitch = 0;
@@ -17,8 +15,8 @@ void setup() {
   encoder2.SetHandleLeft(left2);
   encoder2.SetHandleRight(right2);
 
-  slider1.SetHandleIncrease(up);
-  slider1.SetHandleDecrease(down);
+slider1.SetHandleIncrease(up);
+slider1.SetHandleDecrease(down);
 
   Buttons.SetHandleB1ON (but1ON);
   Buttons.SetHandleB1OFF (but1OFF);
@@ -38,9 +36,7 @@ void loop() {
   Rotary::ReadWrite(); // Sets the polling of both the encoders in motion.  No need for delays.
   Fader::ReadWrite();
   Switches::ReadWrite();
-}
-
-/*callbacks in pseudocode*/
+  }
 
 void left1 (void) {
   rotary1mod ++;
