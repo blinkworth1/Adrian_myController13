@@ -313,32 +313,16 @@ void globalReset () {
   }
 
   void presetNumberDisplayUpdate (int prog, int txtsize) {
+    display.setTextSize(txtsize);
     switch (PRESET) {
       case TONESTACK_onSTAGE:
-        display.setTextSize(txtsize);
-        if ((prog / 10) < 1) {
-          display.printf ("%d", prog);
-        }
-        else if ((prog / 10) < 2) {
-          display.printf ("%d", prog);
-        }
-        else {
-          display.println (program);
-        }
+          display.printf ("%03d", prog);
         break;
       case TONESTACK_PRESET_MGR:
       case AMPLITUBE:
       case NI_GUITAR_RIG:
         display.setTextSize(txtsize);
-        if (((prog + 1) / 10) < 1) {
-          display.printf ("%02d", (prog + 1));
-        }
-        else if (((prog + 1) / 10) < 2) {
-          display.printf ("%01d", (prog + 1));
-        }
-        else {
-          display.printf ("%d", (prog + 1));
-        }
+          display.printf ("%03d", (prog + 1))
         break;
       case BIASFX:
         display.setTextSize(txtsize);
