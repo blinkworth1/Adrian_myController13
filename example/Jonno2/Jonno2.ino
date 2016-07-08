@@ -189,9 +189,7 @@ const char *peripheralArrayDisplayUpdate [8] {
 };
 const int alpha [] {65, 66, 67, 68};
 
-
 /*Menu structure*/
-
 Menu mu1("* choose EXT HOST");
 Menu mu2("* set STOMP CC#'s");
 Menu mu3("* set FADER CC#'s");
