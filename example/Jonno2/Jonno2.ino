@@ -213,13 +213,12 @@ MenuItem mu3_mi4("FADER - 4   ", &on_item13_selected);
 BackMenuItem mu3_mi0("... back to menu ", &on_back3_item_selected, &ms);
 
 void setup() {
-  for (int i = 0; i < 117; i++){
+  for (int i = 0; i < 16; i++){
   if (EEPROM.read(i) > 127) {EEPROM.write (i, 1);}
   }
-  PRESET = (Preset)EEPROM.read(111);
-  bfxprogram = EEPROM.read(113);
-  program = EEPROM.read(115);
-  init = true;
+  PRESET = (Preset)EEPROM.read(11);
+  bfxprogram = EEPROM.read(13);
+  program = EEPROM.read(15);
   for (int i = 0; i < 8; i++) {
     storedCCnumber[i] = EEPROM.read(i);
   }
@@ -305,7 +304,7 @@ void loop() {
     display.setCursor(73, 12);
     display.setTextSize(1);
     display.print ("*");
-    presetNumberDisplayUpdate(EEPROM.read(115), 1);
+    presetNumberDisplayUpdate(EEPROM.read(15), 1);
     }
     else {INIT = false;}
     display.display();
@@ -381,11 +380,11 @@ void loop() {
       case PROG:
         if (PRESET == BIASFX) {
           midiA.sendProgramChange  (bfxprogram, channel);
-          EEPROM.write (113, bfxprogram);
+          EEPROM.write (13, bfxprogram);
         }
         else {
           midiA.sendProgramChange (program, channel);
-          EEPROM.write (115, program);
+          EEPROM.write (15, program);
         }
         display.clearDisplay();
         display.setCursor(55, 0);
@@ -399,7 +398,7 @@ void loop() {
       case EDITMENU:
         ms.select();
         if (ENCMODE == PROG) {
-          EEPROM.write (111, PRESET);
+          EEPROM.write (11, PRESET);
           display.clearDisplay();
           display.setCursor(0, 0);
           display.setTextSize(2);
