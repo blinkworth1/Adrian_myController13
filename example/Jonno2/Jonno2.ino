@@ -271,16 +271,16 @@ void setup() {
   display.setTextColor(WHITE);
   display.drawBitmap(0, 0, mybitmap, 128, 64, 1);
   display.display();
-  delay (3000);
+  delay (2000);
   display.clearDisplay();
-  delay (500);
-  display.setCursor(0, 0);
+  delay (100);
+  display.setCursor(0, 10);
   display.setTextSize(1);
-  display.println("effect control system");
+  display.println("-fx control system-");
   display.display();
   delay (2000);
   display.clearDisplay();
-  delay (500);
+  delay (1000);
   presetDisplayUpdate ();
   GLOBALRESET = true;
   INIT = true;
@@ -297,14 +297,15 @@ void loop() {
     display.clearDisplay();
     display.setCursor(0, 0);
     display.setTextSize(1);
-    display.println("select a preset..."); //((presetArrayDisplayUpdate [PRESET]) );
+    display.println("select next preset"); //((presetArrayDisplayUpdate [PRESET]) );
     display.setCursor(0, 12);
     presetNumberDisplayUpdate(program, 3);
-    if (init = false) {
-    display.setCursor(73, 12);
+    if (INIT = false) {
+    display.setCursor(84, 10);
     display.setTextSize(1);
-    display.print ("*");
-    presetNumberDisplayUpdate(EEPROM.read(15), 1);
+    display.print ("current");
+    display.setCursor(87, 18);
+    presetNumberDisplayUpdate(EEPROM.read(15), 2);
     }
     else {INIT = false;}
     display.display();
