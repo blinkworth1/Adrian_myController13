@@ -102,7 +102,6 @@ int bfxprogram = 0;
 uint8_t lcount = 0;
 uint8_t rcount = 0;
 uint8_t storedCCnumber [8] {0, 1, 2, 3, 4, 5, 6, 7};
-bool GLOBALRESET;
 RotaryMode ENCMODE = PROG;
 Preset PRESET = TONESTACK_onSTAGE;
 peripheral PERIPHERAL;
@@ -122,6 +121,8 @@ Switches Buttons (23, 22, 9, 10, 7, 11); //pins
   Button5     7   stomp3
   Button6     11  stomp4
  ************************/
+bool GLOBALRESET;
+bool INIT;
 
 /*Forward Declarations*/
 void on_itemEXIT_selected(MenuItem* p_menu_item);
@@ -188,6 +189,7 @@ const char *peripheralArrayDisplayUpdate [8] {
 };
 const int alpha [] {65, 66, 67, 68};
 
+
 /*Menu structure*/
 
 Menu mu1("* choose EXT HOST");
@@ -219,6 +221,7 @@ void setup() {
   PRESET = (Preset)EEPROM.read(111);
   bfxprogram = EEPROM.read(113);
   program = EEPROM.read(115);
+  init = true;
   for (int i = 0; i < 8; i++) {
     storedCCnumber[i] = EEPROM.read(i);
   }
@@ -282,18 +285,14 @@ void setup() {
   display.clearDisplay();
   delay (500);
   presetDisplayUpdate ();
-  globalReset();
+  GLOBALRESET = true;
+  INIT = true;
 }
 
 void loop() {
   Rotary::ReadWrite();
   Switches::ReadWrite();
   Fader::ReadWrite();
-}
-
-void globalReset () {
-  delay(500);
-  GLOBALRESET=true;
 }
 
   /*Display functions*/
@@ -304,10 +303,13 @@ void globalReset () {
     display.println("select a preset..."); //((presetArrayDisplayUpdate [PRESET]) );
     display.setCursor(0, 12);
     presetNumberDisplayUpdate(program, 3);
+    if (init = false) {
     display.setCursor(73, 12);
     display.setTextSize(1);
     display.print ("*");
     presetNumberDisplayUpdate(EEPROM.read(115), 1);
+    }
+    else {INIT = false;}
     display.display();
   }
 
