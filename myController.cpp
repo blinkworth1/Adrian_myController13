@@ -167,13 +167,13 @@ void Switches::ReadWrite() {
 void Switches::SwitchesRead () {
 	Sobj->switchesRaw = 0;
 	for (int i = 0; i < Sobj->numberOfSwitches; i++) {
+		Sobj->switchesRaw <<= 1;
 #if defined (__MK20DX128__)
-	Sobj->switchesRaw |= digitalReadFast(Sobj->switchesPinTable[i])  ;
+		Sobj->switchesRaw |= digitalReadFast(Sobj->switchesPinTable[i])  ;
 #else
-	Sobj->switchesRaw |= digitalRead(Sobj->switchesPinTable[i])  ;
+		Sobj->switchesRaw |= digitalRead(Sobj->switchesPinTable[i])  ;
 #endif
-        Sobj->switchesRaw <<= 1;
-	}	
+        	}	
 }
 
 Rotary::Rotary (uint8_t left, uint8_t right) {
