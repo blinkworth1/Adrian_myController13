@@ -394,7 +394,8 @@ void loop() {
         display.setCursor(73, 12);
         presetNumberDisplayUpdate (program, 3);
         display.display();
-        globalReset();
+        delay (400);
+        GLOBALRESET=true;
         break;
       case EDITMENU:
         ms.select();
@@ -463,7 +464,8 @@ void loop() {
           int time = switchesPressTimer - 1000;
           if (time < 0) {
             presetDisplayUpdate();
-             globalReset();
+             delay(400);
+             GLOBALRESET = true;
           }
           else {
             ENCMODE = EDITMENU;
