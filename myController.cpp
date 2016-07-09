@@ -164,12 +164,13 @@ void Switches::ReadWrite() {
 }
 
 void Switches::SwitchesRead () {
-	for (int i = 0; i < Sobj->numberOfSwitches; i++) {
-		Sobj->switchesRaw <<= 1;
+Sobj->switchesRaw = 0;	
+for (int i = 0; i < Sobj->numberOfSwitches; i++) {
+		
 #if defined (__MK20DX128__)
-		Sobj->switchesRaw |= digitalReadFast(Sobj->switchesPinTable[i])  ;
+		Sobj->switchesRaw |= ((digitalReadFast(Sobj->switchesPinTable[i]) << i)  ;
 #else
-		Sobj->switchesRaw |= digitalRead(Sobj->switchesPinTable[i])  ;
+		Sobj->switchesRaw |= ((digitalRead(Sobj->switchesPinTable[i]) << i)  ;
 #endif
         	}	
 }
