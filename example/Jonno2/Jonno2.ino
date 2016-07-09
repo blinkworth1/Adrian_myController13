@@ -300,7 +300,7 @@ void loop() {
     display.println("select next preset"); //((presetArrayDisplayUpdate [PRESET]) );
     display.setCursor(0, 12);
     presetNumberDisplayUpdate(program, 3);
-    if (INIT = false) {
+    if (INIT == false) {
     display.setCursor(84, 10);
     display.setTextSize(1);
     display.print ("current");

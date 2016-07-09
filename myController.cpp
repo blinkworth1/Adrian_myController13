@@ -45,10 +45,9 @@ Switches::Switches (uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4,
   switchesPinTable [11] = pin6;
   switchesPinTable [12] = pin6;
   for (int i = 0; i < numberOfSwitches; i++) {
-    delay (1);
+    //delay (1);
     pinMode(switchesPinTable [i], INPUT_PULLUP );
   }
-  delay (1000);
 }
 void Switches::SetHandleB1ON (void (*fptr) (void)) {
   switchesPointersON[0] = fptr;
@@ -165,7 +164,6 @@ void Switches::ReadWrite() {
 }
 
 void Switches::SwitchesRead () {
-	Sobj->switchesRaw = 0;
 	for (int i = 0; i < Sobj->numberOfSwitches; i++) {
 		Sobj->switchesRaw <<= 1;
 #if defined (__MK20DX128__)
