@@ -468,7 +468,9 @@ void loop() {
              GLOBALRESET = true;
           }
           else {
+            ms.reset();            
             ENCMODE = EDITMENU;
+            editMenuDisplayUpdate();
           }
         }
         break;
