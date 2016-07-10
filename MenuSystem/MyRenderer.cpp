@@ -7,6 +7,7 @@ displayptr = ptr;
 void MyRenderer::render(Menu const& menu) const
 {
     //Serial.print("\nCurrent menu name: ");
+    displayptr->setTextColor(WHITE);
     displayptr->println(menu.get_name());
     String buffer;
     MenuComponent const* cp_menu_sel = menu.get_current_component();
