@@ -168,9 +168,9 @@ Sobj->switchesRaw = 0;
 for (int i = 0; i < Sobj->numberOfSwitches; i++) {
 		
 #if defined (__MK20DX128__)
-		Sobj->switchesRaw |= ((digitalReadFast(Sobj->switchesPinTable[i]) << i)  ;
+		Sobj->switchesRaw |= ((digitalReadFast(Sobj->switchesPinTable[i])) << i  ;
 #else
-		Sobj->switchesRaw |= ((digitalRead(Sobj->switchesPinTable[i]) << i)  ;
+		Sobj->switchesRaw |= (digitalRead(Sobj->switchesPinTable[i])) << i  ;
 #endif
         	}	
 }

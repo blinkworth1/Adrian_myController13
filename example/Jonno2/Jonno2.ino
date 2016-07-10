@@ -123,6 +123,7 @@ Switches Buttons (23, 22, 9, 10, 7, 11); //pins
  ************************/
 bool GLOBALRESET;
 bool INIT;
+bool EXIT;
 
 /*Forward Declarations*/
 void on_itemEXIT_selected(MenuItem* p_menu_item);
@@ -167,11 +168,11 @@ void slider3SAME (int);
 void slider3SAME (int);
 
 /*Pointer Assignments*/
-const char ZERODisplayUpdate [] = "TONESTACK_onSTAGE";
-const char ONEDisplayUpdate [] = "TONESTACK_MGR";
-const char BIASFXDisplayUpdate [] = "BIASFX";
+const char ZERODisplayUpdate [] = "TONESTACK onSTAGE";
+const char ONEDisplayUpdate [] = "TONESTACK manager";
+const char BIASFXDisplayUpdate [] = "BIAS FX";
 const char AMPLITUDEDisplayUpdate [] = "AMPLITUBE";
-const char NIDisplayUpdate [] = "NI_GUITAR_RIG";
+const char NIDisplayUpdate [] = "NI GUITAR RIG";
 const char * presetArrayDisplayUpdate [5] {
   ZERODisplayUpdate, ONEDisplayUpdate, BIASFXDisplayUpdate, AMPLITUDEDisplayUpdate, NIDisplayUpdate
 };
@@ -281,9 +282,10 @@ void setup() {
   delay (2000);
   display.clearDisplay();
   delay (1000);
+  INIT = true;
   presetDisplayUpdate ();
   GLOBALRESET = true;
-  INIT = true;
+  EXIT = false;
 }
 
 void loop() {
@@ -296,6 +298,7 @@ void loop() {
   void presetDisplayUpdate (void) {
     display.clearDisplay();
     display.setCursor(0, 0);
+    display.setTextColor(WHITE);
     display.setTextSize(1);
     display.println("select next preset"); //((presetArrayDisplayUpdate [PRESET]) );
     display.setCursor(0, 12);
@@ -307,7 +310,6 @@ void loop() {
     display.setCursor(87, 18);
     presetNumberDisplayUpdate(EEPROM.read(15), 2);
     }
-    else {INIT = false;}
     display.display();
   }
 
@@ -337,12 +339,11 @@ void loop() {
   void peripheralDisplayUpdate (void) {
     display.clearDisplay();
     display.setCursor(0, 0);
-    display.setTextSize(2);
-    display.print((peripheralArrayDisplayUpdate [PERIPHERAL]) );
     display.setTextSize(1);
-    display.printf ("%s %d \n", " CC# ", storedCCnumber [PERIPHERAL] );
+    display.print((peripheralArrayDisplayUpdate [PERIPHERAL]) );
+    display.printf ("%s%03d \n"," current CC#",storedCCnumber [PERIPHERAL] );
     display.setTextSize(3);
-    display.println (CCnumber);
+    display.printf ("%03d\n",CCnumber);
     display.display();
   }
 
@@ -369,6 +370,7 @@ void loop() {
     switch (ENCMODE) {
       case PROG:
         switchesPressTimer = 0;
+        if (INIT == true) INIT = false;
         break;
       case EDITMENU:
       case CC:
@@ -379,6 +381,7 @@ void loop() {
   void SelectRelease (void) {
     switch (ENCMODE) {
       case PROG:
+       
         if (PRESET == BIASFX) {
           midiA.sendProgramChange  (bfxprogram, channel);
           EEPROM.write (13, bfxprogram);
@@ -400,14 +403,18 @@ void loop() {
       case EDITMENU:
         ms.select();
         if (ENCMODE == PROG) {
+           if (EXIT ==false) {
           EEPROM.write (11, PRESET);
           display.clearDisplay();
           display.setCursor(0, 0);
           display.setTextSize(2);
-          display.printf("%s \n %s \n",  presetArrayDisplayUpdate [PRESET], "SELECTED" );
+          display.printf("%s\n%s\n",  presetArrayDisplayUpdate [PRESET], "SELECTED" );
           display.display();
           delay (2500);
           editMenuDisplayUpdate ();
+          ENCMODE = EDITMENU;
+           }
+           else {EXIT = false; presetDisplayUpdate ();}
         }
         else if (ENCMODE == CC) {
           peripheralDisplayUpdate();
@@ -426,9 +433,11 @@ void loop() {
         display.clearDisplay();
         display.setCursor(0, 0);
         display.setTextSize(2);
-        display.println("CC STORED");
+        display.println("CC# STORED");
         display.setTextSize(3);
-        display.println(CCnumber);
+        display.printf("%03d\n", CCnumber);
+        display.setTextSize(2);
+        display.print((peripheralArrayDisplayUpdate [PERIPHERAL]) );
         display.display();
         delay (2500);
         editMenuDisplayUpdate ();
@@ -438,9 +447,11 @@ void loop() {
         display.clearDisplay();
         display.setCursor(0, 0);
         display.setTextSize(2);
-        display.println("CHANNEL STORED");
+        display.println("CHANNEL");
         display.setTextSize(3);
         display.println(channel);
+        display.setTextSize(2);
+        display.println("STORED");
         display.display();
         delay (2500);
         editMenuDisplayUpdate ();
@@ -451,10 +462,15 @@ void loop() {
     switch (ENCMODE) {
       case PROG:
         switchesPressTimer = 0;
+        ms.reset();
+        editMenuDisplayUpdate();
         break;
       case EDITMENU:
       case CC:
       case CHANNEL:
+      ENCMODE = EDITMENU;
+        ms.reset();
+        editMenuDisplayUpdate();
         break;
     }
   }
@@ -464,22 +480,18 @@ void loop() {
           int time = switchesPressTimer - 1000;
           if (time < 0) {
             presetDisplayUpdate();
-             delay(400);
+             delay(200);
              GLOBALRESET = true;
           }
-          else {
-            ms.reset();            
+          else {           
             ENCMODE = EDITMENU;
-            editMenuDisplayUpdate();
           }
         }
         break;
       case EDITMENU:
       case CC:
       case CHANNEL:
-        ENCMODE = EDITMENU;
-        ms.reset();
-        editMenuDisplayUpdate();
+        
         break;
     }
   }
@@ -552,6 +564,7 @@ void loop() {
           if (channel <= 0) {
             channel = 16;
           }
+           channelDisplayUpdate();
           break;
       }
     }
@@ -588,6 +601,7 @@ void loop() {
           if (channel >= 17) {
             channel = 1;
           }
+          channelDisplayUpdate();
           break;
       }
     }
@@ -660,6 +674,8 @@ void loop() {
   {
     ms.reset();
     ENCMODE = PROG;
+    Serial.print ("Hello");
+    EXIT = true;
 
   }
   void on_item0_selected(MenuItem * p_menu_item)
