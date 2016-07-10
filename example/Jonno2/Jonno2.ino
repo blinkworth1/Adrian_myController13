@@ -535,16 +535,14 @@ void loop() {
   /*Rotary Callbacks*/
   void Left (void) {
     lcount++;
-    if (lcount > 5) {
+    if (lcount > 3) {
       lcount = 0;
       switch (ENCMODE) {
         case PROG:
           program--;
           if (program <= -1) {
-            program = 127;
-          }
-          if (PRESET == BIASFX) {
-            bfxprogram = map(program, 0, 127, 0, 31);
+            if (PRESET == BIASFX) { program = 31;}
+            else {program = 127;}
           }
           presetDisplayUpdate ();
           break;
@@ -571,16 +569,14 @@ void loop() {
   }
   void Right (void) {
     rcount++;
-    if (rcount > 5) {
+    if (rcount > 3) {
       rcount = 0;
       switch (ENCMODE) {
         case PROG:
           program++;
-          if (program >= 128) {
+          if (PRESET == BIASFX && program >= 32) {program = 0;}
+          else if (program >= 128) {
             program = 0;
-            if (PRESET == BIASFX) {
-              bfxprogram = map(program, 0, 127, 0, 31);
-
             }
           }
           presetDisplayUpdate ();
