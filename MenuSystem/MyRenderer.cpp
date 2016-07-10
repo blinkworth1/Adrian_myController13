@@ -6,7 +6,6 @@ displayptr = ptr;
 
 void MyRenderer::render(Menu const& menu) const
 {
-    //Serial.print("\nCurrent menu name: ");
     displayptr->setTextColor(WHITE);
     displayptr->println(menu.get_name());
     String buffer;
@@ -14,17 +13,13 @@ void MyRenderer::render(Menu const& menu) const
     for (int i = 0; i < menu.get_num_menu_components(); ++i)
     {
         MenuComponent const* cp_m_comp = menu.get_menu_component(i);
-        if (cp_menu_sel == cp_m_comp)
-{
-displayptr->setTextColor(BLACK, WHITE);
-}
-else
-{
-displayptr->setTextColor(WHITE);
-}
-cp_m_comp->render(*this);
-        //if (cp_menu_sel == cp_m_comp)
-           // displayptr->print("<<< ");
+        if (cp_menu_sel == cp_m_comp)   {
+            displayptr->setTextColor(BLACK, WHITE);
+        }
+        else {
+            displayptr->setTextColor(WHITE);
+        }
+        cp_m_comp->render(*this);
         displayptr->println("");
     }
 }
