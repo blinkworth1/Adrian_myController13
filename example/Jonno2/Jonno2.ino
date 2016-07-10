@@ -317,21 +317,17 @@ void loop() {
     display.setTextSize(txtsize);
     switch (PRESET) {
       case TONESTACK_onSTAGE:
-          //display.print (prog);
           display.printf ("%03d", prog);
         break;
       case TONESTACK_PRESET_MGR:
       case AMPLITUBE:
       case NI_GUITAR_RIG:
-          //display.print ((prog + 1));
           display.printf ("%03d", (prog + 1));
         break;
       case BIASFX:
-        display.setTextSize(txtsize);
-        int letter = ((bfxprogram + 4) / 4);
-        int number = ((bfxprogram + 4) % 4) + 1;
-        display.print (number);
-        display.printf ("%c\r", alpha [letter]);
+        int letter = ((prog + 4) / 4);
+        int number = ((prog + 4) % 4) + 1;
+        display.printf ("%d%c\r",number,alpha [letter]);
         break;
     }
   }
