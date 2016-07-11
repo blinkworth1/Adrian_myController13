@@ -98,7 +98,7 @@ bool stomp4 = false;
 int channel = 1;
 int program = 0;
 int CCnumber = 0;
-int bfxprogram = 0;
+//int bfxprogram = 0;
 uint8_t lcount = 0;
 uint8_t rcount = 0;
 uint8_t storedCCnumber [8] {0, 1, 2, 3, 4, 5, 6, 7};
