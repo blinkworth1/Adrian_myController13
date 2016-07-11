@@ -98,7 +98,6 @@ bool stomp4 = false;
 int channel = 1;
 int program = 0;
 int CCnumber = 0;
-//int bfxprogram = 0;
 uint8_t lcount = 0;
 uint8_t rcount = 0;
 uint8_t storedCCnumber [8] {0, 1, 2, 3, 4, 5, 6, 7};
@@ -218,7 +217,7 @@ void setup() {
   if (EEPROM.read(i) > 127) {EEPROM.write (i, 1);}
   }
   PRESET = (Preset)EEPROM.read(11);
-  bfxprogram = EEPROM.read(13);
+  channel = EEPROM.read(10);
   program = EEPROM.read(15);
   for (int i = 0; i < 8; i++) {
     storedCCnumber[i] = EEPROM.read(i);
@@ -374,7 +373,7 @@ void loop() {
     display.println("GLOBAL MIDI CHANNEL");
     display.setCursor(0, 24);
     display.setTextSize(1);
-    display.printf ("%s%02d \n","current: CH#",channel );
+    display.printf ("%s%02d \n","current: CH#",EEPROM.read(10));
     display.setCursor(0, 43);
     display.setTextSize(1);
     display.print ("new:     ");
@@ -400,19 +399,12 @@ void loop() {
   void SelectRelease (void) {
     switch (ENCMODE) {
       case PROG:
-       
-        if (PRESET == BIASFX) {
-          midiA.sendProgramChange  (bfxprogram, channel);
-          EEPROM.write (13, bfxprogram);
-        }
-        else {
           midiA.sendProgramChange (program, channel);
           EEPROM.write (15, program);
-        }
         display.clearDisplay();
         display.setCursor(10, 4);
         display.setTextSize(1);
-        display.println ("- CURRENT PRESET -")
+        display.println ("- CURRENT PRESET -");
         display.setCursor(13, 22);
         presetNumberDisplayUpdate (program, 6);
         display.display();
@@ -471,7 +463,7 @@ void loop() {
         editMenuDisplayUpdate ();
         break;
       case CHANNEL:
-        EEPROM.write (100, channel);
+        EEPROM.write (10, channel);
         ENCMODE = EDITMENU;
         display.clearDisplay();
         display.setCursor(7, 0);
@@ -609,10 +601,7 @@ void loop() {
         case PROG:
           program++;
           if (PRESET == BIASFX && program >= 32) {program = 0;}
-          else if (program >= 128) {
-            program = 0;
-            }
-          }
+          else if (program >= 128) {program = 0;}
           presetDisplayUpdate ();
           break;
         case EDITMENU:
@@ -734,7 +723,7 @@ void loop() {
   }
   void on_item5_selected(MenuItem * p_menu_item)
   {
-    PRESET = NI_GUITAR_RIG;
+    PRESET = GUITAR_RIG;
     ENCMODE = PROG;
   }
   void on_back1_item_selected(MenuItem * p_menu_item)
