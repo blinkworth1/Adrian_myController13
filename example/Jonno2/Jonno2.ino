@@ -87,7 +87,7 @@ Adafruit_SSD1306 * dptr = &display;
 MyRenderer my_renderer (dptr);
 MenuSystem ms(my_renderer);
 MIDI_CREATE_INSTANCE (HardwareSerial, Serial1, midiA);
-enum Preset : uint8_t  {TONESTACK_onSTAGE, TONESTACK_PRESET_MGR, BIASFX, AMPLITUBE, NI_GUITAR_RIG};
+enum Preset : uint8_t  {TONESTACK_onSTAGE, TONESTACK_PRESET_MGR, BIASFX, AMPLITUBE, GUITAR_RIG};
 enum RotaryMode : uint8_t {PROG, EDITMENU, CC, CHANNEL};
 enum peripheral : uint8_t {Button1, Button2, Button3, Button4, Slider1, Slider2, Slider3, Slider4};
 elapsedMillis switchesPressTimer;
@@ -168,22 +168,22 @@ void slider3SAME (int);
 void slider3SAME (int);
 
 /*Pointer Assignments*/
-const char ZERODisplayUpdate [] = "TONESTACK onSTAGE";
-const char ONEDisplayUpdate [] = "TONESTACK manager";
+const char ZERODisplayUpdate [] = "TONESTACK (onSTAGE)";
+const char ONEDisplayUpdate [] = "TONESTACK (manager)";
 const char BIASFXDisplayUpdate [] = "BIAS FX";
 const char AMPLITUDEDisplayUpdate [] = "AMPLITUBE";
-const char NIDisplayUpdate [] = "NI GUITAR RIG";
+const char NIDisplayUpdate [] = "GUITAR RIG";
 const char * presetArrayDisplayUpdate [5] {
   ZERODisplayUpdate, ONEDisplayUpdate, BIASFXDisplayUpdate, AMPLITUDEDisplayUpdate, NIDisplayUpdate
 };
-const char B1DisplayUpdate [] = "STOMP1";
-const char B2DisplayUpdate [] = "STOMP2";
-const char B3DisplayUpdate [] = "STOMP3";
-const char B4DisplayUpdate [] = "STOMP4";
-const char S1DisplayUpdate [] = "FADER1";
-const char S2DisplayUpdate [] = "FADER2";
-const char S3DisplayUpdate [] = "FADER3";
-const char S4DisplayUpdate [] = "FADER4";
+const char B1DisplayUpdate [] = "STOMP - 1";
+const char B2DisplayUpdate [] = "STOMP - 2";
+const char B3DisplayUpdate [] = "STOMP - 3";
+const char B4DisplayUpdate [] = "STOMP - 4";
+const char S1DisplayUpdate [] = "FADER - 1";
+const char S2DisplayUpdate [] = "FADER - 2";
+const char S3DisplayUpdate [] = "FADER - 3";
+const char S4DisplayUpdate [] = "FADER - 4";
 const char *peripheralArrayDisplayUpdate [8] {
   B1DisplayUpdate, B2DisplayUpdate, B3DisplayUpdate, B4DisplayUpdate,
   S1DisplayUpdate, S2DisplayUpdate, S3DisplayUpdate, S4DisplayUpdate
@@ -191,16 +191,16 @@ const char *peripheralArrayDisplayUpdate [8] {
 const int alpha [] {65, 66, 67, 68};
 
 /*Menu structure*/
-Menu mu1("* choose EXT HOST");
-Menu mu2("* set STOMP CC#'s");
-Menu mu3("* set FADER CC#'s");
-MenuItem mm_mi1 ("* global MIDI CH#", &on_item0_selected);
-MenuItem mm_mi2 ("-------EXIT------", &on_itemEXIT_selected);
-MenuItem mu1_mi1("TONESTACK onSTAGE", &on_item1_selected);
-MenuItem mu1_mi2("TONESTACK manager", &on_item2_selected);
+Menu mu1(" * EXTERNAL HOST");
+Menu mu2(" * STOMP CC#'s");
+Menu mu3(" * FADER CC#'s");
+MenuItem mm_mi1 ("* GLOBAL MIDI CH#", &on_item0_selected);
+MenuItem mm_mi2 ("  ----  EXIT  ----", &on_itemEXIT_selected);
+MenuItem mu1_mi1("TONESTACK (onSTAGE)", &on_item1_selected);
+MenuItem mu1_mi2("TONESTACK (manager)", &on_item2_selected);
 MenuItem mu1_mi3("BIAS FX          ", &on_item3_selected);
 MenuItem mu1_mi4("AMPLITUBE        ", &on_item4_selected);
-MenuItem mu1_mi5("NI GUITAR RIG    ", &on_item5_selected);
+MenuItem mu1_mi5("GUITAR RIG    ", &on_item5_selected);
 BackMenuItem mu1_mi0("... back to menu ", &on_back1_item_selected, &ms);
 MenuItem mu2_mi1("STOMP - 1   ", &on_item6_selected);
 MenuItem mu2_mi2("STOMP - 2   ", &on_item7_selected);
@@ -272,16 +272,26 @@ void setup() {
   display.setTextColor(WHITE);
   display.drawBitmap(0, 0, mybitmap, 128, 64, 1);
   display.display();
-  delay (2000);
+  delay (1500);
   display.clearDisplay();
-  delay (100);
-  display.setCursor(0, 10);
+  delay (500);
+  display.setCursor(1, 26);
   display.setTextSize(1);
-  display.println("-fx control system-");
+  display.println("- fx control system -");
+  display.display();
+  delay (1000);
+  display.clearDisplay();
+  delay (500);
+  display.setCursor(1, 6);
+  display.setTextSize(1);
+  display.println("current host:");
+  display.setCursor(0, 25);
+  display.setTextSize(2);
+  display.println((presetArrayDisplayUpdate [PRESET]) );
   display.display();
   delay (2000);
   display.clearDisplay();
-  delay (1000);
+  delay (500);
   INIT = true;
   presetDisplayUpdate ();
   GLOBALRESET = true;
@@ -297,17 +307,17 @@ void loop() {
   /*Display functions*/
   void presetDisplayUpdate (void) {
     display.clearDisplay();
-    display.setCursor(0, 0);
+    display.setCursor(4, 4);
     display.setTextColor(WHITE);
     display.setTextSize(1);
-    display.println("select next preset"); //((presetArrayDisplayUpdate [PRESET]) );
-    display.setCursor(0, 12);
-    presetNumberDisplayUpdate(program, 3);
+    display.println("-SELECT NEXT PRESET-"); //((presetArrayDisplayUpdate [PRESET]) );
+    display.setCursor(0, 28);
+    presetNumberDisplayUpdate(program, 4);
     if (INIT == false) {
-    display.setCursor(84, 10);
+    display.setCursor(84, 27);
     display.setTextSize(1);
     display.print ("current");
-    display.setCursor(87, 18);
+    display.setCursor(91, 41);
     presetNumberDisplayUpdate(EEPROM.read(15), 2);
     }
     display.display();
@@ -321,7 +331,7 @@ void loop() {
         break;
       case TONESTACK_PRESET_MGR:
       case AMPLITUBE:
-      case NI_GUITAR_RIG:
+      case GUITAR_RIG:
           display.printf ("%03d", (prog + 1));
         break;
       case BIASFX:
@@ -334,10 +344,16 @@ void loop() {
 
   void peripheralDisplayUpdate (void) {
     display.clearDisplay();
-    display.setCursor(0, 0);
-    display.setTextSize(1);
+    display.setCursor(10, 0);
+    display.setTextSize(2);
     display.print((peripheralArrayDisplayUpdate [PERIPHERAL]) );
+    display.setCursor(0, 24);
+    display.setTextSize(1);
     display.printf ("%s%03d \n"," current CC#",storedCCnumber [PERIPHERAL] );
+    display.setCursor(0, 43);
+    display.setTextSize(1);
+    display.print ("new:     ");
+    display.setCursor(40, 43);
     display.setTextSize(3);
     display.printf ("%03d\n",CCnumber);
     display.display();
@@ -353,11 +369,18 @@ void loop() {
 
   void channelDisplayUpdate(void) {
     display.clearDisplay();
-    display.setCursor(0, 0);
-    display.setTextSize(2);
-    display.println("CHANNEL");
+    display.setCursor(7, 2);
+    display.setTextSize(1);
+    display.println("GLOBAL MIDI CHANNEL");
+    display.setCursor(0, 24);
+    display.setTextSize(1);
+    display.printf ("%s%02d \n","current: CH#",channel );
+display.setCursor(0, 43);
+    display.setTextSize(1);
+    display.print ("new:     ");
+    display.setCursor(52, 43);
     display.setTextSize(3);
-    display.println (channel);
+    display.printf ("%02d \n",channel);
     display.display();
   }
 
@@ -387,13 +410,13 @@ void loop() {
           EEPROM.write (15, program);
         }
         display.clearDisplay();
-        display.setCursor(55, 0);
+        display.setCursor(10, 4);
         display.setTextSize(1);
-        display.println("preset SENT!");
-        display.setCursor(73, 12);
-        presetNumberDisplayUpdate (program, 3);
+        display.println ("- CURRENT PRESET -")
+        display.setCursor(13, 22);
+        presetNumberDisplayUpdate (program, 6);
         display.display();
-        delay (400);
+        delay (500);
         GLOBALRESET=true;
         break;
       case EDITMENU:
@@ -402,9 +425,13 @@ void loop() {
            if (EXIT ==false) {
           EEPROM.write (11, PRESET);
           display.clearDisplay();
-          display.setCursor(0, 0);
+          display.setCursor(1, 6);
+          display.setTextSize(1);
+          display.println("HOST selected:");
+
+          display.setCursor(0, 25);
           display.setTextSize(2);
-          display.printf("%s\n%s\n",  presetArrayDisplayUpdate [PRESET], "SELECTED" );
+          display.printf("%s\n",  presetArrayDisplayUpdate [PRESET]);
           display.display();
           delay (2500);
           editMenuDisplayUpdate ();
@@ -427,13 +454,18 @@ void loop() {
         EEPROM.write (PERIPHERAL, CCnumber);
         ENCMODE = EDITMENU;
         display.clearDisplay();
-        display.setCursor(0, 0);
-        display.setTextSize(2);
-        display.println("CC# STORED");
-        display.setTextSize(3);
-        display.printf("%03d\n", CCnumber);
+        display.setCursor(10, 0);
         display.setTextSize(2);
         display.print((peripheralArrayDisplayUpdate [PERIPHERAL]) );
+        display.setCursor(4, 20);
+        display.setTextSize(2);
+        display.println("- STORED -");
+        display.setCursor(0, 43);
+        display.setTextSize(1);
+        display.print ("new:     ");
+        display.setCursor(40, 43);
+        display.setTextSize(3);
+        display.printf("%03d\n", CCnumber);
         display.display();
         delay (2500);
         editMenuDisplayUpdate ();
