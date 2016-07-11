@@ -310,7 +310,7 @@ void loop() {
     display.setCursor(4, 4);
     display.setTextColor(WHITE);
     display.setTextSize(1);
-    display.println("-SELECT NEXT PRESET-"); //((presetArrayDisplayUpdate [PRESET]) );
+    display.println("-SELECT NEXT PRESET-");
     display.setCursor(0, 28);
     presetNumberDisplayUpdate(program, 4);
     if (INIT == false) {
@@ -335,8 +335,8 @@ void loop() {
           display.printf ("%03d", (prog + 1));
         break;
       case BIASFX:
-        int letter = ((prog + 4) / 4);
-        int number = ((prog + 4) % 4) + 1;
+        int number = ((prog + 4) / 4);
+        int letter = ((prog + 4) % 4);
         display.printf ("%d%c\r",number,alpha [letter]);
         break;
     }
