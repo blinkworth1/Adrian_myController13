@@ -336,10 +336,11 @@ public:
     Menu& get_root_menu() const;
     Menu const* get_current_menu() const;
 
-private:
+
     Menu* _p_root_menu;
     Menu* _p_curr_menu;
-    MenuComponentRenderer const& _renderer;
+private:    
+MenuComponentRenderer const& _renderer;
 };
 
 

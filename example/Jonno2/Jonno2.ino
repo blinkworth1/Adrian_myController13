@@ -362,6 +362,7 @@ void loop() {
     display.clearDisplay();
     display.setTextSize(1);
     display.setCursor(0, 0);
+    if (ms._p_curr_menu == ms._p_root_menu) {display.println ("REJOICE");}
     ms.display();
     display.display();
   }
@@ -600,7 +601,7 @@ void loop() {
       switch (ENCMODE) {
         case PROG:
           program++;
-          if (PRESET == BIASFX && program >= 32) {program = 0;}
+          if ((PRESET == BIASFX) && (program >= 32)) {program = 0;}
           else if (program >= 128) {program = 0;}
           presetDisplayUpdate ();
           break;
