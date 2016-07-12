@@ -346,18 +346,21 @@ void loop() {
   void peripheralDisplayUpdate (void) {
     display.clearDisplay();
     display.setCursor(10, 0);
-    display.setTextSize(2);
+    //display.setTextSize(2);
+    display.setFont (&FreeSans12pt7b);
     display.print((peripheralArrayDisplayUpdate [PERIPHERAL]) );
+    display.setFont ();
     display.setCursor(0, 24);
     display.setTextSize(1);
     display.printf ("%s%03d \n"," current CC#",storedCCnumber [PERIPHERAL] );
     display.setCursor(0, 43);
-    display.setTextSize(1);
     display.print ("new:     ");
     display.setCursor(40, 43);
-    display.setTextSize(3);
+    display.setFont (&FreeSans24pt7b);
+    //display.setTextSize(3);
     display.printf ("%03d\n",CCnumber);
     display.display();
+    display.setFont ();
   }
 
   void editMenuDisplayUpdate (void) {
@@ -381,9 +384,11 @@ void loop() {
     display.setTextSize(1);
     display.print ("new:     ");
     display.setCursor(52, 43);
-    display.setTextSize(3);
+    //display.setTextSize(3);
+    display.setFont (&FreeSans24pt7b);
     display.printf ("%02d \n",channel);
     display.display();
+    display.setFont ();
   }
 
   /*Button Callbacks*/
