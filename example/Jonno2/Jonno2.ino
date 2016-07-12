@@ -325,10 +325,10 @@ void loop() {
   void presetNumberDisplayUpdate (int prog, int txtsize) {
     display.setTextSize(txtsize);
     switch (PRESET) {
-      case TONESTACK_onSTAGE:
+      case TONESTACK__PRESET_MGR:
           display.printf ("%03d", prog);
         break;
-      case TONESTACK_PRESET_MGR:
+      case TONESTACK_onSTAGE:
       case AMPLITUBE:
       case GUITAR_RIG:
           display.printf ("%03d", (prog + 1));
