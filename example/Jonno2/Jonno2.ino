@@ -323,7 +323,8 @@ void loop() {
   }
 
   void presetNumberDisplayUpdate (int prog, int txtsize) {
-    display.setTextSize(txtsize);
+    if (txtsize == 2) {display.setFont (&FreeSans12pt7b);
+    if (txtsize == 4) {display.setFont (&FreeSans24pt7b);
     switch (PRESET) {
       case TONESTACK__PRESET_MGR:
           display.printf ("%03d", prog);
@@ -339,6 +340,7 @@ void loop() {
         display.printf ("%d%c\r",number,alpha [letter]);
         break;
     }
+    display.setFont ();
   }
 
   void peripheralDisplayUpdate (void) {
