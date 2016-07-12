@@ -275,6 +275,7 @@ void setup() {
   display.clearDisplay();
   delay (500);
   display.setCursor(1, 26);
+  display.setFont();
   display.setTextSize(1);
   display.println("- fx control system -");
   display.display();
@@ -285,8 +286,10 @@ void setup() {
   display.setTextSize(1);
   display.println("current host:");
   display.setCursor(0, 25);
-  display.setTextSize(2);
+  //display.setTextSize(2);
+  display.setFont (&FreeSans12pt7b);
   display.println((presetArrayDisplayUpdate [PRESET]) );
+  display.setFont();
   display.display();
   delay (2000);
   display.clearDisplay();
@@ -323,8 +326,8 @@ void loop() {
   }
 
   void presetNumberDisplayUpdate (int prog, int txtsize) {
-    if (txtsize == 2) {display.setFont (&FreeSans12pt7b);
-    if (txtsize == 4) {display.setFont (&FreeSans24pt7b);
+    if (txtsize == 2) {display.setFont (&FreeSans12pt7b)};
+    if (txtsize == 4) {display.setFont (&FreeSans24pt7b)};
     switch (PRESET) {
       case TONESTACK__PRESET_MGR:
           display.printf ("%03d", prog);
@@ -378,10 +381,8 @@ void loop() {
     display.setTextSize(1);
     display.println("GLOBAL MIDI CHANNEL");
     display.setCursor(0, 24);
-    display.setTextSize(1);
     display.printf ("%s%02d \n","current: CH#",EEPROM.read(10));
     display.setCursor(0, 43);
-    display.setTextSize(1);
     display.print ("new:     ");
     display.setCursor(52, 43);
     //display.setTextSize(3);
