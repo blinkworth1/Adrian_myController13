@@ -426,6 +426,7 @@ void SelectPress (void) {
     case EDITMENU:
     case CC:
     case CHANNEL:
+    case BUTTPRESS:
       break;
   }
 }
@@ -518,6 +519,9 @@ void SelectRelease (void) {
       delay (2500);
       editMenuDisplayUpdate ();
       break;
+      case BUTTPRESS:
+      ENCMODE = PROG;
+      presetDisplayUpdate();
   }
 }
 void EditPress (void) {
