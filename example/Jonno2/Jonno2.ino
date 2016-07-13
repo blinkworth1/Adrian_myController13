@@ -88,9 +88,10 @@ MyRenderer my_renderer (dptr);
 MenuSystem ms(my_renderer);
 MIDI_CREATE_INSTANCE (HardwareSerial, Serial1, midiA);
 enum Preset : uint8_t  {TONESTACK_onSTAGE, TONESTACK_PRESET_MGR, BIASFX, AMPLITUBE, GUITAR_RIG};
-enum RotaryMode : uint8_t {PROG, EDITMENU, CC, CHANNEL, BUTTPRESS};
+enum RotaryMode : uint8_t {PROG, EDITMENU, CC, CHANNEL, BUTTPRESS, GLOBAL};
 enum peripheral : uint8_t {Button1, Button2, Button3, Button4, Slider1, Slider2, Slider3, Slider4};
 elapsedMillis switchesPressTimer;
+int msdelay = 100;
 int channel = 1;
 int program = 0;
 int CCnumber = 0;
@@ -121,6 +122,7 @@ bool INIT;
 bool EXIT;
 
 /*Forward Declarations*/
+void on_itemGLOBAL_selected(MenuItem* p_menu_item);
 void on_itemEXIT_selected(MenuItem* p_menu_item);
 void on_item0_selected(MenuItem* p_menu_item);
 void on_item1_selected(MenuItem* p_menu_item);
@@ -169,7 +171,8 @@ const char BIASFXDisplayUpdate [] = "BIAS FX";
 const char AMPLITUDEDisplayUpdate [] = "AMPLITUBE";
 const char NIDisplayUpdate [] = "GUITAR RIG";
 const char * presetArrayDisplayUpdate [5] {
-  ZERODisplayUpdate, ONEDisplayUpdate, BIASFXDisplayUpdate, AMPLITUDEDisplayUpdate, NIDisplayUpdate
+  ZERODisplayUpdate, ONEDisplayUpdate, BIASFXDisplayUpdate,
+  AMPLITUDEDisplayUpdate, NIDisplayUpdate
 };
 const char B1DisplayUpdate [] = "STOMP - 1";
 const char B2DisplayUpdate [] = "STOMP - 2";
@@ -192,6 +195,7 @@ const int alpha [] {65, 66, 67, 68};
 Menu mu1(" * EXTERNAL HOST");
 Menu mu2(" * STOMP CC#'s");
 Menu mu3(" * FADER CC#'s");
+MenuItem mm_mi0 ("* GLOBAL RESET DLY", &on_itemGLOBAL_selected);
 MenuItem mm_mi1 ("* GLOBAL MIDI CH#", &on_item0_selected);
 MenuItem mm_mi2 ("  ----  EXIT  ----", &on_itemEXIT_selected);
 MenuItem mu1_mi1("TONESTACK (onSTAGE)", &on_item1_selected);
@@ -220,6 +224,7 @@ void setup() {
   PRESET = (Preset)EEPROM.read(11);
   channel = EEPROM.read(10);
   program = EEPROM.read(15);
+  msdelay = EEPROM.read(9);
   for (int i = 0; i < 8; i++) {
     storedCCnumber[i] = EEPROM.read(i);
   }
@@ -249,6 +254,7 @@ void setup() {
   ms.get_root_menu().add_menu(&mu1);
   ms.get_root_menu().add_menu(&mu2);
   ms.get_root_menu().add_menu(&mu3);
+  ms.get_root_menu().add_item(&mm_mi0);
   ms.get_root_menu().add_item(&mm_mi1);
   ms.get_root_menu().add_item(&mm_mi2);
   mu1.add_item(&mu1_mi1);
@@ -357,7 +363,7 @@ void buttpressDisplayUpdate (void) {
   display.setTextColor(WHITE);
   display.setTextSize(1);
   for (int i = 0; i < 4; i++) {
-    display.printf("%s %s\n\n", peripheralArrayDisplayUpdate [i],buttOnOff[i]);
+    display.printf("%s %s\n\n", peripheralArrayDisplayUpdate [i], buttOnOff[i]);
   }
   if (INIT == false) {
     display.setCursor(84, 27);
@@ -416,6 +422,23 @@ void channelDisplayUpdate(void) {
   display.setFont ();
 }
 
+void globalDisplayUpdate(void) {
+  display.clearDisplay();
+  display.setCursor(7, 2);
+  display.setTextSize(1);
+  display.println("GLOBAL RESET DELAY");
+  display.setCursor(0, 24);
+  display.printf ("%s%03d \n", "current: ms ", EEPROM.read(9));
+  display.setCursor(0, 43);
+  display.print ("new:     ");
+  display.setCursor(52, 43);
+  //display.setTextSize(3);
+  display.setFont (&FreeSans24pt7b);
+  display.printf ("%03d \n", msdelay);
+  display.display();
+  display.setFont ();
+}
+
 /*Button Callbacks*/
 void SelectPress (void) {
   switch (ENCMODE) {
@@ -426,6 +449,8 @@ void SelectPress (void) {
     case EDITMENU:
     case CC:
     case CHANNEL:
+    case BUTTPRESS:
+    case GLOBAL:
       break;
   }
 }
@@ -439,9 +464,9 @@ void SelectRelease (void) {
       display.setTextSize(1);
       display.println ("- CURRENT PRESET -");
       display.setCursor(13, 22);
-      presetNumberDisplayUpdate (program, 6);
+      presetNumberDisplayUpdate (program, 4);
       display.display();
-      delay (500);
+      delay (msdelay);
       GLOBALRESET = true;
       break;
     case EDITMENU:
@@ -453,11 +478,12 @@ void SelectRelease (void) {
           display.setCursor(1, 6);
           display.setTextSize(1);
           display.println("HOST selected:");
-
           display.setCursor(0, 25);
-          display.setTextSize(2);
+          //display.setTextSize(2);
+          display.setFont (&FreeSans12pt7b);
           display.printf("%s\n",  presetArrayDisplayUpdate [PRESET]);
           display.display();
+          display.setFont();
           delay (2500);
           editMenuDisplayUpdate ();
           ENCMODE = EDITMENU;
@@ -473,6 +499,9 @@ void SelectRelease (void) {
       else if (ENCMODE == CHANNEL) {
         channelDisplayUpdate();
       }
+      else if (ENCMODE == GLOBAL) {
+        globalDisplayUpdate();
+      }
       else {
         editMenuDisplayUpdate ();
       }
@@ -483,16 +512,18 @@ void SelectRelease (void) {
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(10, 0);
-      display.setTextSize(2);
+      //display.setTextSize(2);
+      display.setFont (&FreeSans12pt7b);
       display.print((peripheralArrayDisplayUpdate [PERIPHERAL]) );
       display.setCursor(4, 20);
-      display.setTextSize(2);
+      //display.setTextSize(2);
       display.println("- STORED -");
       display.setCursor(0, 43);
       display.setTextSize(1);
       display.print ("new:     ");
+      display.setFont (&FreeSans24pt7b);
       display.setCursor(40, 43);
-      display.setTextSize(3);
+      //display.setTextSize(3);
       display.printf("%03d\n", CCnumber);
       display.display();
       delay (2500);
@@ -502,21 +533,50 @@ void SelectRelease (void) {
       EEPROM.write (10, channel);
       ENCMODE = EDITMENU;
       display.clearDisplay();
+      display.setFont (&FreeSans12pt7b);
       display.setCursor(7, 0);
-      display.setTextSize(1);
+      //display.setTextSize(1);
       display.println("GLOBAL MIDI CHANNEL");
       display.setCursor(4, 20);
-      display.setTextSize(2);
+      //display.setTextSize(2);
       display.printf ("- STORED -" );
+      display.setFont();
       display.setCursor(0, 43);
       display.setTextSize(1);
       display.print ("new:     ");
+      display.setFont (&FreeSans24pt7b);
       display.setCursor(52, 43);
       display.setTextSize(3);
       display.printf ("%02d \n", channel);
       display.display();
       delay (2500);
       editMenuDisplayUpdate ();
+      break;
+    case GLOBAL:
+      EEPROM.write (9, msdelay);
+      ENCMODE = EDITMENU;
+      display.clearDisplay();
+      display.setFont (&FreeSans12pt7b);
+      display.setCursor(7, 0);
+      display.setTextSize(1);
+      display.println("GLOBAL RESET DELAY");
+      display.setCursor(4, 20);
+      //display.setTextSize(2);
+      display.printf ("- STORED -" );
+      display.setCursor(0, 43);
+      display.setTextSize(1);
+      display.print ("new:     ");
+      display.setFont (&FreeSans24pt7b);
+      display.setCursor(52, 43);
+      display.setTextSize(3);
+      display.printf ("%02d \n", msdelay);
+      display.display();
+      delay (2500);
+      editMenuDisplayUpdate ();
+      break;
+    case BUTTPRESS:
+      ENCMODE = PROG;
+      presetDisplayUpdate ();
       break;
   }
 }
@@ -530,10 +590,15 @@ void EditPress (void) {
     case EDITMENU:
     case CC:
     case CHANNEL:
+    case GLOBAL:
       ENCMODE = EDITMENU;
       ms.reset();
       editMenuDisplayUpdate();
       break;
+    case BUTTPRESS:
+      ENCMODE = PROG;
+      presetDisplayUpdate ();
+
   }
 }
 void EditRelease (void) {
@@ -553,7 +618,8 @@ void EditRelease (void) {
     case EDITMENU:
     case CC:
     case CHANNEL:
-
+    case GLOBAL:
+    case BUTTPRESS:
       break;
   }
 }
@@ -574,7 +640,7 @@ void Stomp2ON(void) {
     buttOnOff[1] = buttOn;
   } else {
     midiA.sendControlChange (storedCCnumber[1], 127, channel);
-  buttOnOff[1] = buttOff;
+    buttOnOff[1] = buttOff;
   }
   ENCMODE = BUTTPRESS;
   buttpressDisplayUpdate();
@@ -639,6 +705,17 @@ void Left (void) {
         }
         channelDisplayUpdate();
         break;
+      case GLOBAL:
+        msdelay -= 100;
+        if (msdelay <= 0) {
+          msdelay = 0;
+        }
+        globalDisplayUpdate();
+        break;
+      case BUTTPRESS:
+        ENCMODE = PROG;
+        presetDisplayUpdate();
+        break;
     }
   }
 }
@@ -674,6 +751,17 @@ void Right (void) {
           channel = 1;
         }
         channelDisplayUpdate();
+        break;
+      case GLOBAL:
+        msdelay += 100;
+        if (msdelay <= 1000) {
+          msdelay = 1000;
+        }
+        globalDisplayUpdate();
+        break;
+      case BUTTPRESS:
+        ENCMODE = PROG;
+        presetDisplayUpdate();
         break;
     }
   }
@@ -742,11 +830,14 @@ void slider4SAME (int currentValue) {
 
 
 /*Menu Callbacks*/
+void on_itemGLOBAL_selected(MenuItem * p_menu_item)
+{
+  ENCMODE = GLOBAL;
+}
 void on_itemEXIT_selected(MenuItem * p_menu_item)
 {
   ms.reset();
   ENCMODE = PROG;
-  Serial.print ("Hello");
   EXIT = true;
 
 }
