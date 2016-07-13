@@ -14,9 +14,9 @@
 #include "CustomNumericMenuItem.h"
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include <FreeSans12pt7b.h>
-#include <FreeSans24pt7b.h>
-#include <FreeSans9pt7b.h>
+#include "FreeSans12pt7b.h"
+#include "FreeSans24pt7b.h"
+#include "FreeSans9pt7b.h"
 
 class CustomNumericMenuItem;
 

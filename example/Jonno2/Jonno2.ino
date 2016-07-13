@@ -334,7 +334,7 @@ void presetNumberDisplayUpdate (int prog, int txtsize) {
     display.setFont (&FreeSans24pt7b);
   }
   switch (PRESET) {
-    case TONESTACK__PRESET_MGR:
+    case TONESTACK_PRESET_MGR:
       display.printf ("%03d", prog);
       break;
     case TONESTACK_onSTAGE:
@@ -592,12 +592,12 @@ void Stomp3ON(void) {
   buttpressDisplayUpdate();
 }
 void Stomp4ON(void) {
-  if (buttOnOff[3 == buttOff) {
+  if (buttOnOff[3] == buttOff) {
     midiA.sendControlChange (storedCCnumber[3], 0, channel);
     buttOnOff[3] = buttOn;
   } else {
     midiA.sendControlChange (storedCCnumber[3], 127, channel);
-    buttOnOff[3] == buttOff;
+    buttOnOff[3] = buttOff;
   }
   ENCMODE = BUTTPRESS;
   buttpressDisplayUpdate();
