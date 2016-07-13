@@ -606,8 +606,14 @@ void EditRelease (void) {
     case PROG: {
         int time = switchesPressTimer - 1000;
         if (time < 0) {
-          presetDisplayUpdate();
+          display.clear();
+          display.setCursor(1, 26);
+  display.setFont();
+  display.setTextSize(1);
+  display.println("- faders updated -");
+  display.display();
           delay(200);
+          presetDisplayUpdate();
           GLOBALRESET = true;
         }
         else {
