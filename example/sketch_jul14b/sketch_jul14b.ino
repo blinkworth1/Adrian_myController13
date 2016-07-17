@@ -6,6 +6,7 @@ int rotary1mod = 0;
 int pwm = 8; //pwm pin
 
 void setup() {
+  pinMode (pwm, OUTPUT);
   encoder1.SetHandleLeft(left1);
   encoder1.SetHandleRight(right1);
 }
