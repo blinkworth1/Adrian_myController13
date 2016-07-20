@@ -3,7 +3,7 @@
 Rotary encoder1 (4, 6); //a new encoder with left and right pins
 
 int rotary1mod = 0;
-int pwm = 8; //pwm pin
+int pwm = 4; //pwm pin
 
 void setup() {
   pinMode (pwm, OUTPUT);
@@ -27,7 +27,7 @@ void left1 (void) {
 
 void right1 (void) {
   rotary1mod --;
-  if (rotary1mod >= 0) {
+  if (rotary1mod <= 0) {
     rotary1mod = 0;
   }
 analogWrite (pwm, rotary1mod); 
