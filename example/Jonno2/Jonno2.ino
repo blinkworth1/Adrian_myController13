@@ -198,23 +198,23 @@ Menu mu2("* STOMP CC#'s");
 Menu mu3("* FADER CC#'s");
 MenuItem mm_mi0 ("* GLOBAL RESET DLY", &on_itemGLOBAL_selected);
 MenuItem mm_mi1 ("* GLOBAL MIDI CH#", &on_item0_selected);
-MenuItem mm_mi2 ("  ----  EXIT  ----", &on_itemEXIT_selected);
+//MenuItem mm_mi2 ("  ----  EXIT  ----", &on_itemEXIT_selected);
 MenuItem mu1_mi1("TONESTACK (onSTAGE)", &on_item1_selected);
 MenuItem mu1_mi2("TONESTACK (manager)", &on_item2_selected);
 MenuItem mu1_mi3("BIAS FX          ", &on_item3_selected);
 MenuItem mu1_mi4("AMPLITUBE        ", &on_item4_selected);
 MenuItem mu1_mi5("GUITAR RIG    ", &on_item5_selected);
-BackMenuItem mu1_mi0("... back to menu ", &on_back1_item_selected, &ms);
+//BackMenuItem mu1_mi0("... back to menu ", &on_back1_item_selected, &ms);
 MenuItem mu2_mi1("STOMP - 1   ", &on_item6_selected);
 MenuItem mu2_mi2("STOMP - 2   ", &on_item7_selected);
 MenuItem mu2_mi3("STOMP - 3   ", &on_item8_selected);
 MenuItem mu2_mi4("STOMP - 4   ", &on_item9_selected);
-BackMenuItem mu2_mi0("... back to menu ", &on_back2_item_selected, &ms);
+//BackMenuItem mu2_mi0("... back to menu ", &on_back2_item_selected, &ms);
 MenuItem mu3_mi1("FADER - 1   ", &on_item10_selected);
 MenuItem mu3_mi2("FADER - 2   ", &on_item11_selected);
 MenuItem mu3_mi3("FADER - 3   ", &on_item12_selected);
 MenuItem mu3_mi4("FADER - 4   ", &on_item13_selected);
-BackMenuItem mu3_mi0("... back to menu ", &on_back3_item_selected, &ms);
+//BackMenuItem mu3_mi0("... back to menu ", &on_back3_item_selected, &ms);
 
 void setup() {
   for (int i = 0; i < 16; i++) {
@@ -257,23 +257,23 @@ void setup() {
   ms.get_root_menu().add_menu(&mu3);
   ms.get_root_menu().add_item(&mm_mi0);
   ms.get_root_menu().add_item(&mm_mi1);
-  ms.get_root_menu().add_item(&mm_mi2);
+  //ms.get_root_menu().add_item(&mm_mi2);
   mu1.add_item(&mu1_mi1);
   mu1.add_item(&mu1_mi2);
   mu1.add_item(&mu1_mi3);
   mu1.add_item(&mu1_mi4);
   mu1.add_item(&mu1_mi5);
-  mu1.add_item(&mu1_mi0);
+  //mu1.add_item(&mu1_mi0);
   mu2.add_item(&mu2_mi1);
   mu2.add_item(&mu2_mi2);
   mu2.add_item(&mu2_mi3);
   mu2.add_item(&mu2_mi4);
-  mu2.add_item(&mu2_mi0);
+  //mu2.add_item(&mu2_mi0);
   mu3.add_item(&mu3_mi1);
   mu3.add_item(&mu3_mi2);
   mu3.add_item(&mu3_mi3);
   mu3.add_item(&mu3_mi4);
-  mu3.add_item(&mu3_mi0);
+  //mu3.add_item(&mu3_mi0);
   display.begin (SSD1306_SWITCHCAPVCC, 0x3D);
   display.clearDisplay();
   display.setTextColor(WHITE);
@@ -330,10 +330,10 @@ void presetDisplayUpdate (void) {
 
 void presetNumberDisplayUpdate (int prog, int txtsize) {
   if (txtsize == 2) {
-    display.setFont (&FreeSans12pt7b);
+    display.setFont (&FreeMono12pt7b);
   }
   if (txtsize == 4) {
-    display.setFont (&FreeSans24pt7b);
+    display.setFont (&FreeMono24pt7b);
   }
   switch (PRESET) {
     case TONESTACK_PRESET_MGR:
@@ -380,7 +380,7 @@ void peripheralDisplayUpdate (void) {
   display.setCursor(0, 43);
   display.print ("new:     ");
   display.setCursor(55, 43);
-  display.setFont (&FreeSans12pt7b);
+  display.setFont (&FreeMono12pt7b);
   display.printf ("%03d",CCnumber);
   display.display();
   display.setFont ();
@@ -407,7 +407,7 @@ void channelDisplayUpdate(void) {
   display.print ("new:     ");
   display.setCursor(55, 43);
   //display.setTextSize(3);
-  display.setFont (&FreeSans12pt7b);
+  display.setFont (&FreeMono12pt7b);
   display.printf ("%02d",channel);
   display.display();
   display.setFont ();
@@ -423,7 +423,7 @@ void globalDisplayUpdate(void) {
   display.print ("new:     ");
   display.setCursor(55, 43);
   //display.setTextSize(3);
-  display.setFont (&FreeSans12pt7b);
+  display.setFont (&FreeMono12pt7b);
   display.printf ("%02d",msdelay);
   display.display();
   display.setFont ();
@@ -440,10 +440,7 @@ void SelectPress (void) {
     case CC:
     case CHANNEL:
     case BUTTPRESS:
-<<<<<<< HEAD
-=======
     case GLOBAL:
->>>>>>> origin/master
       break;
   }
 }
@@ -473,7 +470,7 @@ void SelectRelease (void) {
           display.println("HOST selected:");
           display.printf("%s\n",presetArrayDisplayUpdate [PRESET]);
           display.setCursor(0, 43);
-          display.setFont (&FreeSans12pt7b);
+          display.setFont (&FreeMono12pt7b);
           //display.setTextSize(2);
           display.println("- STORED -");
           display.display();
@@ -510,7 +507,7 @@ void SelectRelease (void) {
       display.printf("%s%s\n","* ",(peripheralArrayDisplayUpdate [PERIPHERAL]) );
       display.printf ("%s%03d","current CC#: ",storedCCnumber [PERIPHERAL]);
       display.setCursor(0, 43);
-      display.setFont (&FreeSans12pt7b);
+      display.setFont (&FreeMono12pt7b);
       //display.setTextSize(2);
       display.println("- STORED -");
       display.display();
@@ -527,7 +524,7 @@ void SelectRelease (void) {
       display.println("* GLOBAL MIDI CHANNEL");
       display.printf ("%s%02d","current CH#: ",channel);
       display.setCursor(0, 43);
-      display.setFont (&FreeSans12pt7b);
+      display.setFont (&FreeMono12pt7b);
       //display.setTextSize(2);
       display.println("- STORED -");
       display.display();
@@ -545,23 +542,17 @@ void SelectRelease (void) {
       display.println("* GLOBAL RESET DELAY");
       display.printf ("%s%d","current dly: ",msdelay);
       display.setCursor(0, 43);
-      display.setFont (&FreeSans12pt7b);
+      display.setFont (&FreeMono12pt7b);
       display.println("- STORED -");
       display.display();
       display.setFont();
       delay (2500);
       editMenuDisplayUpdate ();
       break;
-<<<<<<< HEAD
-      case BUTTPRESS:
-      ENCMODE = PROG;
-      presetDisplayUpdate();
-=======
     case BUTTPRESS:
       ENCMODE = PROG;
       presetDisplayUpdate ();
       break;
->>>>>>> origin/master
   }
 }
 void EditPress (void) {
