@@ -27,11 +27,13 @@ void MyRenderer::render(Menu const& menu) const
 void MyRenderer::render_menu_item(MenuItem const& menu_item) const
 {
 displayptr->print(menu_item.get_name());
+displayptr->setTextColor(WHITE);
 }
 
 void MyRenderer::render_back_menu_item(BackMenuItem const& menu_item) const
 {
 displayptr->print(menu_item.get_name());
+displayptr->setTextColor(WHITE);
 }
 
 void MyRenderer::render_numeric_menu_item(NumericMenuItem const& menu_item) const
@@ -91,4 +93,5 @@ void MyRenderer::render_menu(Menu const& menu) const
 {
     
 displayptr->print(menu.get_name());
+displayptr->setTextColor(WHITE);
 }
