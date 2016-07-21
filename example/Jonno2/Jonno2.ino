@@ -92,6 +92,7 @@ enum RotaryMode : uint8_t {PROG, EDITMENU, CC, CHANNEL, BUTTPRESS, GLOBAL, LED};
 enum peripheral : uint8_t {Button1, Button2, Button3, Button4, Slider1, Slider2, Slider3, Slider4};
 elapsedMillis switchesPressTimer;
 typedef struct {
+  bool valid;
   uint8_t msdelay;
   uint8_t channel;
   uint8_t program;
@@ -102,7 +103,9 @@ typedef struct {
 
 Settings storedSettings = {50, 1, 0, {0, 1, 2, 3, 4, 5, 6, 7}, 100 };
 Settings displayUpdate;
-int count = 5;
+
+FlashStorage(my_flash_store, Settings);
+
 uint8_t lcount = 0;
 uint8_t rcount = 0;
 
@@ -223,18 +226,12 @@ MenuItem mu3_mi4("FADER - 4   ", &on_item13_selected);
 //BackMenuItem mu3_mi0("... back to menu ", &on_back3_item_selected, &ms);
 
 void setup() {
-  for (int i = 0; i < 16; i++) {
-    if (EEPROM.read(i) > 127) {
-      EEPROM.write (i, 1);
-    }
+  displayUpdate = my_flash_store.read();
+  if (!(displayUpdate.valid)) {
+    displayUpdate = storedSettings;
   }
-  storedSettings.PRESET = (Preset)EEPROM.read(11);
-  storedSettings.channel = EEPROM.read(10);
-  storedSettings.program = EEPROM.read(15);
-  storedSettings.msdelay = EEPROM.read(9);
-  storedSettings.rotary1mod = EEPROM.read (8);
-  for (int i = 0; i < 8; i++) {
-    storedSettings.CCnumber[i] = EEPROM.read(i);
+  else {
+    storedSettings = displayUpdate;
   }
   midiA.begin();
   encoder1.SetHandleLeft (Left);
@@ -413,12 +410,12 @@ void channelDisplayUpdate(void) {
   display.setCursor(0, 4);
   display.setTextSize(1);
   display.println("* GLOBAL MIDI CHANNEL");
-  display.printf ("%s%02d","current CH#: ",storedSettings.channel);
+  display.printf ("%s%02d", "current CH#: ", storedSettings.channel);
   display.setCursor(0, 43);
   display.print ("new:     ");
   display.setCursor(55, 43);
   display.setFont (&FreeMono12pt7b);
-  display.printf ("%02d",displayUpdate.channel);
+  display.printf ("%02d", displayUpdate.channel);
   display.display();
   display.setFont ();
 }
@@ -428,12 +425,12 @@ void globalDisplayUpdate(void) {
   display.setCursor(0, 4);
   display.setTextSize(1);
   display.println("* SNAPSHOT DELAY");
-  display.printf ("%s%d", "current dly: ",storedSettings.msdelay * 10);
+  display.printf ("%s%d", "current dly: ", storedSettings.msdelay * 10);
   display.setCursor(0, 43);
   display.print ("new:     ");
   display.setCursor(55, 43);
   display.setFont (&FreeMono12pt7b);
-  display.printf ("%02d",displayUpdate.msdelay * 10);
+  display.printf ("%02d", displayUpdate.msdelay * 10);
   display.display();
   display.setFont ();
 }
@@ -468,7 +465,7 @@ void SelectRelease (void) {
     case PROG:
       storedSettings.program = displayUpdate.program;
       midiA.sendProgramChange (storedSettings.program, storedSettings.channel);
-      EEPROM.write (15, storedSettings.program);
+      my_flash_store.write(storedSettings);
       display.clearDisplay();
       display.setCursor(10, 4);
       display.setTextSize(1);
@@ -485,8 +482,6 @@ void SelectRelease (void) {
     case EDITMENU:
       ms.select();
       if (ENCMODE == PROG) {
-        storedSettings.PRESET = displayUpdate.PRESET;
-        EEPROM.write (11, storedSettings.PRESET);
         display.clearDisplay();
         display.setCursor(0, 4);
         display.setTextSize(1);
@@ -524,7 +519,7 @@ void SelectRelease (void) {
       break;
     case CHANNEL:
       storedSettings.channel = displayUpdate.channel;
-      EEPROM.write (10, storedSettings.channel);
+      my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
@@ -542,7 +537,7 @@ void SelectRelease (void) {
       break;
     case GLOBAL:
       storedSettings.msdelay = displayUpdate.msdelay;
-      EEPROM.write (9, storedSettings.msdelay);
+      my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
@@ -563,7 +558,7 @@ void SelectRelease (void) {
       break;
     case LED:
       storedSettings.rotary1mod = displayUpdate.rotary1mod;
-      EEPROM.write (8, storedSettings.rotary1mod);
+      my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
@@ -693,13 +688,13 @@ void Left (void) {
     lcount = 0;
     switch (ENCMODE) {
       case PROG:
-        program--;
-        if (program <= -1) {
-          if (PRESET == BIASFX) {
-            program = 31;
+        displayUpdate.program--;
+        if (displayUpdate.program <= -1) {
+          if (storedSettings.PRESET == BIASFX) {
+            displayUpdate.program = 31;
           }
           else {
-            program = 127;
+            displayUpdate.program = 127;
           }
         }
         presetDisplayUpdate ();
@@ -709,23 +704,23 @@ void Left (void) {
         editMenuDisplayUpdate();
         break;
       case CC:
-        storedCCnumber[PERIPHERAL]--;
-        if (CCnumber <= -1) {
+        displayUpdate.CCnumber[PERIPHERAL]--;
+        if (displayUpdate.CCnumber [PERIPHERAL] <= -1) {
           CCnumber = 127;
         }
         peripheralDisplayUpdate();
         break;
       case CHANNEL:
-        channel--;
-        if (channel <= 0) {
-          channel = 16;
+        displayUpdate.channel--;
+        if (displayUpdate.channel <= 0) {
+          displayUpdate.channel = 16;
         }
         channelDisplayUpdate();
         break;
       case GLOBAL:
-        msdelay --;
-        if (msdelay <= 0) {
-          msdelay = 0;
+        displayUpdate.msdelay --;
+        if (displayUpdate.msdelay <= 0) {
+          displayUpdate.msdelay = 0;
         }
         globalDisplayUpdate();
         break;
@@ -734,11 +729,11 @@ void Left (void) {
         presetDisplayUpdate();
         break;
       case LED:
-        rotary1mod ++;
-        if (rotary1mod <= 0) {
-          rotary1mod = 0;
+        displayUpdate.rotary1mod ++;
+        if (displayUpdate.rotary1mod <= 0) {
+          displayUpdate.rotary1mod = 0;
         }
-        analogWrite (pwm, rotary1mod * 10);
+        analogWrite (pwm, displayUpdate.rotary1mod * 10);
         break;
     }
   }
@@ -750,11 +745,11 @@ void Right (void) {
     switch (ENCMODE) {
       case PROG:
         program++;
-        if ((PRESET == BIASFX) && (program >= 32)) {
-          program = 0;
+        if ((storedSettings.PRESET == BIASFX) && (displayUpdate.program >= 32)) {
+          displayUpdate.program = 0;
         }
-        else if (program >= 128) {
-          program = 0;
+        else if (displayUpdate.program >= 128) {
+          displayUpdate.program = 0;
         }
         presetDisplayUpdate ();
         break;
@@ -763,23 +758,23 @@ void Right (void) {
         editMenuDisplayUpdate();
         break;
       case CC:
-        CCnumber++;
-        if (CCnumber >= 128) {
-          CCnumber = 0;
+        displayUpdate.CCnumber[PERIPHERAL]++;
+        if (displayUpdate.CCnumber[PERIPHERAL] >= 128) {
+          displayUpdate.CCnumber[PERIPHERAL] = 0;
         }
         peripheralDisplayUpdate();
         break;
       case CHANNEL:
-        channel++;
-        if (channel >= 17) {
-          channel = 1;
+        displayUpdate.channel++;
+        if (displayUpdate.channel >= 17) {
+          displayUpdate.channel = 1;
         }
         channelDisplayUpdate();
         break;
       case GLOBAL:
-        msdelay ++;
-        if (msdelay >= 120) {
-          msdelay = 120;
+        displayUpdate.msdelay ++;
+        if (displayUpdate.msdelay >= 120) {
+          displayUpdate.msdelay = 120;
         }
         globalDisplayUpdate();
         break;
@@ -788,11 +783,11 @@ void Right (void) {
         presetDisplayUpdate();
         break;
       case LED:
-        rotary1mod ++;
-        if (rotary1mod >= 102) {
-          rotary1mod = 102;
+        displayUpdate.rotary1mod ++;
+        if (displayUpdate.rotary1mod >= 102) {
+          displayUpdate.rotary1mod = 102;
         }
-        analogWrite (pwm, rotary1mod * 10);
+        analogWrite (pwm, displayUpdate.rotary1mod * 10);
         break;
     }
   }
@@ -878,27 +873,32 @@ void on_item0_selected(MenuItem * p_menu_item)
 }
 void on_item1_selected(MenuItem * p_menu_item)
 {
-  PRESET = TONESTACK_onSTAGE;
+  storedSettings.PRESET = TONESTACK_onSTAGE;
+  my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item2_selected(MenuItem * p_menu_item)
 {
-  PRESET = TONESTACK_PRESET_MGR;
+  storedSettings.PRESET = TONESTACK_PRESET_MGR;
+  my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item3_selected(MenuItem * p_menu_item)
 {
-  PRESET = BIASFX;
+  storedSettings.PRESET = BIASFX;
+  my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item4_selected(MenuItem * p_menu_item)
 {
-  PRESET = AMPLITUBE;
+  storedSettings.PRESET = AMPLITUBE;
+  my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item5_selected(MenuItem * p_menu_item)
 {
-  PRESET = GUITAR_RIG;
+  storedSettings.PRESET = GUITAR_RIG;
+  my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item6_selected(MenuItem * p_menu_item)
