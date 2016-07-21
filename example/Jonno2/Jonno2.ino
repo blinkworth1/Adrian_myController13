@@ -166,8 +166,8 @@ void slider3SAME (int);
 void slider3SAME (int);
 
 /*Pointer Assignments*/
-const char ZERODisplayUpdate [] = "TONESTACK (onSTAGE)";
-const char ONEDisplayUpdate [] = "TONESTACK (manager)";
+const char ZERODisplayUpdate [] = "TONESTACK onSTAGE";
+const char ONEDisplayUpdate [] = "TONESTACK MANAGER";
 const char BIASFXDisplayUpdate [] = "BIAS FX";
 const char AMPLITUDEDisplayUpdate [] = "AMPLITUBE";
 const char NIDisplayUpdate [] = "GUITAR RIG";
@@ -193,14 +193,14 @@ const char *buttOnOff [4] {buttOff, buttOff, buttOff, buttOff};
 const int alpha [] {65, 66, 67, 68};
 
 /*Menu structure*/
-Menu mu1("* EXTERNAL HOST");
-Menu mu2("* STOMP CC#'s");
-Menu mu3("* FADER CC#'s");
-MenuItem mm_mi0 ("* GLOBAL RESET DLY", &on_itemGLOBAL_selected);
-MenuItem mm_mi1 ("* GLOBAL MIDI CH#", &on_item0_selected);
+Menu mu1("* EXTERNAL FX HOST");
+Menu mu2("* STOMP CC ASSIGNMENT");
+Menu mu3("* FADER CC ASSIGNMENT");
+MenuItem mm_mi0 ("* SNAPSHOT DELAY", &on_itemGLOBAL_selected);
+MenuItem mm_mi1 ("* GLOBAL MIDI CHANNEL", &on_item0_selected);
 MenuItem mm_mi2 ("* LED BRIGHTNESS", &on_itemLED_selected);
-MenuItem mu1_mi1("TONESTACK (onSTAGE)", &on_item1_selected);
-MenuItem mu1_mi2("TONESTACK (manager)", &on_item2_selected);
+MenuItem mu1_mi1("TONESTACK onSTAGE", &on_item1_selected);
+MenuItem mu1_mi2("TONESTACK MANAGER", &on_item2_selected);
 MenuItem mu1_mi3("BIAS FX          ", &on_item3_selected);
 MenuItem mu1_mi4("AMPLITUBE        ", &on_item4_selected);
 MenuItem mu1_mi5("GUITAR RIG    ", &on_item5_selected);
@@ -393,7 +393,7 @@ void editMenuDisplayUpdate (void) {
   display.setTextSize(1);
   display.setCursor(0, 0);
   if (ms._p_curr_menu == ms._p_root_menu) {
-    display.print ("  ----  ROOT  ----");
+    display.printf ("%s\n\n","-SETUP MENU--");
   }
   ms.display();
   display.display();
@@ -405,7 +405,7 @@ void channelDisplayUpdate(void) {
   display.setCursor(0, 4);
   display.setTextSize(1);
   display.println("* GLOBAL MIDI CHANNEL");
-  display.printf ("%s%02d", "current CH#: ", EEPROM.read(10));
+  display.printf ("%s%02d","current CH#: ", EEPROM.read(10));
   display.setCursor(0, 43);
   display.print ("new:     ");
   display.setCursor(55, 43);
