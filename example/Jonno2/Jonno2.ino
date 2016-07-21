@@ -118,9 +118,8 @@ Switches Buttons (23, 22, 9, 10, 7, 11); //pins
   Button5     7   stomp3
   Button6     11  stomp4
  ************************/
-bool GLOBALRESET;
-bool INIT;
-bool EXIT;
+bool GLOBALRESET [4] = {true, true, true, true};
+bool INIT = true;
 
 /*Forward Declarations*/
 void on_itemGLOBAL_selected(MenuItem* p_menu_item);
@@ -297,10 +296,8 @@ void setup() {
   delay (2000);
   display.clearDisplay();
   delay (500);
-  INIT = true;
   presetDisplayUpdate ();
-  GLOBALRESET = true;
-  EXIT = false;
+
 }
 
 void loop() {
@@ -369,6 +366,7 @@ void buttpressDisplayUpdate (void) {
     presetNumberDisplayUpdate(EEPROM.read(15), 2);
   }
   display.display();
+  display.setFont ();
 }
 
 void peripheralDisplayUpdate (void) {
@@ -395,6 +393,7 @@ void editMenuDisplayUpdate (void) {
   }
   ms.display();
   display.display();
+  display.setFont ();
 }
 
 void channelDisplayUpdate(void) {
@@ -433,7 +432,7 @@ void globalDisplayUpdate(void) {
 void SelectPress (void) {
   switch (ENCMODE) {
     case PROG:
-      switchesPressTimer = 0;
+      //switchesPressTimer = 0;
       if (INIT == true) INIT = false;
       break;
     case EDITMENU:
@@ -457,12 +456,14 @@ void SelectRelease (void) {
       presetNumberDisplayUpdate (program, 4);
       display.display();
       delay (msdelay * 100);
-      GLOBALRESET = true;
+      GLOBALRESET [0] = true;
+      GLOBALRESET [1] = true;
+      GLOBALRESET [2] = true;
+      GLOBALRESET [3] = true;
       break;
     case EDITMENU:
       ms.select();
       if (ENCMODE == PROG) {
-        if (EXIT == false) {
           EEPROM.write (11, PRESET);
           display.clearDisplay();
           display.setCursor(0, 4);
@@ -471,29 +472,13 @@ void SelectRelease (void) {
           display.printf("%s\n",presetArrayDisplayUpdate [PRESET]);
           display.setCursor(0, 43);
           display.setFont (&FreeMono12pt7b);
-          //display.setTextSize(2);
           display.println("- STORED -");
           display.display();
           display.setFont();
           delay (2500);
-          editMenuDisplayUpdate ();
           ENCMODE = EDITMENU;
-        }
-        else {
-          EXIT = false;
-          presetDisplayUpdate ();
-        }
       }
-      else if (ENCMODE == CC) {
-        peripheralDisplayUpdate();
-      }
-      else if (ENCMODE == CHANNEL) {
-        channelDisplayUpdate();
-      }
-      else if (ENCMODE == GLOBAL) {
-        globalDisplayUpdate();
-      }
-      else {
+      if (ENCMODE == EDITMENU) {
         editMenuDisplayUpdate ();
       }
       break;
@@ -563,6 +548,15 @@ void EditPress (void) {
       editMenuDisplayUpdate();
       break;
     case EDITMENU:
+    if (ms._p_curr_menu == ms._p_root_menu) {
+      ENCMODE = PROG;
+      presetDisplayUpdate (); 
+    }
+    else {
+    ms.back();
+      editMenuDisplayUpdate();
+    }
+    break;
     case CC:
     case CHANNEL:
     case GLOBAL:
@@ -572,8 +566,9 @@ void EditPress (void) {
       break;
     case BUTTPRESS:
       ENCMODE = PROG;
+      ms.reset();
       presetDisplayUpdate ();
-
+      break;
   }
 }
 void EditRelease (void) {
@@ -784,28 +779,28 @@ void slider4Dec (int currentValue) {
   midiA.sendControlChange (storedCCnumber[7], Value, channel);
 }
 void slider1SAME (int currentValue) {
-  if (GLOBALRESET) {
-    GLOBALRESET = false;
+  if (GLOBALRESET [0]) {
+    GLOBALRESET [0] = false;
     int Value = map (currentValue, 0, 1023, 0, 127);
     midiA.sendControlChange (storedCCnumber[4], Value, channel);
   }
 } void slider2SAME (int currentValue) {
-  if (GLOBALRESET) {
-    GLOBALRESET = false;
+  if (GLOBALRESET[1]) {
+    GLOBALRESET[1] = false;
     int Value = map (currentValue, 0, 1023, 0, 127);
     midiA.sendControlChange (storedCCnumber[5], Value, channel);
   }
 }
 void slider3SAME (int currentValue) {
-  if (GLOBALRESET) {
-    GLOBALRESET = false;
+  if (GLOBALRESET[2]) {
+    GLOBALRESET[2] = false;
     int Value = map (currentValue, 0, 1023, 0, 127);
     midiA.sendControlChange (storedCCnumber[6], Value, channel);
   }
 }
 void slider4SAME (int currentValue) {
-  if (GLOBALRESET) {
-    GLOBALRESET = false;
+  if (GLOBALRESET[3]) {
+    GLOBALRESET[3] = false;
     int Value = map (currentValue, 0, 1023, 0, 127);
     midiA.sendControlChange (storedCCnumber[7], Value, channel);
   }
@@ -816,17 +811,12 @@ void slider4SAME (int currentValue) {
 void on_itemGLOBAL_selected(MenuItem * p_menu_item)
 {
   ENCMODE = GLOBAL;
-}
-void on_itemEXIT_selected(MenuItem * p_menu_item)
-{
-  ms.reset();
-  ENCMODE = PROG;
-  EXIT = true;
-
+  globalDisplayUpdate();
 }
 void on_item0_selected(MenuItem * p_menu_item)
 {
   ENCMODE = CHANNEL;
+  channelDisplayUpdate();
 }
 void on_item1_selected(MenuItem * p_menu_item)
 {
@@ -853,54 +843,53 @@ void on_item5_selected(MenuItem * p_menu_item)
   PRESET = GUITAR_RIG;
   ENCMODE = PROG;
 }
-void on_back1_item_selected(MenuItem * p_menu_item)
-{
-}
 void on_item6_selected(MenuItem * p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Button1;
+  peripheralDisplayUpdate();  
 }
 void on_item7_selected(MenuItem * p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Button2;
+  peripheralDisplayUpdate();
 }
 void on_item8_selected(MenuItem * p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Button3;
+  peripheralDisplayUpdate();
 }
 void on_item9_selected(MenuItem * p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Button4;
-}
-void on_back2_item_selected(MenuItem * p_menu_item)
-{
+  peripheralDisplayUpdate();
 }
 void on_item10_selected(MenuItem * p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Slider1;
+  peripheralDisplayUpdate();
 }
 void on_item11_selected(MenuItem * p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Slider2;
+  peripheralDisplayUpdate();
 }
 void on_item12_selected(MenuItem * p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Slider3;
+  peripheralDisplayUpdate();
 }
 void on_item13_selected(MenuItem * p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Slider4;
-}
-void on_back3_item_selected(MenuItem * p_menu_item)
-{
+  peripheralDisplayUpdate();
 }
 
 
