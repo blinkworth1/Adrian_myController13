@@ -3,7 +3,7 @@
 #include <MIDI.h> // MIDI 4.2 library
 #include <Wire.h>
 #include <myController.h>
-#include <EEPROM.h>
+#include "EEPROM.h"
 const unsigned char mybitmap [] PROGMEM = {
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -91,15 +91,21 @@ enum Preset : uint8_t  {TONESTACK_onSTAGE, TONESTACK_PRESET_MGR, BIASFX, AMPLITU
 enum RotaryMode : uint8_t {PROG, EDITMENU, CC, CHANNEL, BUTTPRESS, GLOBAL, LED};
 enum peripheral : uint8_t {Button1, Button2, Button3, Button4, Slider1, Slider2, Slider3, Slider4};
 elapsedMillis switchesPressTimer;
-int msdelay = 50;
+typedef struct {
+  uint8_t msdelay;
+  uint8_t channel;
+  uint8_t program;
+  uint8_t CCnumber [8];
+  uint8_t rotary1mod;
+  preset PRESET;
+} Settings
+
+Settings storedSettings = {50, 1, 0, {0, 1, 2, 3, 4, 5, 6, 7}, 100 };
+Settings displayUpdate;
 int count = 5;
-int channel = 1;
-int program = 0;
-int CCnumber = 0;
 uint8_t lcount = 0;
 uint8_t rcount = 0;
-uint8_t storedCCnumber [8] {0, 1, 2, 3, 4, 5, 6, 7};
-uint8_t rotary1mod=100;
+
 RotaryMode ENCMODE = PROG;
 Preset PRESET = TONESTACK_onSTAGE;
 peripheral PERIPHERAL;
@@ -222,13 +228,13 @@ void setup() {
       EEPROM.write (i, 1);
     }
   }
-  PRESET = (Preset)EEPROM.read(11);
-  channel = EEPROM.read(10);
-  program = EEPROM.read(15);
-  msdelay = EEPROM.read(9);
-  rotary1mod = EEPROM.read (8);
+  storedSettings.PRESET = (Preset)EEPROM.read(11);
+  storedSettings.channel = EEPROM.read(10);
+  storedSettings.program = EEPROM.read(15);
+  storedSettings.msdelay = EEPROM.read(9);
+  storedSettings.rotary1mod = EEPROM.read (8);
   for (int i = 0; i < 8; i++) {
-    storedCCnumber[i] = EEPROM.read(i);
+    storedSettings.CCnumber[i] = EEPROM.read(i);
   }
   midiA.begin();
   encoder1.SetHandleLeft (Left);
@@ -293,7 +299,7 @@ void setup() {
   delay (500);
   display.setCursor(0, 4);
   display.println("current host:");
-  display.println((presetArrayDisplayUpdate [PRESET]) );
+  display.println((presetArrayDisplayUpdate [storedSettings.PRESET]) );
   display.display();
   delay (2000);
   display.clearDisplay();
@@ -316,13 +322,13 @@ void presetDisplayUpdate (void) {
   display.setTextSize(1);
   display.println("-SELECT NEXT PRESET-");
   display.setCursor(0, 47);
-  presetNumberDisplayUpdate(program, 4);
+  presetNumberDisplayUpdate(displayUpdate.program, 4);
   if (INIT == false) {
     display.setCursor(79, 23);
     display.setTextSize(1);
     display.print ("current");
     display.setCursor(79, 47);
-    presetNumberDisplayUpdate(EEPROM.read(15), 2);
+    presetNumberDisplayUpdate(storedSettings.program, 2);
   }
   display.display();
 }
@@ -334,7 +340,7 @@ void presetNumberDisplayUpdate (int prog, int txtsize) {
   if (txtsize == 4) {
     display.setFont (&FreeMono24pt7b);
   }
-  switch (PRESET) {
+  switch (storedSettings.PRESET) {
     case TONESTACK_PRESET_MGR:
       display.printf ("%03d", prog);
       break;
@@ -361,16 +367,18 @@ void buttpressDisplayUpdate (void) {
   display.setTextColor(WHITE);
   display.setTextSize(1);
   for (int i = 0; i < 4; i++) {
-    display.printf("%s%s\n\n", peripheralArrayDisplayUpdate [i], buttOnOff[i]);
+    display.printf("%s", peripheralArrayDisplayUpdate [i]);
+    display.setFont (&FreeMono9pt7b);
+    display.printf("%s", buttOnOff[i]);
+    display.setFont ();
   }
   if (INIT == false) {
     display.setCursor(79, 23);
     display.print ("current");
     display.setCursor(79, 47);
-    presetNumberDisplayUpdate(EEPROM.read(15), 2);
+    presetNumberDisplayUpdate(storedSettings.program, 2);
   }
   display.display();
-  display.setFont ();
 }
 
 void peripheralDisplayUpdate (void) {
@@ -378,12 +386,12 @@ void peripheralDisplayUpdate (void) {
   display.setCursor(0, 4);
   display.setTextSize(1);
   display.printf("%s%s\n", "* ", (peripheralArrayDisplayUpdate [PERIPHERAL]) );
-  display.printf ("%s%03d", "current CC#: ", storedCCnumber [PERIPHERAL] );
+  display.printf ("%s%03d", "current CC#: ", storedSettings.CCnumber [PERIPHERAL] );
   display.setCursor(0, 43);
   display.print ("new:     ");
   display.setCursor(55, 43);
   display.setFont (&FreeMono12pt7b);
-  display.printf ("%03d", CCnumber);
+  display.printf ("%03d", displayUpdate.CCnumber [PERIPHERAL]);
   display.display();
   display.setFont ();
 }
@@ -393,7 +401,7 @@ void editMenuDisplayUpdate (void) {
   display.setTextSize(1);
   display.setCursor(0, 0);
   if (ms._p_curr_menu == ms._p_root_menu) {
-    display.printf ("%s\n\n","-SETUP MENU--");
+    display.printf ("%s\n\n", "   --SETUP MENU--");
   }
   ms.display();
   display.display();
@@ -405,13 +413,12 @@ void channelDisplayUpdate(void) {
   display.setCursor(0, 4);
   display.setTextSize(1);
   display.println("* GLOBAL MIDI CHANNEL");
-  display.printf ("%s%02d","current CH#: ", EEPROM.read(10));
+  display.printf ("%s%02d","current CH#: ",storedSettings.channel);
   display.setCursor(0, 43);
   display.print ("new:     ");
   display.setCursor(55, 43);
-  //display.setTextSize(3);
   display.setFont (&FreeMono12pt7b);
-  display.printf ("%02d", channel);
+  display.printf ("%02d",displayUpdate.channel);
   display.display();
   display.setFont ();
 }
@@ -420,14 +427,13 @@ void globalDisplayUpdate(void) {
   display.clearDisplay();
   display.setCursor(0, 4);
   display.setTextSize(1);
-  display.println("* GLOBAL RESET DELAY");
-  display.printf ("%s%d", "current dly: ", EEPROM.read(9));
+  display.println("* SNAPSHOT DELAY");
+  display.printf ("%s%d", "current dly: ",storedSettings.msdelay * 10);
   display.setCursor(0, 43);
   display.print ("new:     ");
   display.setCursor(55, 43);
-  //display.setTextSize(3);
   display.setFont (&FreeMono12pt7b);
-  display.printf ("%02d", msdelay);
+  display.printf ("%02d",displayUpdate.msdelay * 10);
   display.display();
   display.setFont ();
 }
@@ -460,16 +466,17 @@ void SelectPress (void) {
 void SelectRelease (void) {
   switch (ENCMODE) {
     case PROG:
-      midiA.sendProgramChange (program, channel);
-      EEPROM.write (15, program);
+      storedSettings.program = displayUpdate.program;
+      midiA.sendProgramChange (storedSettings.program, storedSettings.channel);
+      EEPROM.write (15, storedSettings.program);
       display.clearDisplay();
       display.setCursor(10, 4);
       display.setTextSize(1);
       display.println ("- CURRENT PRESET -");
       display.setCursor(0, 47);
-      presetNumberDisplayUpdate (program, 4);
+      presetNumberDisplayUpdate (storedSettings.program, 4);
       display.display();
-      delay (msdelay * 100);
+      delay (msdelay * 10);
       GLOBALRESET [0] = true;
       GLOBALRESET [1] = true;
       GLOBALRESET [2] = true;
@@ -478,12 +485,13 @@ void SelectRelease (void) {
     case EDITMENU:
       ms.select();
       if (ENCMODE == PROG) {
-        EEPROM.write (11, PRESET);
+        storedSettings.PRESET = displayUpdate.PRESET;
+        EEPROM.write (11, storedSettings.PRESET);
         display.clearDisplay();
         display.setCursor(0, 4);
         display.setTextSize(1);
         display.println("HOST selected:");
-        display.printf("%s\n", presetArrayDisplayUpdate [PRESET]);
+        display.printf("%s\n", presetArrayDisplayUpdate [storedSettings.PRESET]);
         display.setCursor(0, 43);
         display.setFont (&FreeMono12pt7b);
         display.println("- STORED -");
@@ -497,14 +505,14 @@ void SelectRelease (void) {
       }
       break;
     case CC:
-      storedCCnumber [PERIPHERAL] = CCnumber;
+      storedSettings.CCnumber [PERIPHERAL] = displayUpdate.CCnumber[PERIPHERAL];
       EEPROM.write (PERIPHERAL, CCnumber);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
       display.setTextSize(1);
       display.printf("%s%s\n", "* ", (peripheralArrayDisplayUpdate [PERIPHERAL]) );
-      display.printf ("%s%03d", "current CC#: ", storedCCnumber [PERIPHERAL]);
+      display.printf ("%s%03d", "current CC#: ", storedSettings.CCnumber [PERIPHERAL]);
       display.setCursor(0, 43);
       display.setFont (&FreeMono12pt7b);
       //display.setTextSize(2);
@@ -515,16 +523,16 @@ void SelectRelease (void) {
       editMenuDisplayUpdate ();
       break;
     case CHANNEL:
-      EEPROM.write (10, channel);
+      storedSettings.channel = displayUpdate.channel;
+      EEPROM.write (10, storedSettings.channel);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
       display.setTextSize(1);
       display.println("* GLOBAL MIDI CHANNEL");
-      display.printf ("%s%02d", "current CH#: ", channel);
+      display.printf ("%s%02d", "current CH#: ", storedSettings.channel);
       display.setCursor(0, 43);
       display.setFont (&FreeMono12pt7b);
-      //display.setTextSize(2);
       display.println("- STORED -");
       display.display();
       display.setFont();
@@ -533,13 +541,14 @@ void SelectRelease (void) {
       editMenuDisplayUpdate ();
       break;
     case GLOBAL:
-      EEPROM.write (9, msdelay);
+      storedSettings.msdelay = displayUpdate.msdelay;
+      EEPROM.write (9, storedSettings.msdelay);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
       display.setTextSize(1);
-      display.println("* GLOBAL RESET DELAY");
-      display.printf ("%s%d", "current dly: ", msdelay);
+      display.println("* SNAPSHOT DELAY");
+      display.printf ("%s%d", "current dly: ", storedSettings.msdelay);
       display.setCursor(0, 43);
       display.setFont (&FreeMono12pt7b);
       display.println("- STORED -");
@@ -552,8 +561,9 @@ void SelectRelease (void) {
       ENCMODE = PROG;
       presetDisplayUpdate ();
       break;
-      case LED:
-      EEPROM.write (8, rotary1mod);
+    case LED:
+      storedSettings.rotary1mod = displayUpdate.rotary1mod;
+      EEPROM.write (8, storedSettings.rotary1mod);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
@@ -612,7 +622,10 @@ void EditRelease (void) {
           display.display();
           delay(500);
           presetDisplayUpdate();
-          GLOBALRESET = true;
+          GLOBALRESET [0] = true;
+          GLOBALRESET [1] = true;
+          GLOBALRESET [2] = true;
+          GLOBALRESET [3] = true;
         }
         else {
           ENCMODE = EDITMENU;
@@ -629,10 +642,10 @@ void EditRelease (void) {
 }
 void Stomp1ON(void) {
   if (buttOnOff[0] == buttOff) {
-    midiA.sendControlChange (storedCCnumber[0], 0, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[0], 0, channel);
     buttOnOff[0] = buttOn;
   } else {
-    midiA.sendControlChange (storedCCnumber[0], 127, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[0], 127, channel);
     buttOnOff[0] = buttOff;
   }
   ENCMODE = BUTTPRESS;
@@ -640,10 +653,10 @@ void Stomp1ON(void) {
 }
 void Stomp2ON(void) {
   if (buttOnOff[1] == buttOff) {
-    midiA.sendControlChange (storedCCnumber[1], 0, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[1], 0, channel);
     buttOnOff[1] = buttOn;
   } else {
-    midiA.sendControlChange (storedCCnumber[1], 127, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[1], 127, channel);
     buttOnOff[1] = buttOff;
   }
   ENCMODE = BUTTPRESS;
@@ -652,10 +665,10 @@ void Stomp2ON(void) {
 }
 void Stomp3ON(void) {
   if (buttOnOff[2] == buttOff) {
-    midiA.sendControlChange (storedCCnumber[2], 0, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[2], 0, channel);
     buttOnOff[2] = buttOn;
   } else {
-    midiA.sendControlChange (storedCCnumber[2], 127, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[2], 127, channel);
     buttOnOff[2] = buttOff;
   }
   ENCMODE = BUTTPRESS;
@@ -663,10 +676,10 @@ void Stomp3ON(void) {
 }
 void Stomp4ON(void) {
   if (buttOnOff[3] == buttOff) {
-    midiA.sendControlChange (storedCCnumber[3], 0, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[3], 0, channel);
     buttOnOff[3] = buttOn;
   } else {
-    midiA.sendControlChange (storedCCnumber[3], 127, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[3], 127, channel);
     buttOnOff[3] = buttOff;
   }
   ENCMODE = BUTTPRESS;
@@ -696,7 +709,7 @@ void Left (void) {
         editMenuDisplayUpdate();
         break;
       case CC:
-        CCnumber--;
+        storedCCnumber[PERIPHERAL]--;
         if (CCnumber <= -1) {
           CCnumber = 127;
         }
@@ -710,8 +723,7 @@ void Left (void) {
         channelDisplayUpdate();
         break;
       case GLOBAL:
-        count --;
-        msdelay = count * 10;
+        msdelay --;
         if (msdelay <= 0) {
           msdelay = 0;
         }
@@ -765,10 +777,9 @@ void Right (void) {
         channelDisplayUpdate();
         break;
       case GLOBAL:
-        count ++;
-        msdelay = count * 10;
-        if (msdelay >= 100) {
-          msdelay = 100;
+        msdelay ++;
+        if (msdelay >= 120) {
+          msdelay = 120;
         }
         globalDisplayUpdate();
         break;
@@ -790,61 +801,61 @@ void Right (void) {
 /*Fader Callbacks*/
 void slider1Inc (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedCCnumber[4], Value, channel);
+  midiA.sendControlChange (storedSettings.CCnumber[4], Value, channel);
 }
 void slider1Dec (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedCCnumber[4], Value, channel);
+  midiA.sendControlChange (storedSettings.CCnumber[4], Value, channel);
 }
 void slider2Inc (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedCCnumber[5], Value, channel);
+  midiA.sendControlChange (storedSettings.CCnumber[5], Value, channel);
 }
 void slider2Dec (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedCCnumber[5], Value, channel);
+  midiA.sendControlChange (storedSettings.CCnumber[5], Value, channel);
 }
 void slider3Inc (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedCCnumber[6], Value, channel);
+  midiA.sendControlChange (storedSettings.CCnumber[6], Value, channel);
 }
 void slider3Dec (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedCCnumber[6], Value, channel);
+  midiA.sendControlChange (storedSettings.CCnumber[6], Value, channel);
 }
 void slider4Inc (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedCCnumber[7], Value, channel);
+  midiA.sendControlChange (storedSettings.CCnumber[7], Value, channel);
 }
 void slider4Dec (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedCCnumber[7], Value, channel);
+  midiA.sendControlChange (storedSettings.CCnumber[7], Value, channel);
 }
 void slider1SAME (int currentValue) {
   if (GLOBALRESET [0]) {
     GLOBALRESET [0] = false;
     int Value = map (currentValue, 0, 1023, 0, 127);
-    midiA.sendControlChange (storedCCnumber[4], Value, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[4], Value, channel);
   }
 } void slider2SAME (int currentValue) {
   if (GLOBALRESET[1]) {
     GLOBALRESET[1] = false;
     int Value = map (currentValue, 0, 1023, 0, 127);
-    midiA.sendControlChange (storedCCnumber[5], Value, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[5], Value, channel);
   }
 }
 void slider3SAME (int currentValue) {
   if (GLOBALRESET[2]) {
     GLOBALRESET[2] = false;
     int Value = map (currentValue, 0, 1023, 0, 127);
-    midiA.sendControlChange (storedCCnumber[6], Value, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[6], Value, channel);
   }
 }
 void slider4SAME (int currentValue) {
   if (GLOBALRESET[3]) {
     GLOBALRESET[3] = false;
     int Value = map (currentValue, 0, 1023, 0, 127);
-    midiA.sendControlChange (storedCCnumber[7], Value, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[7], Value, channel);
   }
 }
 
