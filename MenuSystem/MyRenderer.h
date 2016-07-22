@@ -17,6 +17,10 @@
 #include "FreeSans12pt7b.h"
 #include "FreeSans24pt7b.h"
 #include "FreeSans9pt7b.h"
+#include "FreeMono12pt7b.h"
+#include "FreeMono24pt7b.h"
+#include "FreeMono9pt7b.h"
+
 
 class CustomNumericMenuItem;
 

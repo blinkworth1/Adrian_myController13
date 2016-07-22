@@ -4,6 +4,7 @@
 #include <Wire.h>
 #include <myController.h>
 #include "FlashStorage.h"
+#include "elapsedMillis.h"
 
 #define pwm 4 // pwm pin
 
@@ -104,7 +105,7 @@ typedef struct {
   Preset PRESET;
 } Settings;
 
-Settings storedSettings = (50, 1, 0, {0, 1, 2, 3, 4, 5, 6, 7}, 100 );
+Settings storedSettings = {true, 50, 1, 0, {0, 1, 2, 3, 4, 5, 6, 7}, 100 };
 Settings displayUpdate;
 
 FlashStorage(my_flash_store, Settings);
