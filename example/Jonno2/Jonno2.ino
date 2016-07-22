@@ -3,7 +3,10 @@
 #include <MIDI.h> // MIDI 4.2 library
 #include <Wire.h>
 #include <myController.h>
-#include "FlashStorage"
+#include "FlashStorage.h"
+
+#define pwm 4 // pwm pin
+
 const unsigned char mybitmap [] PROGMEM = {
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -98,10 +101,10 @@ typedef struct {
   uint8_t program;
   uint8_t CCnumber [8];
   uint8_t rotary1mod;
-  preset PRESET;
-} Settings
+  Preset PRESET;
+} Settings;
 
-Settings storedSettings = {50, 1, 0, {0, 1, 2, 3, 4, 5, 6, 7}, 100 };
+Settings storedSettings = (50, 1, 0, {0, 1, 2, 3, 4, 5, 6, 7}, 100 );
 Settings displayUpdate;
 
 FlashStorage(my_flash_store, Settings);
@@ -133,7 +136,7 @@ bool INIT = true;
 
 /*Forward Declarations*/
 void on_itemGLOBAL_selected(MenuItem* p_menu_item);
-void on_itemEXIT_selected(MenuItem* p_menu_item);
+void on_itemLED_selected(MenuItem* p_menu_item);
 void on_item0_selected(MenuItem* p_menu_item);
 void on_item1_selected(MenuItem* p_menu_item);
 void on_item2_selected(MenuItem* p_menu_item);
@@ -473,7 +476,7 @@ void SelectRelease (void) {
       display.setCursor(0, 47);
       presetNumberDisplayUpdate (storedSettings.program, 4);
       display.display();
-      delay (msdelay * 10);
+      delay (storedSettings.msdelay * 10);
       GLOBALRESET [0] = true;
       GLOBALRESET [1] = true;
       GLOBALRESET [2] = true;
@@ -501,7 +504,7 @@ void SelectRelease (void) {
       break;
     case CC:
       storedSettings.CCnumber [PERIPHERAL] = displayUpdate.CCnumber[PERIPHERAL];
-      EEPROM.write (PERIPHERAL, CCnumber);
+      my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
@@ -637,10 +640,10 @@ void EditRelease (void) {
 }
 void Stomp1ON(void) {
   if (buttOnOff[0] == buttOff) {
-    midiA.sendControlChange (storedSettings.CCnumber[0], 0, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[0], 0, storedSettings.channel);
     buttOnOff[0] = buttOn;
   } else {
-    midiA.sendControlChange (storedSettings.CCnumber[0], 127, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[0], 127, storedSettings.channel);
     buttOnOff[0] = buttOff;
   }
   ENCMODE = BUTTPRESS;
@@ -648,10 +651,10 @@ void Stomp1ON(void) {
 }
 void Stomp2ON(void) {
   if (buttOnOff[1] == buttOff) {
-    midiA.sendControlChange (storedSettings.CCnumber[1], 0, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[1], 0, storedSettings.channel);
     buttOnOff[1] = buttOn;
   } else {
-    midiA.sendControlChange (storedSettings.CCnumber[1], 127, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[1], 127, storedSettings.channel);
     buttOnOff[1] = buttOff;
   }
   ENCMODE = BUTTPRESS;
@@ -660,10 +663,10 @@ void Stomp2ON(void) {
 }
 void Stomp3ON(void) {
   if (buttOnOff[2] == buttOff) {
-    midiA.sendControlChange (storedSettings.CCnumber[2], 0, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[2], 0, storedSettings.channel);
     buttOnOff[2] = buttOn;
   } else {
-    midiA.sendControlChange (storedSettings.CCnumber[2], 127, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[2], 127, storedSettings.channel);
     buttOnOff[2] = buttOff;
   }
   ENCMODE = BUTTPRESS;
@@ -671,10 +674,10 @@ void Stomp3ON(void) {
 }
 void Stomp4ON(void) {
   if (buttOnOff[3] == buttOff) {
-    midiA.sendControlChange (storedSettings.CCnumber[3], 0, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[3], 0, storedSettings.channel);
     buttOnOff[3] = buttOn;
   } else {
-    midiA.sendControlChange (storedSettings.CCnumber[3], 127, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[3], 127, storedSettings.channel);
     buttOnOff[3] = buttOff;
   }
   ENCMODE = BUTTPRESS;
@@ -706,7 +709,7 @@ void Left (void) {
       case CC:
         displayUpdate.CCnumber[PERIPHERAL]--;
         if (displayUpdate.CCnumber [PERIPHERAL] <= -1) {
-          CCnumber = 127;
+          displayUpdate.CCnumber[PERIPHERAL] = 127;
         }
         peripheralDisplayUpdate();
         break;
@@ -744,7 +747,7 @@ void Right (void) {
     rcount = 0;
     switch (ENCMODE) {
       case PROG:
-        program++;
+        displayUpdate.program++;
         if ((storedSettings.PRESET == BIASFX) && (displayUpdate.program >= 32)) {
           displayUpdate.program = 0;
         }
@@ -796,61 +799,61 @@ void Right (void) {
 /*Fader Callbacks*/
 void slider1Inc (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedSettings.CCnumber[4], Value, channel);
+  midiA.sendControlChange (storedSettings.CCnumber[4], Value, storedSettings.channel);
 }
 void slider1Dec (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedSettings.CCnumber[4], Value, channel);
+  midiA.sendControlChange (storedSettings.CCnumber[4], Value, storedSettings.channel);
 }
 void slider2Inc (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedSettings.CCnumber[5], Value, channel);
+  midiA.sendControlChange (storedSettings.CCnumber[5], Value, storedSettings.channel);
 }
 void slider2Dec (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedSettings.CCnumber[5], Value, channel);
+  midiA.sendControlChange (storedSettings.CCnumber[5], Value, storedSettings.channel);
 }
 void slider3Inc (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedSettings.CCnumber[6], Value, channel);
+  midiA.sendControlChange (storedSettings.CCnumber[6], Value, storedSettings.channel);
 }
 void slider3Dec (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedSettings.CCnumber[6], Value, channel);
+  midiA.sendControlChange (storedSettings.CCnumber[6], Value, storedSettings.channel);
 }
 void slider4Inc (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedSettings.CCnumber[7], Value, channel);
+  midiA.sendControlChange (storedSettings.CCnumber[7], Value, storedSettings.channel);
 }
 void slider4Dec (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedSettings.CCnumber[7], Value, channel);
+  midiA.sendControlChange (storedSettings.CCnumber[7], Value, storedSettings.channel);
 }
 void slider1SAME (int currentValue) {
   if (GLOBALRESET [0]) {
     GLOBALRESET [0] = false;
     int Value = map (currentValue, 0, 1023, 0, 127);
-    midiA.sendControlChange (storedSettings.CCnumber[4], Value, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[4], Value, storedSettings.channel);
   }
 } void slider2SAME (int currentValue) {
   if (GLOBALRESET[1]) {
     GLOBALRESET[1] = false;
     int Value = map (currentValue, 0, 1023, 0, 127);
-    midiA.sendControlChange (storedSettings.CCnumber[5], Value, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[5], Value, storedSettings.channel);
   }
 }
 void slider3SAME (int currentValue) {
   if (GLOBALRESET[2]) {
     GLOBALRESET[2] = false;
     int Value = map (currentValue, 0, 1023, 0, 127);
-    midiA.sendControlChange (storedSettings.CCnumber[6], Value, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[6], Value, storedSettings.channel);
   }
 }
 void slider4SAME (int currentValue) {
   if (GLOBALRESET[3]) {
     GLOBALRESET[3] = false;
     int Value = map (currentValue, 0, 1023, 0, 127);
-    midiA.sendControlChange (storedSettings.CCnumber[7], Value, channel);
+    midiA.sendControlChange (storedSettings.CCnumber[7], Value, storedSettings.channel);
   }
 }
 
