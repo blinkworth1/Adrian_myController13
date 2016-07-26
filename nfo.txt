@@ -7,12 +7,12 @@ There is also an interface for motorized faders, utilising an H-bridge motor dri
 The buttons are all one object.  You can have either 6 or 13 buttons.
 
 So, for 6 buttons, you need one object:
-Switches myBUTTONS (14,15,16,17,18,19); // pin numbers
+Switches myBUTTONS (14,15,16,17,18,19); // you choose your pin numbers
 
-It is important to note the order from left to right. The button on pin 14 is button 1, The button on pin 15 is button 2.
+Note, the button on pin 14 is "button 1", The button on pin 15 is "button 2", etc left to right.
 
 For encoders, each encoder is a separate object (up to a max of 4):
-Rotary myENCODER1 (2, 5); // 2 and 5 are the left and right pins respectively
+Rotary myENCODER1 (2, 5); // 2 and 5 are the left rotation and right rotation pins respectively
 Rotary myENCODER2 (3, 4);
 
 Each fader is a separate object (up to a max of 4):
@@ -20,7 +20,12 @@ Fader myFADER (A1, 4) // A1 is the analog read pin, and 4 is the amount of hyste
 
 For the motor, there is a "halt" command, and a "move to command".  Also, capacitive touch is enabled for fader touchlines.
 
-If there is an event (e.g. a leading edge of a button), a user callback is executed. You put your own function in SetHandle() .... doing that registers your function with the interface and when the relevant event occurs, your code is executed.  See the Simple_example.ino for how this works in practice.
+If you want to use a touch-enabled motorized fader, you need to call, in setup():
+myFADER.begin(A1, 4, X, Y) // X is , Y is
+
+See the example myController13.ino.
+
+Generally, if there is an event (e.g. a leading edge of a button), a user callback is executed. You put the name of your own function in ....SetHandle() .... Doing that registers your function with the interface and when the relevant event occurs, your code is executed.  See the Simple_example.ino for how this works in practice.
 
 Here are the callback "SetHandle"s for 6 buttons: 
 
