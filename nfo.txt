@@ -20,11 +20,11 @@ Fader myFADER (A1, 4) // A1 is the analog read pin, and 4 is the amount of hyste
 
 For the motor, there is a "halt" command, and a "move to command".  Also, capacitive touch is enabled for fader touchlines.
 
-If there is an event (e.g. a leading edge of a button), a user callback is executed. You get the idea... you put your own function in SetHandle() .... doing that that registers your function with the interface and when the relevant event occurs, your code is executed.  See the Simple_example.ino for how this works in practice.
+If there is an event (e.g. a leading edge of a button), a user callback is executed. You put your own function in SetHandle() .... doing that registers your function with the interface and when the relevant event occurs, your code is executed.  See the Simple_example.ino for how this works in practice.
 
 Here are the callback "SetHandle"s for 6 buttons: 
 
-
+[to come]
 
 
 
@@ -57,9 +57,9 @@ Because MAME uses keystrokes, a custom usb type of keyboard/midi is needed. To m
 
 Then, use the MIDI type in the Arduino IDE dropdown USB Type menu for compiling.
 
-Also, Arduino MIDI 4.2 library is required, in your arduino libraries folder, if using the Midi interface.
+Also, Arduino MIDI 4.2 library is required.
 
-The myController13.h and .cpp go in your arduino libraries folder, too, in a folder named "myController13".
+The myController.h and .cpp go in your arduino libraries folder, too, in a folder named "myController".
 
 Wiring
 
