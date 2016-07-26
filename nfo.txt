@@ -18,10 +18,11 @@ Rotary myENCODER2 (3, 4);
 Each fader is a separate object (up to a max of 4):
 Fader myFADER (A1, 4) // A1 is the analog read pin, and 4 is the amount of hysteresis jitter-suppression
 
-If there is an event (e.g. a leading edge of a button), a user callback is executed. You get the idea.
-For the motor, there is a "halt" command, and a "move to command".
+For the motor, there is a "halt" command, and a "move to command".  Also, capacitive touch is enabled for fader touchlines.
 
-Here are the callback "setHandle"s (see the Simple_example.ino for how this works in practice): 
+If there is an event (e.g. a leading edge of a button), a user callback is executed. You get the idea... you put your own function in SetHandle() .... doing that that registers your function with the interface and when the relevant event occurs, your code is executed.  See the Simple_example.ino for how this works in practice.
+
+Here are the callback "SetHandle"s for 6 buttons: 
 
 
 
