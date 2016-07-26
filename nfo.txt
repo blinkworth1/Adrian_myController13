@@ -1,4 +1,8 @@
-This library works by polling various 'peripherals', namely buttons, quadrature rotary encoders, and faders. The library has build in debouncing / smoothing for buttons and encoders, and a user-setting for hysteresis for faders.  There is also an interface for motorized faders, utilising an H-bridge motor driver (L298N HBridge (or similar) with 3.3V logic).
+This library works by polling various 'peripherals', namely buttons, quadrature rotary encoders, and faders. 
+
+The library has built-in debouncing / smoothing for buttons and encoders, and a user-setting for hysteresis for faders. 
+
+There is also an interface for motorized faders, utilising an H-bridge motor driver (L298N HBridge (or similar) with 3.3V logic).
 
 The buttons are all one object.  You can have either 6 or 13 buttons.
 
@@ -17,7 +21,7 @@ Fader myFADER (A1, 4) // A1 is the analog read pin, and 4 is the amount of hyste
 If there is an event (e.g. a leading edge of a button), a user callback is executed. You get the idea.
 For the motor, there is a "halt" command, and a "move to command".
 
-Here are the callback 'sethandles" (see the Simple example for how this works in practice): 
+Here are the callback "sethandles" (see the Simple example for how this works in practice): 
 
 
 
