@@ -1,12 +1,14 @@
-
-#include "MyRenderer.h"
-#include <MIDI.h> // MIDI 4.2 library
+#include <Arduino.h>
+#include <SPI.h>
+//#include <MIDI.h> // MIDI 4.2 library
 #include <Wire.h>
+#include "MyRenderer.h"
 #include <myController.h>
-#include "FlashStorage.h"
+//#include "FlashStorage.h"
 #include "elapsedMillis.h"
-
-#define pwm 4 // pwm pin
+#include "Adafruit_BLE.h"
+#include "Adafruit_BluefruitLE_SPI.h"
+#include "Adafruit_BLEMIDI.h"
 
 const unsigned char mybitmap [] PROGMEM = {
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -73,28 +75,33 @@ const unsigned char mybitmap [] PROGMEM = {
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-
 };
 
-/*******TO USE i2c ADA326***************/
-/*TO USE i2C you have to jumper the back of the display,
-  as per the adafruit instructions.
-  Pins are 18, 19, 4, as below
-*/
+#define pwm 6 // pwm pin for leds, for Feather
+#define OLED_DATA   20 //i2c pins for Feather, for display
+#define OLED_CLK    21
+#define OLED_RESET  5
+Fader slider1 (A2, 3); //Feather pins and jitter suppression amount
+Fader slider2 (A3, 3);
+Fader slider3 (A4, 3);
+Fader slider4 (A5, 3);
+Rotary encoder1 (0, 1); // 0 and 1 are Feather pin numbers, left and right, for the rotary encoder
+Switches Buttons (14, 15, 9, 10, 11, 12); //14 and 15 are select and edit, respectively, and 9 thru 12 stomp pins, for Feather
 
-#define OLED_DATA   18
-#define OLED_CLK    19
-#define OLED_RESET  4
-
+Adafruit_BluefruitLE_SPI ble(8, 7, 6); //these are internal connections, don't worry about them.
+Adafruit_BLEMIDI midi(ble);
 Adafruit_SSD1306 display(OLED_RESET);
 Adafruit_SSD1306 * dptr = &display;
 MyRenderer my_renderer (dptr);
 MenuSystem ms(my_renderer);
-MIDI_CREATE_INSTANCE (HardwareSerial, Serial1, midiA);
+elapsedMillis switchesPressTimer;
+//MIDI_CREATE_INSTANCE (HardwareSerial, Serial1, midiA);
+
 enum Preset : uint8_t  {TONESTACK_onSTAGE, TONESTACK_PRESET_MGR, BIASFX, AMPLITUBE, GUITAR_RIG};
 enum RotaryMode : uint8_t {PROG, EDITMENU, CC, CHANNEL, BUTTPRESS, GLOBAL, LED};
+RotaryMode ENCMODE = PROG;
 enum peripheral : uint8_t {Button1, Button2, Button3, Button4, Slider1, Slider2, Slider3, Slider4};
-elapsedMillis switchesPressTimer;
+peripheral PERIPHERAL;
 typedef struct {
   bool valid;
   uint8_t msdelay;
@@ -104,38 +111,19 @@ typedef struct {
   uint8_t rotary1mod;
   Preset PRESET;
 } Settings;
-
-Settings storedSettings = {true, 50, 1, 0, {0, 1, 2, 3, 4, 5, 6, 7}, 100 };
+Settings storedSettings = {true, 50, 1, 0, {0, 1, 2, 3, 4, 5, 6, 7}, 100, TONESTACK_onSTAGE};
 Settings displayUpdate;
-
-FlashStorage(my_flash_store, Settings);
+//FlashStorage(my_flash_store, Settings);
 
 uint8_t lcount = 0;
 uint8_t rcount = 0;
-
-RotaryMode ENCMODE = PROG;
-Preset PRESET = TONESTACK_onSTAGE;
-peripheral PERIPHERAL;
-Fader slider1 (A1, 3); //Teensy pin and jitter suppression amount
-Fader slider2 (A2, 3);
-Fader slider3 (A3, 3);
-Fader slider4 (A6, 3);
-Rotary encoder1 (2, 14); // 2 and 6 are Teensy pin numbers, left and right
-Switches Buttons (23, 22, 9, 10, 7, 11); //pins
-
-/************************
-  ____________PIN_______
-  Button1     23  select
-  Button2     22  edit
-  Button3     9   stomp1
-  Button4     10  stomp2
-  Button5     7   stomp3
-  Button6     11  stomp4
- ************************/
 bool GLOBALRESET [4] = {true, true, true, true};
 bool INIT = true;
+bool isConnected = false;
 
 /*Forward Declarations*/
+void connected(void);
+void disconnected(void);
 void on_itemGLOBAL_selected(MenuItem* p_menu_item);
 void on_itemLED_selected(MenuItem* p_menu_item);
 void on_item0_selected(MenuItem* p_menu_item);
@@ -230,14 +218,40 @@ MenuItem mu3_mi4("FADER - 4   ", &on_item13_selected);
 //BackMenuItem mu3_mi0("... back to menu ", &on_back3_item_selected, &ms);
 
 void setup() {
+
+  /*BLE setup and debug*/
+  //Serial.begin(38400);
+  if ( !ble.begin(true) ) // If set to 'true' enables debug output
+  {
+    Serial.println("Couldn't find Bluefruit, make sure it's in CoMmanD mode & check wiring?");
+  }
+  if ( !ble.factoryReset() ) {
+    Serial.println("Failed to performed a factory reset");
+  }
+  ble.echo(false);
+  if ( ! midi.begin(true) )
+  {
+    Serial.println("Could not enable MIDI");
+  }
+  ble.verbose(false);
+  Serial.print("Waiting for a connection...");
+
+  /*FlashStorage management*
   displayUpdate = my_flash_store.read();
   if (!(displayUpdate.valid)) {
     displayUpdate = storedSettings;
   }
   else {
     storedSettings = displayUpdate;
-  }
-  midiA.begin();
+  }*/
+
+displayUpdate = storedSettings; //temp fix for FlashStorageissue
+
+  // midiA.begin();
+
+  /*set callbacks*/
+  ble.setConnectCallback(connected);
+  ble.setDisconnectCallback(disconnected);
   encoder1.SetHandleLeft (Left);
   encoder1.SetHandleRight (Right);
   Buttons.SetHandleB1ON (SelectPress);
@@ -310,9 +324,11 @@ void setup() {
 }
 
 void loop() {
+  ble.update(500); // interval for each scanning ~ 500ms (non blocking)
   Rotary::ReadWrite();
   Switches::ReadWrite();
   Fader::ReadWrite();
+  Serial.println ("FUCK");
 }
 
 /*Display functions*/
@@ -448,6 +464,18 @@ void ledDisplayUpdate(void) {
   display.setFont ();
 }
 
+/* BLE callbacks*/
+void connected(void)
+{
+  isConnected = true;
+  Serial.println(" CONNECTED!");
+}
+void disconnected(void)
+{
+  Serial.println("disconnected");
+  isConnected = false;
+}
+
 /*Button Callbacks*/
 void SelectPress (void) {
   switch (ENCMODE) {
@@ -468,8 +496,9 @@ void SelectRelease (void) {
   switch (ENCMODE) {
     case PROG:
       storedSettings.program = displayUpdate.program;
-      midiA.sendProgramChange (storedSettings.program, storedSettings.channel);
-      my_flash_store.write(storedSettings);
+      //  midiA.sendProgramChange (storedSettings.program, storedSettings.channel);
+      midi.send(0xC0 + (storedSettings.channel - 1), storedSettings.program, 0x00);
+      //my_flash_store.write(storedSettings);
       display.clearDisplay();
       display.setCursor(10, 4);
       display.setTextSize(1);
@@ -505,7 +534,7 @@ void SelectRelease (void) {
       break;
     case CC:
       storedSettings.CCnumber [PERIPHERAL] = displayUpdate.CCnumber[PERIPHERAL];
-      my_flash_store.write(storedSettings);
+      //my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
@@ -523,7 +552,7 @@ void SelectRelease (void) {
       break;
     case CHANNEL:
       storedSettings.channel = displayUpdate.channel;
-      my_flash_store.write(storedSettings);
+      //my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
@@ -541,7 +570,7 @@ void SelectRelease (void) {
       break;
     case GLOBAL:
       storedSettings.msdelay = displayUpdate.msdelay;
-      my_flash_store.write(storedSettings);
+      //my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
@@ -562,7 +591,7 @@ void SelectRelease (void) {
       break;
     case LED:
       storedSettings.rotary1mod = displayUpdate.rotary1mod;
-      my_flash_store.write(storedSettings);
+      //my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
@@ -643,10 +672,10 @@ void EditRelease (void) {
 }
 void Stomp1ON(void) {
   if (buttOnOff[0] == buttOff) {
-    midiA.sendControlChange (storedSettings.CCnumber[0], 0, storedSettings.channel);
+    // midiA.sendControlChange (storedSettings.CCnumber[0], 0, storedSettings.channel);
     buttOnOff[0] = buttOn;
   } else {
-    midiA.sendControlChange (storedSettings.CCnumber[0], 127, storedSettings.channel);
+    // midiA.sendControlChange (storedSettings.CCnumber[0], 127, storedSettings.channel);
     buttOnOff[0] = buttOff;
   }
   ENCMODE = BUTTPRESS;
@@ -654,10 +683,10 @@ void Stomp1ON(void) {
 }
 void Stomp2ON(void) {
   if (buttOnOff[1] == buttOff) {
-    midiA.sendControlChange (storedSettings.CCnumber[1], 0, storedSettings.channel);
+    // midiA.sendControlChange (storedSettings.CCnumber[1], 0, storedSettings.channel);
     buttOnOff[1] = buttOn;
   } else {
-    midiA.sendControlChange (storedSettings.CCnumber[1], 127, storedSettings.channel);
+    //  midiA.sendControlChange (storedSettings.CCnumber[1], 127, storedSettings.channel);
     buttOnOff[1] = buttOff;
   }
   ENCMODE = BUTTPRESS;
@@ -666,10 +695,10 @@ void Stomp2ON(void) {
 }
 void Stomp3ON(void) {
   if (buttOnOff[2] == buttOff) {
-    midiA.sendControlChange (storedSettings.CCnumber[2], 0, storedSettings.channel);
+    // midiA.sendControlChange (storedSettings.CCnumber[2], 0, storedSettings.channel);
     buttOnOff[2] = buttOn;
   } else {
-    midiA.sendControlChange (storedSettings.CCnumber[2], 127, storedSettings.channel);
+    // midiA.sendControlChange (storedSettings.CCnumber[2], 127, storedSettings.channel);
     buttOnOff[2] = buttOff;
   }
   ENCMODE = BUTTPRESS;
@@ -677,10 +706,10 @@ void Stomp3ON(void) {
 }
 void Stomp4ON(void) {
   if (buttOnOff[3] == buttOff) {
-    midiA.sendControlChange (storedSettings.CCnumber[3], 0, storedSettings.channel);
+    // midiA.sendControlChange (storedSettings.CCnumber[3], 0, storedSettings.channel);
     buttOnOff[3] = buttOn;
   } else {
-    midiA.sendControlChange (storedSettings.CCnumber[3], 127, storedSettings.channel);
+    //midiA.sendControlChange (storedSettings.CCnumber[3], 127, storedSettings.channel);
     buttOnOff[3] = buttOff;
   }
   ENCMODE = BUTTPRESS;
@@ -802,64 +831,63 @@ void Right (void) {
 /*Fader Callbacks*/
 void slider1Inc (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedSettings.CCnumber[4], Value, storedSettings.channel);
+  // midiA.sendControlChange (storedSettings.CCnumber[4], Value, storedSettings.channel);
 }
 void slider1Dec (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedSettings.CCnumber[4], Value, storedSettings.channel);
+  // midiA.sendControlChange (storedSettings.CCnumber[4], Value, storedSettings.channel);
 }
 void slider2Inc (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedSettings.CCnumber[5], Value, storedSettings.channel);
+  // midiA.sendControlChange (storedSettings.CCnumber[5], Value, storedSettings.channel);
 }
 void slider2Dec (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedSettings.CCnumber[5], Value, storedSettings.channel);
+  //midiA.sendControlChange (storedSettings.CCnumber[5], Value, storedSettings.channel);
 }
 void slider3Inc (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedSettings.CCnumber[6], Value, storedSettings.channel);
+  //midiA.sendControlChange (storedSettings.CCnumber[6], Value, storedSettings.channel);
 }
 void slider3Dec (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedSettings.CCnumber[6], Value, storedSettings.channel);
+  //midiA.sendControlChange (storedSettings.CCnumber[6], Value, storedSettings.channel);
 }
 void slider4Inc (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedSettings.CCnumber[7], Value, storedSettings.channel);
+  //midiA.sendControlChange (storedSettings.CCnumber[7], Value, storedSettings.channel);
 }
 void slider4Dec (int currentValue) {
   int Value = map (currentValue, 0, 1023, 0, 127);
-  midiA.sendControlChange (storedSettings.CCnumber[7], Value, storedSettings.channel);
+  //midiA.sendControlChange (storedSettings.CCnumber[7], Value, storedSettings.channel);
 }
 void slider1SAME (int currentValue) {
   if (GLOBALRESET [0]) {
     GLOBALRESET [0] = false;
     int Value = map (currentValue, 0, 1023, 0, 127);
-    midiA.sendControlChange (storedSettings.CCnumber[4], Value, storedSettings.channel);
+    // midiA.sendControlChange (storedSettings.CCnumber[4], Value, storedSettings.channel);
   }
 } void slider2SAME (int currentValue) {
   if (GLOBALRESET[1]) {
     GLOBALRESET[1] = false;
     int Value = map (currentValue, 0, 1023, 0, 127);
-    midiA.sendControlChange (storedSettings.CCnumber[5], Value, storedSettings.channel);
+    // midiA.sendControlChange (storedSettings.CCnumber[5], Value, storedSettings.channel);
   }
 }
 void slider3SAME (int currentValue) {
   if (GLOBALRESET[2]) {
     GLOBALRESET[2] = false;
     int Value = map (currentValue, 0, 1023, 0, 127);
-    midiA.sendControlChange (storedSettings.CCnumber[6], Value, storedSettings.channel);
+    // midiA.sendControlChange (storedSettings.CCnumber[6], Value, storedSettings.channel);
   }
 }
 void slider4SAME (int currentValue) {
   if (GLOBALRESET[3]) {
     GLOBALRESET[3] = false;
     int Value = map (currentValue, 0, 1023, 0, 127);
-    midiA.sendControlChange (storedSettings.CCnumber[7], Value, storedSettings.channel);
+    // midiA.sendControlChange (storedSettings.CCnumber[7], Value, storedSettings.channel);
   }
 }
-
 
 /*Menu Callbacks*/
 void on_itemLED_selected(MenuItem * p_menu_item)
@@ -880,31 +908,31 @@ void on_item0_selected(MenuItem * p_menu_item)
 void on_item1_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = TONESTACK_onSTAGE;
-  my_flash_store.write(storedSettings);
+//  my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item2_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = TONESTACK_PRESET_MGR;
-  my_flash_store.write(storedSettings);
+//  my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item3_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = BIASFX;
-  my_flash_store.write(storedSettings);
+//  my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item4_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = AMPLITUBE;
-  my_flash_store.write(storedSettings);
+//  my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item5_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = GUITAR_RIG;
-  my_flash_store.write(storedSettings);
+//  my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item6_selected(MenuItem * p_menu_item)
