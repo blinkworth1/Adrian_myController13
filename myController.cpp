@@ -182,7 +182,6 @@ Rotary::Rotary (uint8_t left, uint8_t right) {
   leftPin = left;
   rightPin = right;
   pinMode(leftPin, INPUT_PULLUP );
-  delay (1);
   pinMode(rightPin, INPUT_PULLUP );
 }
 
