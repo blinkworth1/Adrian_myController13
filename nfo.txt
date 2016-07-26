@@ -21,7 +21,10 @@ Fader myFADER (A1, 4) // A1 is the analog read pin, and 4 is the amount of hyste
 If there is an event (e.g. a leading edge of a button), a user callback is executed. You get the idea.
 For the motor, there is a "halt" command, and a "move to command".
 
-Here are the callback "sethandles" (see the Simple example for how this works in practice): 
+Here are the callback "setHandle"s (see the Simple_example.ino for how this works in practice): 
+
+
+
 
 
 
