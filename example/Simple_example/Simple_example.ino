@@ -3,23 +3,23 @@
 Rotary encoder1 (4, 6); //a new encoder with left and right pins
 Rotary encoder2 (5, 7);
 Fader slider1 (A5, 4); // a new slider with an analog read pin, and "4" as the jitter-suppression setting
-Switches Buttons (8,9,10,11,14, 22); // pins for buttons ... note 8 is button 1, 9 is button 2.
-int rotary1mod = 0;
-int rotary2mod = 0;
+Switches Buttons (8,9,10,11,14, 22); // pins for buttons ... note 8 is button 1, 9 is button 2, etc.
+int encoder1mod = 0;
+int encoder2mod = 0;
 int pitch = 0;
 
 void setup() {
-  encoder1.SetHandleLeft(left1);
+  encoder1.SetHandleLeft(left1); //set callback function, to execute when encoder is turned left, to user function: void left1()
   encoder1.SetHandleRight(right1);
 
   encoder2.SetHandleLeft(left2);
   encoder2.SetHandleRight(right2);
 
-slider1.SetHandleIncrease(up);
+slider1.SetHandleIncrease(up); //set callback function, to execute when slider is moved up, to user function: void up(int)
 slider1.SetHandleDecrease(down);
 
-  Buttons.SetHandleB1ON (but1ON);
-  Buttons.SetHandleB1OFF (but1OFF);
+  Buttons.SetHandleB1ON (but1ON); //set callback function, to execute when button 1 is pressed, to user function: void but1ON()
+  Buttons.SetHandleB1OFF (but1OFF); //set callback function, to execute when button 1 is released, to user function: void but1OFF()
   Buttons.SetHandleB2ON (but1ON);
   Buttons.SetHandleB2OFF (but2OFF);
   Buttons.SetHandleB3ON (but3ON);
@@ -34,40 +34,40 @@ slider1.SetHandleDecrease(down);
 
 void loop() {
   Rotary::ReadWrite(); // Sets the polling of both the encoders in motion.  No need for delays.
-  Fader::ReadWrite();
+  Fader::ReadWrite(); // Sets the polling of the faderboth in motion.
   Switches::ReadWrite();
   }
 
 void left1 (void) {
-  rotary1mod ++;
-  if (rotary1mod >= 128) {
-    rotary1mod = 0;
+  encoder1mod ++;
+  if (encoder1mod >= 128) {
+    encoder1mod = 127;
   }
-  usbMIDI.sendControlChange (1, rotary1mod, 1);
+  usbMIDI.sendControlChange (1, encoder1mod, 1);
 }
 
 void left2 (void) {
-  rotary2mod ++;
-  if (rotary2mod >= 128) {
-    rotary2mod = 0;
+  encoder2mod ++;
+  if (encoder2mod >= 128) {
+    encoder2mod = 127;
   }
-  usbMIDI.sendControlChange (1, rotary2mod, 1);
+  usbMIDI.sendControlChange (1, encoder2mod, 1);
 }
 
 void right1 (void) {
-  rotary1mod --;
-  if (rotary1mod >= -1) {
-    rotary1mod = 127;
+  encoder1mod --;
+  if (encoder1mod <= -1) {
+    encoder1mod = 0;
   }
-  usbMIDI.sendControlChange (1, rotary1mod, 1);
+  usbMIDI.sendControlChange (1, encoder1mod, 1);
 }
 
 void right2 (void) {
-  rotary2mod --;
-  if (rotary2mod >= -1) {
-    rotary2mod = 127;
+  encoder2mod --;
+  if (encoder2mod <= -1) {
+    encoder2mod = 0;
   }
-  usbMIDI.sendControlChange (1, rotary2mod, 1);
+  usbMIDI.sendControlChange (1, encoder2mod, 1);
 }
 
 void up (int increase) {
