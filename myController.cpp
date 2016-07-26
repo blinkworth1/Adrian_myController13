@@ -283,6 +283,8 @@ Fader::Fader(uint8_t wiper, uint8_t hysteresis) {
 
 void Fader::begin(uint8_t touch, int touchthresh, uint8_t pwm, uint8_t dirD, uint8_t dirU) {
 	pwmPin = pwm;
+	pinMode (dirD, OUTPUT);
+	pinMode (dirU, OUTPUT);
 	dirPin = dirD;
 	dirPinU = dirU;
 	touchPin = touch;
