@@ -1,5 +1,6 @@
 
 #include <myController.h>
+#include "elapsedMillis.h"
 
 uint8_t Rotary::objectIndex = 0;
 uint8_t Fader::objectIndex = 0;

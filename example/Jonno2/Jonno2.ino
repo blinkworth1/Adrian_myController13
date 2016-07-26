@@ -597,6 +597,7 @@ void EditPress (void) {
     case CC:
     case CHANNEL:
     case GLOBAL:
+    case LED:
       ENCMODE = EDITMENU;
       ms.reset();
       editMenuDisplayUpdate();
@@ -635,6 +636,7 @@ void EditRelease (void) {
     case CC:
     case CHANNEL:
     case GLOBAL:
+    case LED:
     case BUTTPRESS:
       break;
   }
