@@ -4,7 +4,7 @@
 #include <Wire.h>
 #include "MyRenderer.h"
 #include <myController.h>
-//#include "FlashStorage.h"
+#include "FlashStorage.h"
 #include "elapsedMillis.h"
 #include "Adafruit_BLE.h"
 #include "Adafruit_BluefruitLE_SPI.h"
@@ -113,7 +113,7 @@ typedef struct {
 } Settings;
 Settings storedSettings = {true, 50, 1, 0, {0, 1, 2, 3, 4, 5, 6, 7}, 100, TONESTACK_onSTAGE};
 Settings displayUpdate;
-//FlashStorage(my_flash_store, Settings);
+FlashStorage(my_flash_store, Settings);
 
 uint8_t lcount = 0;
 uint8_t rcount = 0;
@@ -220,7 +220,7 @@ MenuItem mu3_mi4("FADER - 4   ", &on_item13_selected);
 void setup() {
   /*BLE setup and debug*/
   Serial.begin(38400);
-  delay(5000);
+  delay(1000);
   if ( !ble.begin(true) ) // If set to 'true' enables debug output
   {
     Serial.println("Couldn't find Bluefruit, make sure it's in CoMmanD mode & check wiring?");
@@ -235,16 +235,16 @@ void setup() {
   ble.verbose(false);
   Serial.println("Waiting for a connection...");
 
-  /*FlashStorage management*
+  /*FlashStorage management*/
   displayUpdate = my_flash_store.read();
   if (!(displayUpdate.valid)) {
     displayUpdate = storedSettings;
   }
   else {
     storedSettings = displayUpdate;
-  }*/
+  }
 
-displayUpdate = storedSettings; //temp fix for FlashStorageissue
+//displayUpdate = storedSettings; //temp fix for FlashStorageissue
 
   // midiA.begin();
 
@@ -498,7 +498,7 @@ void SelectRelease (void) {
       if (isConnected) {
       midi.send(0xC0 + (storedSettings.channel - 1), storedSettings.program, 0x00);
       }
-      //my_flash_store.write(storedSettings);
+      my_flash_store.write(storedSettings);
       display.clearDisplay();
       display.setCursor(10, 4);
       display.setTextSize(1);
@@ -534,7 +534,7 @@ void SelectRelease (void) {
       break;
     case CC:
       storedSettings.CCnumber [PERIPHERAL] = displayUpdate.CCnumber[PERIPHERAL];
-      //my_flash_store.write(storedSettings);
+      my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
@@ -552,7 +552,7 @@ void SelectRelease (void) {
       break;
     case CHANNEL:
       storedSettings.channel = displayUpdate.channel;
-      //my_flash_store.write(storedSettings);
+      my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
@@ -570,7 +570,7 @@ void SelectRelease (void) {
       break;
     case GLOBAL:
       storedSettings.msdelay = displayUpdate.msdelay;
-      //my_flash_store.write(storedSettings);
+      my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
@@ -591,7 +591,7 @@ void SelectRelease (void) {
       break;
     case LED:
       storedSettings.rotary1mod = displayUpdate.rotary1mod;
-      //my_flash_store.write(storedSettings);
+      my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
@@ -908,31 +908,31 @@ void on_item0_selected(MenuItem * p_menu_item)
 void on_item1_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = TONESTACK_onSTAGE;
-//  my_flash_store.write(storedSettings);
+  my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item2_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = TONESTACK_PRESET_MGR;
-//  my_flash_store.write(storedSettings);
+  my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item3_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = BIASFX;
-//  my_flash_store.write(storedSettings);
+  my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item4_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = AMPLITUBE;
-//  my_flash_store.write(storedSettings);
+  my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item5_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = GUITAR_RIG;
-//  my_flash_store.write(storedSettings);
+  my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item6_selected(MenuItem * p_menu_item)
