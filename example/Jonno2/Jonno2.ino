@@ -218,9 +218,9 @@ MenuItem mu3_mi4("FADER - 4   ", &on_item13_selected);
 //BackMenuItem mu3_mi0("... back to menu ", &on_back3_item_selected, &ms);
 
 void setup() {
-
   /*BLE setup and debug*/
-  //Serial.begin(38400);
+  Serial.begin(38400);
+  delay(5000);
   if ( !ble.begin(true) ) // If set to 'true' enables debug output
   {
     Serial.println("Couldn't find Bluefruit, make sure it's in CoMmanD mode & check wiring?");
@@ -229,12 +229,11 @@ void setup() {
     Serial.println("Failed to performed a factory reset");
   }
   ble.echo(false);
-  if ( ! midi.begin(true) )
-  {
+  if ( ! midi.begin(true) ) {
     Serial.println("Could not enable MIDI");
   }
   ble.verbose(false);
-  Serial.print("Waiting for a connection...");
+  Serial.println("Waiting for a connection...");
 
   /*FlashStorage management*
   displayUpdate = my_flash_store.read();
@@ -328,7 +327,6 @@ void loop() {
   Rotary::ReadWrite();
   Switches::ReadWrite();
   Fader::ReadWrite();
-  Serial.println ("FUCK");
 }
 
 /*Display functions*/
@@ -497,7 +495,9 @@ void SelectRelease (void) {
     case PROG:
       storedSettings.program = displayUpdate.program;
       //  midiA.sendProgramChange (storedSettings.program, storedSettings.channel);
+      if (isConnected) {
       midi.send(0xC0 + (storedSettings.channel - 1), storedSettings.program, 0x00);
+      }
       //my_flash_store.write(storedSettings);
       display.clearDisplay();
       display.setCursor(10, 4);
