@@ -36,14 +36,13 @@ class
     void SetHandleB12OFF (void (void));
     void SetHandleB13ON (void (void));
     void SetHandleB13OFF (void (void));
-uint8_t switchesPinTable [13];  
-private:
+    uint8_t switchesPinTable [13];
+ private:
     static void SwitchesRead();
     bool begin;
     uint8_t switchesArray [13] = {0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007};
     uint16_t switchesRaw;
     uint16_t switchesData;
-    uint16_t bounce = 0; // bouncemask
     uint16_t pressed = 0; // pressedmask
     uint8_t numberOfSwitches;
     void (*pB1ON) (void) = NULL;
@@ -95,15 +94,15 @@ class
     bool begin;
     void (*pLeft) (void) = NULL;
     void (*pRight) (void) = NULL;
-	uint8_t RDDB;
-	uint8_t rotaryA;
+    uint8_t RDDB;
+    uint8_t rotaryA;
     uint8_t rotaryB;
     uint8_t rotaryData;
     int8_t rotaryState;
-	uint8_t rotaryAraw;
-	uint8_t rotaryBraw;
-	uint8_t leftPin;
-	uint8_t rightPin;
+    uint8_t rotaryAraw;
+    uint8_t rotaryBraw;
+    uint8_t leftPin;
+    uint8_t rightPin;
 };
 class
 	Fader {
@@ -119,10 +118,9 @@ public:
 	void SetHandleSame(void(int));
 	void SetHandleTouchON(void(int));
 	void SetHandleTouchOFF(void(int));
-     
-private:
-bool MOTOR = false;	
-static void FaderRead();
+     private:
+	bool MOTOR = false;	
+	static void FaderRead();
 	void(*pIncrease) (int) = NULL;
 	void(*pDecrease) (int) = NULL;
 	void(*pSame) (int) = NULL;
