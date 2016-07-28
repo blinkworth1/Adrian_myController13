@@ -181,8 +181,8 @@ Rotary::Rotary (uint8_t left, uint8_t right) {
   Rotary::objectIndex++;
   leftPin = left;
   rightPin = right;
-  pinMode(leftPin, INPUT_PULLUP );
-  pinMode(rightPin, INPUT_PULLUP );
+  begin=true;
+  
 }
 
 void Rotary::SetHandleLeft(void (*Left) (void)) {
@@ -197,7 +197,7 @@ void Rotary::ReadWrite() {
 	if ((RotaryTimer - 319) >= 0) {
 		RotaryTimer = 0;
 		RotaryRead();
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < Rotary::objectIndex; i++) {
 			if (RobjArray[i]) {
 				RobjArray[i]->rotaryA <<= 1;
 				RobjArray[i]->rotaryB <<= 1;
@@ -239,8 +239,13 @@ void Rotary::ReadWrite() {
 }
 
 void Rotary::RotaryRead () {
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < Rotary::objectIndex; i++) {
     if (RobjArray[i]) {
+	if (RobjArray[i]->begin) {
+	RobjArray[i]->begin=false;
+	pinMode(RobjArray[i]->leftPin, INPUT_PULLUP );
+  	pinMode(RobjArray[i]->rightPin, INPUT_PULLUP );
+	}
 #if defined (__MK20DX128__)
 RobjArray[i]->rotaryAraw = digitalReadFast (RobjArray[i]->leftPin);
       RobjArray[i]->rotaryBraw = digitalReadFast (RobjArray[i]->rightPin);
@@ -248,8 +253,6 @@ RobjArray[i]->rotaryAraw = digitalReadFast (RobjArray[i]->leftPin);
         RobjArray[i]->rotaryAraw = digitalRead (RobjArray[i]->leftPin);
       RobjArray[i]->rotaryBraw = digitalRead (RobjArray[i]->rightPin);
 #endif      
-
-
     }
   }
 }
