@@ -8,9 +8,9 @@ Switches *Sobj;
 Rotary * RobjArray[4] {NULL, NULL, NULL, NULL};
 Fader * FobjArray[4] {NULL, NULL, NULL, NULL};
 const int8_t encState [16] {0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0};
-elapsedMicros RotaryTimer;
+//elapsedMicros RotaryTimer;
 elapsedMillis FaderTimer;
-elapsedMicros SwitchesTimer;
+//elapsedMicros SwitchesTimer;
 
 Switches::Switches (uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4, uint8_t pin5, uint8_t pin6) {
   numberOfSwitches = 6;
@@ -129,8 +129,8 @@ void Switches::SetHandleB13OFF(void(*fptr) (void)) {
 	switchesPointersOFF[12] = fptr;
 }
 void Switches::ReadWrite() {
-	if ((SwitchesTimer - 301) > 0) {
-		SwitchesTimer = 0;
+	//if ((SwitchesTimer - 301) > 0) {
+	//	SwitchesTimer = 0;
 		SwitchesRead();
 		for (int i = 0; i < Sobj->numberOfSwitches; i++)
 		{
@@ -161,7 +161,7 @@ void Switches::ReadWrite() {
 				}
 			}
 		}
-	}
+	//}
 }
 
 void Switches::SwitchesRead () {
@@ -193,8 +193,8 @@ void Rotary::SetHandleRight (void (*Right) (void)) {
 }
 
 void Rotary::ReadWrite() {
-	if ((RotaryTimer - 319) >= 0) {
-		RotaryTimer = 0;
+	//if ((RotaryTimer - 319) >= 0) {
+	//	RotaryTimer = 0;
 		RotaryRead();
 		for (int i = 0; i < Rotary::objectIndex; i++) {
 			if (RobjArray[i]) {
@@ -234,7 +234,7 @@ void Rotary::ReadWrite() {
 				}
 			}
 		}
-	}
+	//}
 }
 
 void Rotary::RotaryRead () {
@@ -292,8 +292,8 @@ void Fader::begin(uint8_t touch, int touchthresh, uint8_t pwm, uint8_t dirD, uin
 }
 
 void Fader::ReadWrite() {
-	if ((FaderTimer - 191) >= 0) {
-		FaderTimer = 0;
+	//if ((FaderTimer - 191) >= 0) {
+	//	FaderTimer = 0;
 		FaderRead();
 		for (int i = 0; i < 4; i++) {
 			if (FobjArray[i]) {
@@ -332,7 +332,7 @@ void Fader::ReadWrite() {
 				}
 			}
 		}
-	}
+	//}
 }
 
 
