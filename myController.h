@@ -39,7 +39,7 @@ class
 uint8_t switchesPinTable [13];  
 private:
     static void SwitchesRead();
-    
+    bool begin;
     uint8_t switchesArray [13] = {0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007};
     uint16_t switchesRaw;
     uint16_t switchesData;
@@ -86,12 +86,13 @@ class
   Rotary {
   public:
     Rotary (uint8_t, uint8_t );
-    static uint8_t objectIndex;
+    static uint8_t objectIndex = 0;
     static void ReadWrite();
     void SetHandleLeft (void (void));
     void SetHandleRight (void (void));
   private:
     static void RotaryRead();
+    bool begin;
     void (*pLeft) (void) = NULL;
     void (*pRight) (void) = NULL;
 	uint8_t RDDB;
@@ -112,7 +113,7 @@ public:
 	void Motor(int);
 	void Halt();
 	static void ReadWrite(); 
-	static uint8_t objectIndex;
+	static uint8_t objectIndex = 0;
 	void SetHandleIncrease(void(int));
 	void SetHandleDecrease(void(int));
 	void SetHandleSame(void(int));
