@@ -4,7 +4,7 @@
 #include <Wire.h>
 #include "MyRenderer.h"
 #include <myController.h>
-#include "FlashStorage.h"
+//#include "FlashStorage.h"
 #include "elapsedMillis.h"
 #include "Adafruit_BLE.h"
 #include "Adafruit_BluefruitLE_SPI.h"
@@ -81,12 +81,12 @@ const unsigned char mybitmap [] PROGMEM = {
 #define OLED_DATA   20 //i2c pins for Feather, for display
 #define OLED_CLK    21
 #define OLED_RESET  5
-/Fader slider1 (A2, 3); //Feather pins and jitter suppression amount
-/Fader slider2 (A3, 3);
+Fader slider1 (A0, 3); //Feather pins and jitter suppression amount
+Fader slider2 (A1, 3);
 Fader slider3 (A4, 3);
 Fader slider4 (A5, 3);
 Rotary encoder1 (0, 1); // 0 and 1 are Feather pin numbers, left and right, for the rotary encoder
-Switches Buttons (16, 17, 9, 10, 11, 12); //14 and 15 are select and edit, respectively, and 9 thru 12 stomp pins, for Feather
+Switches Buttons (16, 17, 10, 11, 12, 13); //16 and 17 are select and edit, respectively, and 9 thru 12 stomp pins, for Feather
 
 Adafruit_BluefruitLE_SPI ble(8, 7, 6); //these are internal connections, don't worry about them.
 Adafruit_BLEMIDI midi(ble);
@@ -111,9 +111,9 @@ typedef struct {
   uint8_t rotary1mod;
   Preset PRESET;
 } Settings;
-Settings storedSettings = {true, 50, 1, 0, {0, 1, 2, 3, 4, 5, 6, 7}, 100, TONESTACK_onSTAGE};
+Settings storedSettings = {true, 50, 1, 9, {0, 1, 2, 3, 4, 5, 6, 7}, 100, TONESTACK_onSTAGE};
 Settings displayUpdate;
-FlashStorage(my_flash_store, Settings);
+//FlashStorage(my_flash_store, Settings);
 
 uint8_t lcount = 0;
 uint8_t rcount = 0;
@@ -176,14 +176,14 @@ const char * presetArrayDisplayUpdate [5] {
   ZERODisplayUpdate, ONEDisplayUpdate, BIASFXDisplayUpdate,
   AMPLITUDEDisplayUpdate, NIDisplayUpdate
 };
-const char B1DisplayUpdate [] = "STOMP - 1";
-const char B2DisplayUpdate [] = "STOMP - 2";
-const char B3DisplayUpdate [] = "STOMP - 3";
-const char B4DisplayUpdate [] = "STOMP - 4";
-const char S1DisplayUpdate [] = "FADER - 1";
-const char S2DisplayUpdate [] = "FADER - 2";
-const char S3DisplayUpdate [] = "FADER - 3";
-const char S4DisplayUpdate [] = "FADER - 4";
+const char B1DisplayUpdate [] = "STOMP 1";
+const char B2DisplayUpdate [] = "STOMP 2";
+const char B3DisplayUpdate [] = "STOMP 3";
+const char B4DisplayUpdate [] = "STOMP 4";
+const char S1DisplayUpdate [] = "FADER 1";
+const char S2DisplayUpdate [] = "FADER 2";
+const char S3DisplayUpdate [] = "FADER 3";
+const char S4DisplayUpdate [] = "FADER 4";
 const char *peripheralArrayDisplayUpdate [8] {
   B1DisplayUpdate, B2DisplayUpdate, B3DisplayUpdate, B4DisplayUpdate,
   S1DisplayUpdate, S2DisplayUpdate, S3DisplayUpdate, S4DisplayUpdate
@@ -206,15 +206,15 @@ MenuItem mu1_mi3("BIAS FX          ", &on_item3_selected);
 MenuItem mu1_mi4("AMPLITUBE        ", &on_item4_selected);
 MenuItem mu1_mi5("GUITAR RIG    ", &on_item5_selected);
 //BackMenuItem mu1_mi0("... back to menu ", &on_back1_item_selected, &ms);
-MenuItem mu2_mi1("STOMP - 1   ", &on_item6_selected);
-MenuItem mu2_mi2("STOMP - 2   ", &on_item7_selected);
-MenuItem mu2_mi3("STOMP - 3   ", &on_item8_selected);
-MenuItem mu2_mi4("STOMP - 4   ", &on_item9_selected);
+MenuItem mu2_mi1("STOMP 1   ", &on_item6_selected);
+MenuItem mu2_mi2("STOMP 2   ", &on_item7_selected);
+MenuItem mu2_mi3("STOMP 3   ", &on_item8_selected);
+MenuItem mu2_mi4("STOMP 4   ", &on_item9_selected);
 //BackMenuItem mu2_mi0("... back to menu ", &on_back2_item_selected, &ms);
-MenuItem mu3_mi1("FADER - 1   ", &on_item10_selected);
-MenuItem mu3_mi2("FADER - 2   ", &on_item11_selected);
-MenuItem mu3_mi3("FADER - 3   ", &on_item12_selected);
-MenuItem mu3_mi4("FADER - 4   ", &on_item13_selected);
+MenuItem mu3_mi1("FADER 1   ", &on_item10_selected);
+MenuItem mu3_mi2("FADER 2   ", &on_item11_selected);
+MenuItem mu3_mi3("FADER 3   ", &on_item12_selected);
+MenuItem mu3_mi4("FADER 4   ", &on_item13_selected);
 //BackMenuItem mu3_mi0("... back to menu ", &on_back3_item_selected, &ms);
 
 void setup() {
@@ -232,16 +232,16 @@ void setup() {
   ble.verbose(false);
   Serial.println("Waiting for a connection...");
 
-  /*FlashStorage management*/
+  /*FlashStorage management*
   displayUpdate = my_flash_store.read();
   if (!(displayUpdate.valid)) {
     displayUpdate = storedSettings;
   }
   else {
     storedSettings = displayUpdate;
-  }
+  }*/
 
-//displayUpdate = storedSettings; //temp fix for FlashStorageissue
+displayUpdate = storedSettings; //temp fix for FlashStorageissue
 
   // midiA.begin();
 
@@ -381,7 +381,7 @@ void buttpressDisplayUpdate (void) {
   for (int i = 0; i < 4; i++) {
     display.printf("%s", peripheralArrayDisplayUpdate [i]);
     display.setFont (&FreeMono9pt7b);
-    display.printf("%s\n\n", buttOnOff[i]);
+    display.printf("%s\n", buttOnOff[i]);
     display.setFont ();
   }
   if (INIT == false) {
@@ -495,7 +495,7 @@ void SelectRelease (void) {
       if (isConnected) {
       midi.send(0xC0 + (storedSettings.channel - 1), storedSettings.program, 0x00);
       }
-      my_flash_store.write(storedSettings);
+      //my_flash_store.write(storedSettings);
       display.clearDisplay();
       display.setCursor(10, 4);
       display.setTextSize(1);
@@ -531,7 +531,7 @@ void SelectRelease (void) {
       break;
     case CC:
       storedSettings.CCnumber [PERIPHERAL] = displayUpdate.CCnumber[PERIPHERAL];
-      my_flash_store.write(storedSettings);
+     // my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
@@ -549,7 +549,7 @@ void SelectRelease (void) {
       break;
     case CHANNEL:
       storedSettings.channel = displayUpdate.channel;
-      my_flash_store.write(storedSettings);
+     // my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
@@ -567,7 +567,7 @@ void SelectRelease (void) {
       break;
     case GLOBAL:
       storedSettings.msdelay = displayUpdate.msdelay;
-      my_flash_store.write(storedSettings);
+     // my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
@@ -588,7 +588,7 @@ void SelectRelease (void) {
       break;
     case LED:
       storedSettings.rotary1mod = displayUpdate.rotary1mod;
-      my_flash_store.write(storedSettings);
+    //  my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
@@ -905,31 +905,31 @@ void on_item0_selected(MenuItem * p_menu_item)
 void on_item1_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = TONESTACK_onSTAGE;
-  my_flash_store.write(storedSettings);
+ // my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item2_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = TONESTACK_PRESET_MGR;
-  my_flash_store.write(storedSettings);
+ // my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item3_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = BIASFX;
-  my_flash_store.write(storedSettings);
+ // my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item4_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = AMPLITUBE;
-  my_flash_store.write(storedSettings);
+ // my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item5_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = GUITAR_RIG;
-  my_flash_store.write(storedSettings);
+ // my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item6_selected(MenuItem * p_menu_item)
