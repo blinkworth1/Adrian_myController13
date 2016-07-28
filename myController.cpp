@@ -268,7 +268,6 @@ void Fader::SetHandleSame(void(*ptr) (int)) {
 void Fader::SetHandleTouchON(void(*ptr) (int)) {
 	pTouchON = ptr;
 }
-
 void Fader::SetHandleTouchOFF(void(*ptr) (int)) {
 	pTouchOFF = ptr;
 }
@@ -338,15 +337,14 @@ void Fader::ReadWrite() {
 
 
 void Fader::FaderRead() {
-	for (int i = 0; i < 4; i++) {
-		if (FobjArray[i]){
+	for (int i = 0; i < Fader::objectIndex; i++) {
+		if (FobjArray[i]) {
 			FobjArray[i]->hystPinRead = analogRead(FobjArray[i]->wiperPin);
 #if defined (__MK20DX128__)
 		if (FobjArray[i]->MOTOR) {
 			FobjArray[i]->touchPinRead = touchRead(FobjArray[i]->touchPin);
-		}
+			}
 #endif
-			
 		}
 	}
 }
