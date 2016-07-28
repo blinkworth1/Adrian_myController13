@@ -86,7 +86,7 @@ class
   Rotary {
   public:
     Rotary (uint8_t, uint8_t );
-    static uint8_t objectIndex = 0;
+    static uint8_t objectIndex;
     static void ReadWrite();
     void SetHandleLeft (void (void));
     void SetHandleRight (void (void));
@@ -113,7 +113,7 @@ public:
 	void Motor(int);
 	void Halt();
 	static void ReadWrite(); 
-	static uint8_t objectIndex = 0;
+	static uint8_t objectIndex;
 	void SetHandleIncrease(void(int));
 	void SetHandleDecrease(void(int));
 	void SetHandleSame(void(int));
