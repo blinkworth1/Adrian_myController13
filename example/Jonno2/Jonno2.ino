@@ -81,12 +81,12 @@ const unsigned char mybitmap [] PROGMEM = {
 #define OLED_DATA   20 //i2c pins for Feather, for display
 #define OLED_CLK    21
 #define OLED_RESET  5
-Fader slider1 (A2, 3); //Feather pins and jitter suppression amount
-Fader slider2 (A3, 3);
+/Fader slider1 (A2, 3); //Feather pins and jitter suppression amount
+/Fader slider2 (A3, 3);
 Fader slider3 (A4, 3);
 Fader slider4 (A5, 3);
 Rotary encoder1 (0, 1); // 0 and 1 are Feather pin numbers, left and right, for the rotary encoder
-Switches Buttons (14, 15, 9, 10, 11, 12); //14 and 15 are select and edit, respectively, and 9 thru 12 stomp pins, for Feather
+Switches Buttons (16, 17, 9, 10, 11, 12); //14 and 15 are select and edit, respectively, and 9 thru 12 stomp pins, for Feather
 
 Adafruit_BluefruitLE_SPI ble(8, 7, 6); //these are internal connections, don't worry about them.
 Adafruit_BLEMIDI midi(ble);
@@ -224,9 +224,6 @@ void setup() {
   if ( !ble.begin(true) ) // If set to 'true' enables debug output
   {
     Serial.println("Couldn't find Bluefruit, make sure it's in CoMmanD mode & check wiring?");
-  }
-  if ( !ble.factoryReset() ) {
-    Serial.println("Failed to performed a factory reset");
   }
   ble.echo(false);
   if ( ! midi.begin(true) ) {
@@ -384,7 +381,7 @@ void buttpressDisplayUpdate (void) {
   for (int i = 0; i < 4; i++) {
     display.printf("%s", peripheralArrayDisplayUpdate [i]);
     display.setFont (&FreeMono9pt7b);
-    display.printf("%s", buttOnOff[i]);
+    display.printf("%s\n\n", buttOnOff[i]);
     display.setFont ();
   }
   if (INIT == false) {
