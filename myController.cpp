@@ -188,7 +188,6 @@ Rotary::Rotary (uint8_t left, uint8_t right) {
 void Rotary::SetHandleLeft(void (*Left) (void)) {
   pLeft = Left;
 }
-
 void Rotary::SetHandleRight (void (*Right) (void)) {
   pRight = Right;
 }
@@ -247,11 +246,11 @@ void Rotary::RotaryRead () {
   	pinMode(RobjArray[i]->rightPin, INPUT_PULLUP );
 	}
 #if defined (__MK20DX128__)
-RobjArray[i]->rotaryAraw = digitalReadFast (RobjArray[i]->leftPin);
-      RobjArray[i]->rotaryBraw = digitalReadFast (RobjArray[i]->rightPin);
+	RobjArray[i]->rotaryAraw = digitalReadFast (RobjArray[i]->leftPin);
+      	RobjArray[i]->rotaryBraw = digitalReadFast (RobjArray[i]->rightPin);
 #else
         RobjArray[i]->rotaryAraw = digitalRead (RobjArray[i]->leftPin);
-      RobjArray[i]->rotaryBraw = digitalRead (RobjArray[i]->rightPin);
+      	RobjArray[i]->rotaryBraw = digitalRead (RobjArray[i]->rightPin);
 #endif      
     }
   }
@@ -260,15 +259,12 @@ RobjArray[i]->rotaryAraw = digitalReadFast (RobjArray[i]->leftPin);
 void Fader::SetHandleIncrease(void(*ptr) (int)) {
 	pIncrease = ptr;
 }
-
 void Fader::SetHandleDecrease(void(*ptr) (int)) {
 	pDecrease = ptr;
 }
-
 void Fader::SetHandleSame(void(*ptr) (int)) {
 	pSame = ptr;
 }
-
 void Fader::SetHandleTouchON(void(*ptr) (int)) {
 	pTouchON = ptr;
 }
@@ -346,9 +342,9 @@ void Fader::FaderRead() {
 		if (FobjArray[i]){
 			FobjArray[i]->hystPinRead = analogRead(FobjArray[i]->wiperPin);
 #if defined (__MK20DX128__)
-if (FobjArray[i]->MOTOR) {
+		if (FobjArray[i]->MOTOR) {
 			FobjArray[i]->touchPinRead = touchRead(FobjArray[i]->touchPin);
-}
+		}
 #endif
 			
 		}
