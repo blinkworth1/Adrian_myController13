@@ -86,7 +86,7 @@ Fader slider2 (A1, 3);
 Fader slider3 (A4, 3);
 Fader slider4 (A5, 3);
 Rotary encoder1 (0, 1); // 0 and 1 are Feather pin numbers, left and right, for the rotary encoder
-Switches Buttons (16, 17, 10, 11, 12, 13); //16 and 17 are select and edit, respectively, and 9 thru 12 stomp pins, for Feather
+Switches Buttons (16, 17, 10, 11, 12, 13); //16 and 17 are select and edit, respectively, and 10 thru 13 stomp pins, for Feather
 
 Adafruit_BluefruitLE_SPI ble(8, 7, 6); //these are internal connections, don't worry about them.
 Adafruit_BLEMIDI midi(ble);
@@ -688,7 +688,6 @@ void Stomp2ON(void) {
   }
   ENCMODE = BUTTPRESS;
   buttpressDisplayUpdate();
-
 }
 void Stomp3ON(void) {
   if (buttOnOff[2] == buttOff) {
