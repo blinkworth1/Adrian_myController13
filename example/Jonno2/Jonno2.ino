@@ -445,7 +445,7 @@ void globalDisplayUpdate(void) {
   display.print ("new:     ");
   display.setCursor(55, 43);
   display.setFont (&FreeMono12pt7b);
-  display.printf ("%02d", displayUpdate.msdelay * 10);
+  display.printf ("%02d", displayUpdate.msdelay);
   display.display();
   display.setFont ();
 }
