@@ -118,7 +118,7 @@ public:
 	void SetHandleSame(void(int));
 	void SetHandleTouchON(void(int));
 	void SetHandleTouchOFF(void(int));
-     private:
+private:
 	bool MOTOR = false;	
 	static void FaderRead();
 	void(*pIncrease) (int) = NULL;
