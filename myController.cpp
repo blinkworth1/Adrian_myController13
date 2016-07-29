@@ -21,11 +21,6 @@ Switches::Switches (uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4, uint
   switchesPinTable [3] = pin4;
   switchesPinTable [4] = pin5;
   switchesPinTable [5] = pin6;
-  for (int i = 0; i < numberOfSwitches; i++) {
-    //delay (1);
-    pinMode(switchesPinTable [i], INPUT_PULLUP );
-  }
- //delay (1000);
 }
 Switches::Switches (uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4, 
   uint8_t pin5, uint8_t pin6, uint8_t pin7, uint8_t pin8, uint8_t pin9, 
@@ -45,10 +40,6 @@ Switches::Switches (uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4,
   switchesPinTable [10] = pin6;
   switchesPinTable [11] = pin6;
   switchesPinTable [12] = pin6;
-  for (int i = 0; i < numberOfSwitches; i++) {
-    //delay (1);
-    pinMode(switchesPinTable [i], INPUT_PULLUP );
-  }
 }
 void Switches::SetHandleB1ON (void (*fptr) (void)) {
   switchesPointersON[0] = fptr;
@@ -163,11 +154,16 @@ void Switches::ReadWrite() {
 		}
 	//}
 }
-
 void Switches::SwitchesRead () {
 Sobj->switchesRaw = 0;	
+
 for (int i = 0; i < Sobj->numberOfSwitches; i++) {
-		
+    if (Sobj->begin) {
+       Sobj->begin = false;
+       for (int i = 0; i < Sobj->numberOfSwitches; i++) {
+    pinMode(Sobj->switchesPinTable [i], INPUT_PULLUP );
+     }
+  }
 #if defined (__MK20DX128__)
 		Sobj->switchesRaw |= ((digitalReadFast(Sobj->switchesPinTable[i])) << i  ;
 #else
