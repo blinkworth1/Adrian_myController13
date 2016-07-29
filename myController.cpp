@@ -21,6 +21,7 @@ Switches::Switches (uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4, uint
   switchesPinTable [3] = pin4;
   switchesPinTable [4] = pin5;
   switchesPinTable [5] = pin6;
+begin = true;
 }
 Switches::Switches (uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4, 
   uint8_t pin5, uint8_t pin6, uint8_t pin7, uint8_t pin8, uint8_t pin9, 
@@ -40,6 +41,7 @@ Switches::Switches (uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4,
   switchesPinTable [10] = pin6;
   switchesPinTable [11] = pin6;
   switchesPinTable [12] = pin6;
+begin=true;
 }
 void Switches::SetHandleB1ON (void (*fptr) (void)) {
   switchesPointersON[0] = fptr;
@@ -156,14 +158,16 @@ void Switches::ReadWrite() {
 }
 void Switches::SwitchesRead () {
 Sobj->switchesRaw = 0;	
-
-for (int i = 0; i < Sobj->numberOfSwitches; i++) {
     if (Sobj->begin) {
        Sobj->begin = false;
        for (int i = 0; i < Sobj->numberOfSwitches; i++) {
     pinMode(Sobj->switchesPinTable [i], INPUT_PULLUP );
+Serial.println (Sobj->switchesPinTable [i]);
+delay (500);
      }
   }
+for (int i = 0; i < Sobj->numberOfSwitches; i++) {
+
 #if defined (__MK20DX128__)
 		Sobj->switchesRaw |= ((digitalReadFast(Sobj->switchesPinTable[i])) << i  ;
 #else
@@ -288,8 +292,8 @@ void Fader::begin(uint8_t touch, int touchthresh, uint8_t pwm, uint8_t dirD, uin
 }
 
 void Fader::ReadWrite() {
-	//if ((FaderTimer - 191) >= 0) {
-	//	FaderTimer = 0;
+	if ((FaderTimer - 167) >= 0) {
+		FaderTimer = 0;
 		FaderRead();
 		for (int i = 0; i < 4; i++) {
 			if (FobjArray[i]) {
@@ -328,7 +332,7 @@ void Fader::ReadWrite() {
 				}
 			}
 		}
-	//}
+	}
 }
 
 

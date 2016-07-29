@@ -4,7 +4,7 @@
 #include <Wire.h>
 #include "MyRenderer.h"
 #include <myController.h>
-//#include "FlashStorage.h"
+#include "FlashStorage.h"
 #include "elapsedMillis.h"
 #include "Adafruit_BLE.h"
 #include "Adafruit_BluefruitLE_SPI.h"
@@ -104,22 +104,23 @@ enum peripheral : uint8_t {Button1, Button2, Button3, Button4, Slider1, Slider2,
 peripheral PERIPHERAL;
 typedef struct {
   bool valid;
-  uint8_t msdelay;
-  uint8_t channel;
-  uint8_t program;
-  uint8_t CCnumber [8];
-  uint8_t rotary1mod;
+  int8_t msdelay;
+  int8_t channel;
+  int16_t program;
+  int16_t CCnumber [8];
+  int8_t rotary1mod;
   Preset PRESET;
 } Settings;
 Settings storedSettings = {true, 50, 1, 9, {0, 1, 2, 3, 4, 5, 6, 7}, 100, TONESTACK_onSTAGE};
 Settings displayUpdate;
-//FlashStorage(my_flash_store, Settings);
+FlashStorage(my_flash_store, Settings);
 
 uint8_t lcount = 0;
 uint8_t rcount = 0;
 bool GLOBALRESET [4] = {true, true, true, true};
 bool INIT = true;
 bool isConnected = false;
+bool EXIT = false;
 
 /*Forward Declarations*/
 void connected(void);
@@ -232,17 +233,16 @@ void setup() {
   ble.verbose(false);
   Serial.println("Waiting for a connection...");
 
-  /*FlashStorage management*
-  displayUpdate = my_flash_store.read();
-  if (!(displayUpdate.valid)) {
+  /*FlashStorage management*/
+    displayUpdate = my_flash_store.read();
+    if (!(displayUpdate.valid)) {
     displayUpdate = storedSettings;
-  }
-  else {
+    }
+    else {
     storedSettings = displayUpdate;
-  }*/
+    }
 
-displayUpdate = storedSettings; //temp fix for FlashStorageissue
-
+  //displayUpdate = storedSettings; //temp fix for FlashStorageissue
   // midiA.begin();
 
   /*set callbacks*/
@@ -336,10 +336,10 @@ void presetDisplayUpdate (void) {
   display.setCursor(0, 47);
   presetNumberDisplayUpdate(displayUpdate.program, 4);
   if (INIT == false) {
-    display.setCursor(79, 23);
+    display.setCursor(81, 23);
     display.setTextSize(1);
     display.print ("current");
-    display.setCursor(79, 47);
+    display.setCursor(81, 47);
     presetNumberDisplayUpdate(storedSettings.program, 2);
   }
   display.display();
@@ -385,9 +385,9 @@ void buttpressDisplayUpdate (void) {
     display.setFont ();
   }
   if (INIT == false) {
-    display.setCursor(79, 23);
+    display.setCursor(81, 23);
     display.print ("current");
-    display.setCursor(79, 47);
+    display.setCursor(81, 47);
     presetNumberDisplayUpdate(storedSettings.program, 2);
   }
   display.display();
@@ -413,7 +413,7 @@ void editMenuDisplayUpdate (void) {
   display.setTextSize(1);
   display.setCursor(0, 0);
   if (ms._p_curr_menu == ms._p_root_menu) {
-    display.printf ("%s\n\n", "   --SETUP MENU--");
+    display.printf ("%s\n", "   --SETUP MENU--");
   }
   ms.display();
   display.display();
@@ -493,9 +493,9 @@ void SelectRelease (void) {
       storedSettings.program = displayUpdate.program;
       //  midiA.sendProgramChange (storedSettings.program, storedSettings.channel);
       if (isConnected) {
-      midi.send(0xC0 + (storedSettings.channel - 1), storedSettings.program, 0x00);
+        midi.send(0xC0 + (storedSettings.channel - 1), storedSettings.program, 0x00);
       }
-      //my_flash_store.write(storedSettings);
+      my_flash_store.write(storedSettings);
       display.clearDisplay();
       display.setCursor(10, 4);
       display.setTextSize(1);
@@ -518,7 +518,7 @@ void SelectRelease (void) {
         display.println("HOST selected:");
         display.printf("%s\n", presetArrayDisplayUpdate [storedSettings.PRESET]);
         display.setCursor(0, 43);
-        display.setFont (&FreeMono12pt7b);
+        display.setFont (&FreeMono9pt7b);
         display.println("- STORED -");
         display.display();
         display.setFont();
@@ -531,7 +531,7 @@ void SelectRelease (void) {
       break;
     case CC:
       storedSettings.CCnumber [PERIPHERAL] = displayUpdate.CCnumber[PERIPHERAL];
-     // my_flash_store.write(storedSettings);
+      my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
@@ -539,7 +539,7 @@ void SelectRelease (void) {
       display.printf("%s%s\n", "* ", (peripheralArrayDisplayUpdate [PERIPHERAL]) );
       display.printf ("%s%03d", "current CC#: ", storedSettings.CCnumber [PERIPHERAL]);
       display.setCursor(0, 43);
-      display.setFont (&FreeMono12pt7b);
+      display.setFont (&FreeMono9pt7b);
       //display.setTextSize(2);
       display.println("- STORED -");
       display.display();
@@ -549,7 +549,7 @@ void SelectRelease (void) {
       break;
     case CHANNEL:
       storedSettings.channel = displayUpdate.channel;
-     // my_flash_store.write(storedSettings);
+      my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
@@ -557,7 +557,7 @@ void SelectRelease (void) {
       display.println("* GLOBAL MIDI CHANNEL");
       display.printf ("%s%02d", "current CH#: ", storedSettings.channel);
       display.setCursor(0, 43);
-      display.setFont (&FreeMono12pt7b);
+      display.setFont (&FreeMono9pt7b);
       display.println("- STORED -");
       display.display();
       display.setFont();
@@ -567,7 +567,7 @@ void SelectRelease (void) {
       break;
     case GLOBAL:
       storedSettings.msdelay = displayUpdate.msdelay;
-     // my_flash_store.write(storedSettings);
+      my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
@@ -575,7 +575,7 @@ void SelectRelease (void) {
       display.println("* SNAPSHOT DELAY");
       display.printf ("%s%d", "current dly: ", storedSettings.msdelay);
       display.setCursor(0, 43);
-      display.setFont (&FreeMono12pt7b);
+      display.setFont (&FreeMono9pt7b);
       display.println("- STORED -");
       display.display();
       display.setFont();
@@ -588,14 +588,14 @@ void SelectRelease (void) {
       break;
     case LED:
       storedSettings.rotary1mod = displayUpdate.rotary1mod;
-    //  my_flash_store.write(storedSettings);
+      my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
       display.setCursor(0, 4);
       display.setTextSize(1);
       display.println("* LED BRIGHTNESS");
       display.setCursor(0, 43);
-      display.setFont (&FreeMono12pt7b);
+      display.setFont (&FreeMono9pt7b);
       display.println("- STORED -");
       display.display();
       display.setFont();
@@ -611,12 +611,15 @@ void EditPress (void) {
       editMenuDisplayUpdate();
       break;
     case EDITMENU:
-      if (ms._p_curr_menu == ms._p_root_menu) {
+      if ((ms._p_curr_menu == ms._p_root_menu)) {
         ENCMODE = PROG;
+        EXIT = true;
+        ms.reset();
         presetDisplayUpdate ();
       }
       else {
         ms.back();
+
         editMenuDisplayUpdate();
       }
       break;
@@ -631,6 +634,7 @@ void EditPress (void) {
     case BUTTPRESS:
       ENCMODE = PROG;
       ms.reset();
+      EXIT = true;
       presetDisplayUpdate ();
       break;
   }
@@ -639,7 +643,10 @@ void EditRelease (void) {
   switch (ENCMODE) {
     case PROG: {
         int time = switchesPressTimer - 1000;
-        if (time < 0) {
+        if (EXIT == true) {
+          EXIT = false;
+        }
+        else if (time < 0) {
           display.clearDisplay();
           display.setCursor(1, 26);
           display.setFont();
@@ -715,18 +722,19 @@ void Stomp4ON(void) {
 /*Rotary Callbacks*/
 void Left (void) {
   lcount++;
-  if (lcount > 3) {
+  if (lcount > 1) {
     lcount = 0;
+    rcount = 0;
     switch (ENCMODE) {
       case PROG:
         displayUpdate.program--;
-        if (displayUpdate.program <= -1) {
-          if (storedSettings.PRESET == BIASFX) {
+        if (storedSettings.PRESET == BIASFX) {
+          if (displayUpdate.program <= -1) {
             displayUpdate.program = 31;
           }
-          else {
-            displayUpdate.program = 127;
-          }
+        }
+        else if (displayUpdate.program <= -1) {
+          displayUpdate.program = 127;
         }
         presetDisplayUpdate ();
         break;
@@ -739,6 +747,7 @@ void Left (void) {
         if (displayUpdate.CCnumber [PERIPHERAL] <= -1) {
           displayUpdate.CCnumber[PERIPHERAL] = 127;
         }
+        Serial.println (displayUpdate.CCnumber[PERIPHERAL]);
         peripheralDisplayUpdate();
         break;
       case CHANNEL:
@@ -771,57 +780,61 @@ void Left (void) {
 }
 void Right (void) {
   rcount++;
-  if (rcount > 3) {
+  if (rcount > 1) {
     rcount = 0;
+    lcount = 0;
     switch (ENCMODE) {
       case PROG:
         displayUpdate.program++;
-        if ((storedSettings.PRESET == BIASFX) && (displayUpdate.program >= 32)) {
-          displayUpdate.program = 0;
+        if (storedSettings.PRESET == BIASFX) {
+          if (displayUpdate.program >= 32) {
+            displayUpdate.program = 0;
+          }
         }
         else if (displayUpdate.program >= 128) {
           displayUpdate.program = 0;
         }
         presetDisplayUpdate ();
-        break;
-      case EDITMENU:
-        ms.next ();
-        editMenuDisplayUpdate();
-        break;
-      case CC:
-        displayUpdate.CCnumber[PERIPHERAL]++;
-        if (displayUpdate.CCnumber[PERIPHERAL] >= 128) {
-          displayUpdate.CCnumber[PERIPHERAL] = 0;
-        }
-        peripheralDisplayUpdate();
-        break;
-      case CHANNEL:
-        displayUpdate.channel++;
-        if (displayUpdate.channel >= 17) {
-          displayUpdate.channel = 1;
-        }
-        channelDisplayUpdate();
-        break;
-      case GLOBAL:
-        displayUpdate.msdelay ++;
-        if (displayUpdate.msdelay >= 120) {
-          displayUpdate.msdelay = 120;
-        }
-        globalDisplayUpdate();
-        break;
-      case BUTTPRESS:
-        ENCMODE = PROG;
-        presetDisplayUpdate();
-        break;
-      case LED:
-        displayUpdate.rotary1mod ++;
-        if (displayUpdate.rotary1mod >= 102) {
-          displayUpdate.rotary1mod = 102;
-        }
-        analogWrite (pwm, displayUpdate.rotary1mod * 10);
-        break;
+    break;
+  case EDITMENU:
+    ms.next ();
+    editMenuDisplayUpdate();
+    break;
+  case CC:
+    displayUpdate.CCnumber[PERIPHERAL]++;
+    if (displayUpdate.CCnumber[PERIPHERAL] >= 128) {
+      displayUpdate.CCnumber[PERIPHERAL] = 5;
     }
+     Serial.println (displayUpdate.CCnumber[PERIPHERAL]);
+    peripheralDisplayUpdate();
+    break;
+  case CHANNEL:
+    displayUpdate.channel++;
+    if (displayUpdate.channel >= 17) {
+      displayUpdate.channel = 1;
+    }
+    channelDisplayUpdate();
+    break;
+  case GLOBAL:
+    displayUpdate.msdelay ++;
+    if (displayUpdate.msdelay >= 120) {
+      displayUpdate.msdelay = 120;
+    }
+    globalDisplayUpdate();
+    break;
+  case BUTTPRESS:
+    ENCMODE = PROG;
+    presetDisplayUpdate();
+    break;
+  case LED:
+    displayUpdate.rotary1mod ++;
+    if (displayUpdate.rotary1mod >= 102) {
+      displayUpdate.rotary1mod = 102;
+    }
+    analogWrite (pwm, displayUpdate.rotary1mod * 10);
+    break;
   }
+}
 }
 
 /*Fader Callbacks*/
@@ -904,31 +917,31 @@ void on_item0_selected(MenuItem * p_menu_item)
 void on_item1_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = TONESTACK_onSTAGE;
- // my_flash_store.write(storedSettings);
+  my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item2_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = TONESTACK_PRESET_MGR;
- // my_flash_store.write(storedSettings);
+  my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item3_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = BIASFX;
- // my_flash_store.write(storedSettings);
+  my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item4_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = AMPLITUBE;
- // my_flash_store.write(storedSettings);
+  my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item5_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = GUITAR_RIG;
- // my_flash_store.write(storedSettings);
+  my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item6_selected(MenuItem * p_menu_item)

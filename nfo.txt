@@ -11,11 +11,11 @@ Switches myBUTTONS (14,15,16,17,18,19); // you choose your pin numbers
 
 Note, the button on pin 14 is "button 1", The button on pin 15 is "button 2", etc left to right.
 
-For encoders, each encoder is a separate object (up to a max of 4):
+For encoders, each encoder is a separate object:
 Rotary myENCODER1 (2, 5); // 2 and 5 are the left rotation and right rotation pins respectively
 Rotary myENCODER2 (3, 4);
 
-Each fader is a separate object (up to a max of 4):
+Each fader is a separate object:
 Fader myFADER (A1, 4) // A1 is the analog read pin, and 4 is the amount of hysteresis jitter-suppression
 
 For the motor, there is a "halt" command, and a "move to command".  Also, capacitive touch is enabled for fader touchlines.
