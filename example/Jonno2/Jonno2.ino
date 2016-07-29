@@ -108,10 +108,10 @@ typedef struct {
   int8_t channel;
   int16_t program;
   int16_t CCnumber [8];
-  int8_t rotary1mod;
+  int rotary1mod;
   Preset PRESET;
 } Settings;
-Settings storedSettings = {true, 50, 1, 9, {0, 1, 2, 3, 4, 5, 6, 7}, 100, TONESTACK_onSTAGE};
+Settings storedSettings = {true, 50, 1, 9, {0, 1, 2, 3, 4, 5, 6, 7}, 600, TONESTACK_onSTAGE};
 Settings displayUpdate;
 FlashStorage(my_flash_store, Settings);
 
@@ -234,13 +234,13 @@ void setup() {
   Serial.println("Waiting for a connection...");
 
   /*FlashStorage management*/
-    displayUpdate = my_flash_store.read();
-    if (!(displayUpdate.valid)) {
+  displayUpdate = my_flash_store.read();
+  if (!(displayUpdate.valid)) {
     displayUpdate = storedSettings;
-    }
-    else {
+  }
+  else {
     storedSettings = displayUpdate;
-    }
+  }
 
   //displayUpdate = storedSettings; //temp fix for FlashStorageissue
   // midiA.begin();
@@ -493,7 +493,7 @@ void SelectRelease (void) {
       storedSettings.program = displayUpdate.program;
       //  midiA.sendProgramChange (storedSettings.program, storedSettings.channel);
       if (isConnected) {
-        midi.send(0xC0 + (storedSettings.channel - 1), storedSettings.program, 0x00);
+        midi.send(0xC0 + (storedSettings.channel - 1), storedSettings.program, storedSettings.program);
       }
       my_flash_store.write(storedSettings);
       display.clearDisplay();
@@ -607,8 +607,9 @@ void EditPress (void) {
   switch (ENCMODE) {
     case PROG:
       switchesPressTimer = 0;
-      ms.reset();
-      editMenuDisplayUpdate();
+      display.clearDisplay();
+      display.display();
+      display.setFont();
       break;
     case EDITMENU:
       if ((ms._p_curr_menu == ms._p_root_menu)) {
@@ -619,7 +620,6 @@ void EditPress (void) {
       }
       else {
         ms.back();
-
         editMenuDisplayUpdate();
       }
       break;
@@ -662,6 +662,8 @@ void EditRelease (void) {
         }
         else {
           ENCMODE = EDITMENU;
+          ms.reset();
+          editMenuDisplayUpdate();
         }
       }
       break;
@@ -769,11 +771,12 @@ void Left (void) {
         presetDisplayUpdate();
         break;
       case LED:
-        displayUpdate.rotary1mod ++;
+        displayUpdate.rotary1mod -=10;
         if (displayUpdate.rotary1mod <= 0) {
           displayUpdate.rotary1mod = 0;
         }
-        analogWrite (pwm, displayUpdate.rotary1mod * 10);
+        analogWrite (pwm, displayUpdate.rotary1mod);
+        Serial.println (displayUpdate.rotary1mod);
         break;
     }
   }
@@ -795,46 +798,47 @@ void Right (void) {
           displayUpdate.program = 0;
         }
         presetDisplayUpdate ();
-    break;
-  case EDITMENU:
-    ms.next ();
-    editMenuDisplayUpdate();
-    break;
-  case CC:
-    displayUpdate.CCnumber[PERIPHERAL]++;
-    if (displayUpdate.CCnumber[PERIPHERAL] >= 128) {
-      displayUpdate.CCnumber[PERIPHERAL] = 5;
+        break;
+      case EDITMENU:
+        ms.next ();
+        editMenuDisplayUpdate();
+        break;
+      case CC:
+        displayUpdate.CCnumber[PERIPHERAL]++;
+        if (displayUpdate.CCnumber[PERIPHERAL] >= 128) {
+          displayUpdate.CCnumber[PERIPHERAL] = 0;
+        }
+        Serial.println (displayUpdate.CCnumber[PERIPHERAL]);
+        peripheralDisplayUpdate();
+        break;
+      case CHANNEL:
+        displayUpdate.channel++;
+        if (displayUpdate.channel >= 17) {
+          displayUpdate.channel = 1;
+        }
+        channelDisplayUpdate();
+        break;
+      case GLOBAL:
+        displayUpdate.msdelay ++;
+        if (displayUpdate.msdelay >= 120) {
+          displayUpdate.msdelay = 120;
+        }
+        globalDisplayUpdate();
+        break;
+      case BUTTPRESS:
+        ENCMODE = PROG;
+        presetDisplayUpdate();
+        break;
+      case LED:
+        displayUpdate.rotary1mod += 10;
+        if (displayUpdate.rotary1mod >= 1020) {
+          displayUpdate.rotary1mod = 1020;
+        }
+        analogWrite (pwm, displayUpdate.rotary1mod);
+        Serial.println (displayUpdate.rotary1mod);
+        break;
     }
-     Serial.println (displayUpdate.CCnumber[PERIPHERAL]);
-    peripheralDisplayUpdate();
-    break;
-  case CHANNEL:
-    displayUpdate.channel++;
-    if (displayUpdate.channel >= 17) {
-      displayUpdate.channel = 1;
-    }
-    channelDisplayUpdate();
-    break;
-  case GLOBAL:
-    displayUpdate.msdelay ++;
-    if (displayUpdate.msdelay >= 120) {
-      displayUpdate.msdelay = 120;
-    }
-    globalDisplayUpdate();
-    break;
-  case BUTTPRESS:
-    ENCMODE = PROG;
-    presetDisplayUpdate();
-    break;
-  case LED:
-    displayUpdate.rotary1mod ++;
-    if (displayUpdate.rotary1mod >= 102) {
-      displayUpdate.rotary1mod = 102;
-    }
-    analogWrite (pwm, displayUpdate.rotary1mod * 10);
-    break;
   }
-}
 }
 
 /*Fader Callbacks*/
