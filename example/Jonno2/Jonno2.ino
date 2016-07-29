@@ -77,7 +77,7 @@ const unsigned char mybitmap [] PROGMEM = {
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 };
 
-#define pwm 6 // pwm pin for leds, for Feather
+#define pwm 9 // pwm pin for leds, for Feather
 #define OLED_DATA   20 //i2c pins for Feather, for display
 #define OLED_CLK    21
 #define OLED_RESET  5
