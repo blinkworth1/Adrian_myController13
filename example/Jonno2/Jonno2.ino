@@ -104,7 +104,7 @@ enum peripheral : uint8_t {Button1, Button2, Button3, Button4, Slider1, Slider2,
 peripheral PERIPHERAL;
 typedef struct {
   bool valid;
-  int8_t msdelay;
+  int msdelay;
   int8_t channel;
   int16_t program;
   int16_t CCnumber [8];
@@ -398,7 +398,7 @@ void peripheralDisplayUpdate (void) {
   display.setCursor(0, 4);
   display.setTextSize(1);
   display.printf("%s%s\n", "* ", (peripheralArrayDisplayUpdate [PERIPHERAL]) );
-  display.printf ("%s%03d", "current CC#: ", storedSettings.CCnumber [PERIPHERAL] );
+  display.printf ("%s%03d", "current: ", storedSettings.CCnumber [PERIPHERAL] );
   display.setCursor(0, 43);
   display.print ("new:     ");
   display.setCursor(55, 43);
@@ -425,7 +425,7 @@ void channelDisplayUpdate(void) {
   display.setCursor(0, 4);
   display.setTextSize(1);
   display.println("* GLOBAL MIDI CHANNEL");
-  display.printf ("%s%02d", "current CH#: ", storedSettings.channel);
+  display.printf ("%s%02d", "current: ", storedSettings.channel);
   display.setCursor(0, 43);
   display.print ("new:     ");
   display.setCursor(55, 43);
@@ -440,7 +440,7 @@ void globalDisplayUpdate(void) {
   display.setCursor(0, 4);
   display.setTextSize(1);
   display.println("* SNAPSHOT DELAY");
-  display.printf ("%s%d", "current dly: ", storedSettings.msdelay * 10);
+  display.printf ("%s%d", "current: ", storedSettings.msdelay);
   display.setCursor(0, 43);
   display.print ("new:     ");
   display.setCursor(55, 43);
@@ -537,7 +537,7 @@ void SelectRelease (void) {
       display.setCursor(0, 4);
       display.setTextSize(1);
       display.printf("%s%s\n", "* ", (peripheralArrayDisplayUpdate [PERIPHERAL]) );
-      display.printf ("%s%03d", "current CC#: ", storedSettings.CCnumber [PERIPHERAL]);
+      display.printf ("%s%03d", "current: ", storedSettings.CCnumber [PERIPHERAL]);
       display.setCursor(0, 43);
       display.setFont (&FreeMono9pt7b);
       //display.setTextSize(2);
@@ -555,7 +555,7 @@ void SelectRelease (void) {
       display.setCursor(0, 4);
       display.setTextSize(1);
       display.println("* GLOBAL MIDI CHANNEL");
-      display.printf ("%s%02d", "current CH#: ", storedSettings.channel);
+      display.printf ("%s%02d", "current: ", storedSettings.channel);
       display.setCursor(0, 43);
       display.setFont (&FreeMono9pt7b);
       display.println("- STORED -");
@@ -573,7 +573,7 @@ void SelectRelease (void) {
       display.setCursor(0, 4);
       display.setTextSize(1);
       display.println("* SNAPSHOT DELAY");
-      display.printf ("%s%d", "current dly: ", storedSettings.msdelay);
+      display.printf ("%s%d", "current: ", storedSettings.msdelay);
       display.setCursor(0, 43);
       display.setFont (&FreeMono9pt7b);
       display.println("- STORED -");
@@ -749,7 +749,6 @@ void Left (void) {
         if (displayUpdate.CCnumber [PERIPHERAL] <= -1) {
           displayUpdate.CCnumber[PERIPHERAL] = 127;
         }
-        Serial.println (displayUpdate.CCnumber[PERIPHERAL]);
         peripheralDisplayUpdate();
         break;
       case CHANNEL:
@@ -760,7 +759,7 @@ void Left (void) {
         channelDisplayUpdate();
         break;
       case GLOBAL:
-        displayUpdate.msdelay --;
+        displayUpdate.msdelay -=100;
         if (displayUpdate.msdelay <= 0) {
           displayUpdate.msdelay = 0;
         }
@@ -776,7 +775,6 @@ void Left (void) {
           displayUpdate.rotary1mod = 0;
         }
         analogWrite (pwm, displayUpdate.rotary1mod);
-        Serial.println (displayUpdate.rotary1mod);
         break;
     }
   }
@@ -808,7 +806,6 @@ void Right (void) {
         if (displayUpdate.CCnumber[PERIPHERAL] >= 128) {
           displayUpdate.CCnumber[PERIPHERAL] = 0;
         }
-        Serial.println (displayUpdate.CCnumber[PERIPHERAL]);
         peripheralDisplayUpdate();
         break;
       case CHANNEL:
@@ -819,9 +816,9 @@ void Right (void) {
         channelDisplayUpdate();
         break;
       case GLOBAL:
-        displayUpdate.msdelay ++;
-        if (displayUpdate.msdelay >= 120) {
-          displayUpdate.msdelay = 120;
+        displayUpdate.msdelay += 100;
+        if (displayUpdate.msdelay >= 1000) {
+          displayUpdate.msdelay = 1000;
         }
         globalDisplayUpdate();
         break;
@@ -835,7 +832,6 @@ void Right (void) {
           displayUpdate.rotary1mod = 1020;
         }
         analogWrite (pwm, displayUpdate.rotary1mod);
-        Serial.println (displayUpdate.rotary1mod);
         break;
     }
   }
