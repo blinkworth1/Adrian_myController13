@@ -196,10 +196,10 @@ const int alpha [] {65, 66, 67, 68};
 
 /*Menu structure*/
 Menu mu1("* EXTERNAL FX HOST");
-Menu mu2("* STOMP CC ASSIGNMENT");
-Menu mu3("* FADER CC ASSIGNMENT");
+Menu mu2("* STOMP CC SELECT");
+Menu mu3("* FADER CC SELECT");
 MenuItem mm_mi0 ("* SNAPSHOT DELAY", &on_itemGLOBAL_selected);
-MenuItem mm_mi1 ("* GLOBAL MIDI CHANNEL", &on_item0_selected);
+MenuItem mm_mi1 ("* MIDI CHANNEL", &on_item0_selected);
 MenuItem mm_mi2 ("* LED BRIGHTNESS", &on_itemLED_selected);
 MenuItem mu1_mi1("TONESTACK onSTAGE", &on_item1_selected);
 MenuItem mu1_mi2("TONESTACK MANAGER", &on_item2_selected);
@@ -326,17 +326,17 @@ void loop() {
 /*Display functions*/
 void presetDisplayUpdate (void) {
   display.clearDisplay();
-  display.setCursor(4, 4);
+  display.setCursor(0, 4);
   display.setTextColor(WHITE);
   display.setTextSize(1);
-  display.println("-SELECT NEXT PRESET-");
+  display.println("SELECT NEXT PRESET");
   display.setCursor(0, 47);
   presetNumberDisplayUpdate(displayUpdate.program, 4);
   if (INIT == false) {
-    display.setCursor(81, 23);
+    display.setCursor(85, 23);
     display.setTextSize(1);
     display.print ("current");
-    display.setCursor(81, 47);
+    display.setCursor(83, 47);
     presetNumberDisplayUpdate(storedSettings.program, 2);
   }
   display.display();
@@ -347,7 +347,7 @@ void presetNumberDisplayUpdate (int prog, int txtsize) {
     display.setFont (&FreeMono12pt7b);
   }
   if (txtsize == 4) {
-    display.setFont (&FreeMono24pt7b);
+    display.setFont (&FreeMonoBold24pt7b);
   }
   switch (storedSettings.PRESET) {
     case TONESTACK_PRESET_MGR:
@@ -394,13 +394,17 @@ void peripheralDisplayUpdate (void) {
   display.clearDisplay();
   display.setCursor(0, 4);
   display.setTextSize(1);
-  display.printf("%s%s\n", "* ", (peripheralArrayDisplayUpdate [PERIPHERAL]) );
-  display.printf ("%s%03d", "current: ", storedSettings.CCnumber [PERIPHERAL] );
-  display.setCursor(0, 43);
-  display.print ("new:     ");
-  display.setCursor(55, 43);
-  display.setFont (&FreeMono12pt7b);
+  display.printf("%s%s\n",(peripheralArrayDisplayUpdate [PERIPHERAL])," CC SELECT" );
+  display.setCursor(0, 47);
+display.setFont (&FreeMonoBold24pt7b);
   display.printf ("%03d", displayUpdate.CCnumber [PERIPHERAL]);
+  display.setFont ();
+    display.setCursor(85, 23);
+    display.setTextSize(1);
+    display.print ("current");
+    display.setCursor(83, 47);
+     display.setFont (&FreeMono12pt7b);
+    display.printf ("%03d", storedSettings.CCnumber [PERIPHERAL]);
   display.display();
   display.setFont ();
 }
@@ -421,13 +425,17 @@ void channelDisplayUpdate(void) {
   display.clearDisplay();
   display.setCursor(0, 4);
   display.setTextSize(1);
-  display.println("* GLOBAL MIDI CHANNEL");
-  display.printf ("%s%02d", "current: ", storedSettings.channel);
-  display.setCursor(0, 43);
-  display.print ("new:     ");
-  display.setCursor(55, 43);
-  display.setFont (&FreeMono12pt7b);
+  display.println("MIDI CHANNEL");
+  display.setCursor(0, 47);
+  display.setFont (&FreeMonoBold24pt7b);
   display.printf ("%02d", displayUpdate.channel);
+  display.setFont ();
+  display.setCursor(85, 23);
+    display.setTextSize(1);
+    display.print ("current");
+    display.setCursor(83, 47);
+    display.setFont (&FreeMono12pt7b);
+    display.printf ("%02d", storedSettings.channel);
   display.display();
   display.setFont ();
 }
@@ -436,13 +444,17 @@ void globalDisplayUpdate(void) {
   display.clearDisplay();
   display.setCursor(0, 4);
   display.setTextSize(1);
-  display.println("* SNAPSHOT DELAY");
-  display.printf ("%s%d", "current: ", storedSettings.msdelay);
-  display.setCursor(0, 43);
-  display.print ("new:     ");
-  display.setCursor(55, 43);
-  display.setFont (&FreeMono12pt7b);
-  display.printf ("%02d", displayUpdate.msdelay);
+  display.println("SNAPSHOT DELAY");
+  display.setCursor(0, 47);
+  display.setFont (&FreeMonoBold24pt7b);
+  display.printf ("%03d", displayUpdate.msdelay/10);
+  display.setFont ();
+    display.setCursor(85, 23);
+    display.setTextSize(1);
+    display.print ("current");
+    display.setCursor(83, 47);
+    display.setFont (&FreeMono12pt7b);
+    display.printf ("%03d", storedSettings.msdelay/10);
   display.display();
   display.setFont ();
 }
@@ -451,7 +463,7 @@ void ledDisplayUpdate(void) {
   display.clearDisplay();
   display.setCursor(0, 4);
   display.setTextSize(1);
-  display.println("* LED BRIGHTNESS");
+  display.println("LED BRIGHTNESS");
   display.display();
   display.setFont ();
 }
@@ -460,7 +472,7 @@ void ledDisplayUpdate(void) {
 void connected(void)
 {
   isConnected = true;
-  Serial.println(" CONNECTED!");
+  Serial.println("CONNECTED!");
 }
 void disconnected(void)
 {
@@ -493,13 +505,13 @@ void SelectRelease (void) {
       }
       my_flash_store.write(storedSettings);
       display.clearDisplay();
-      display.setCursor(10, 4);
+      display.setCursor(0, 4);
       display.setTextSize(1);
-      display.println ("- CURRENT PRESET -");
+      display.println ("CURRENT PRESET");
       display.setCursor(0, 47);
       presetNumberDisplayUpdate (storedSettings.program, 4);
       display.display();
-      delay (storedSettings.msdelay * 10);
+      delay (storedSettings.msdelay);
       GLOBALRESET [0] = true;
       GLOBALRESET [1] = true;
       GLOBALRESET [2] = true;
@@ -532,11 +544,10 @@ void SelectRelease (void) {
       display.clearDisplay();
       display.setCursor(0, 4);
       display.setTextSize(1);
-      display.printf("%s%s\n", "* ", (peripheralArrayDisplayUpdate [PERIPHERAL]) );
-      display.printf ("%s%03d", "current: ", storedSettings.CCnumber [PERIPHERAL]);
-      display.setCursor(0, 43);
-      display.setFont (&FreeMono9pt7b);
-      display.println("- STORED -");
+      display.printf("%s%s\n",peripheralArrayDisplayUpdate [PERIPHERAL], " CC STORED");
+      display.setCursor(0, 47);
+  display.setFont (&FreeMonoBold24pt7b);
+  display.printf ("%03d", storedSettings.CCnumber [PERIPHERAL]);
       display.display();
       display.setFont();
       delay (2500);
@@ -549,11 +560,10 @@ void SelectRelease (void) {
       display.clearDisplay();
       display.setCursor(0, 4);
       display.setTextSize(1);
-      display.println("* GLOBAL MIDI CHANNEL");
-      display.printf ("%s%02d", "current: ", storedSettings.channel);
-      display.setCursor(0, 43);
-      display.setFont (&FreeMono9pt7b);
-      display.println("- STORED -");
+      display.println("MIDI CHANNEL STORED");
+      display.setCursor(0, 47);
+  display.setFont (&FreeMonoBold24pt7b);
+  display.printf ("%02d", displayUpdate.channel);
       display.display();
       display.setFont();
       display.display();
@@ -565,13 +575,12 @@ void SelectRelease (void) {
       my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       display.clearDisplay();
-      display.setCursor(0, 4);
-      display.setTextSize(1);
-      display.println("* SNAPSHOT DELAY");
-      display.printf ("%s%d", "current: ", storedSettings.msdelay);
-      display.setCursor(0, 43);
-      display.setFont (&FreeMono9pt7b);
-      display.println("- STORED -");
+  display.setCursor(0, 4);
+  display.setTextSize(1);
+  display.println("SNAPSHOT DELAY STORED");
+  display.setCursor(0, 47);
+  display.setFont (&FreeMonoBold24pt7b);
+  display.printf ("%03d", storedSettings.msdelay/10);
       display.display();
       display.setFont();
       delay (2500);
@@ -588,10 +597,7 @@ void SelectRelease (void) {
       display.clearDisplay();
       display.setCursor(0, 4);
       display.setTextSize(1);
-      display.println("* LED BRIGHTNESS");
-      display.setCursor(0, 43);
-      display.setFont (&FreeMono9pt7b);
-      display.println("- STORED -");
+      display.println("LED BRIGHTNESS STORED");
       display.display();
       display.setFont();
       delay (2500);

@@ -14,11 +14,10 @@
 #include "CustomNumericMenuItem.h"
 #include "Adafruit_GFX.h"
 #include "Adafruit_SSD1306.h"
-#include "FreeSans12pt7b.h"
-#include "FreeSans24pt7b.h"
-#include "FreeSans9pt7b.h"
+#include "FreeMonoBold18pt7b.h"
 #include "FreeMono12pt7b.h"
 #include "FreeMono24pt7b.h"
+#include "FreeMonoBold24pt7b.h"
 #include "FreeMono9pt7b.h"
 
 
