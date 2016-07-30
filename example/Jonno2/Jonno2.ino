@@ -111,7 +111,7 @@ typedef struct {
   int rotary1mod;
   Preset PRESET;
 } Settings;
-Settings storedSettings = {true, 50, 1, 9, {0, 1, 2, 3, 4, 5, 6, 7}, 600, TONESTACK_onSTAGE};
+Settings storedSettings = {true, 200, 1, 9, {0, 1, 2, 3, 4, 5, 6, 7}, 200, TONESTACK_onSTAGE};
 Settings displayUpdate;
 FlashStorage(my_flash_store, Settings);
 
@@ -241,7 +241,7 @@ void setup() {
     storedSettings = displayUpdate;
   }
   analogWrite (pwm, storedSettings.rotary1mod);
-  
+
   // midiA.begin();
   /*set callbacks*/
   ble.setConnectCallback(connected);
@@ -314,7 +314,6 @@ void setup() {
   display.clearDisplay();
   delay (500);
   presetDisplayUpdate ();
-
 }
 
 void loop() {
@@ -489,7 +488,6 @@ void SelectRelease (void) {
   switch (ENCMODE) {
     case PROG:
       storedSettings.program = displayUpdate.program;
-      //  midiA.sendProgramChange (storedSettings.program, storedSettings.channel);
       if (isConnected) {
         midi.send(0xC0 + (storedSettings.channel - 1), storedSettings.program, storedSettings.program);
       }
@@ -538,7 +536,6 @@ void SelectRelease (void) {
       display.printf ("%s%03d", "current: ", storedSettings.CCnumber [PERIPHERAL]);
       display.setCursor(0, 43);
       display.setFont (&FreeMono9pt7b);
-      //display.setTextSize(2);
       display.println("- STORED -");
       display.display();
       display.setFont();
@@ -640,7 +637,7 @@ void EditPress (void) {
 void EditRelease (void) {
   switch (ENCMODE) {
     case PROG: {
-        int time = switchesPressTimer - 4000;
+        int time = switchesPressTimer - 2500;
         if (EXIT == true) {
           EXIT = false;
         }
@@ -674,12 +671,19 @@ void EditRelease (void) {
       break;
   }
 }
+void CCbleTXmidi (int CCnumber, int Value) {
+  midi.send(0xB0 + (storedSettings.channel - 1), storedSettings.CCnumber[CCnumber], Value);
+}
 void Stomp1ON(void) {
   if (buttOnOff[0] == buttOff) {
-    // midiA.sendControlChange (storedSettings.CCnumber[0], 0, storedSettings.channel);
+    if (isConnected) {
+      CCbleTXmidi(0, 0x00);
+    }
     buttOnOff[0] = buttOn;
   } else {
-    // midiA.sendControlChange (storedSettings.CCnumber[0], 127, storedSettings.channel);
+    if (isConnected) {
+      CCbleTXmidi(0, 0x7F);
+    }
     buttOnOff[0] = buttOff;
   }
   ENCMODE = BUTTPRESS;
@@ -687,10 +691,14 @@ void Stomp1ON(void) {
 }
 void Stomp2ON(void) {
   if (buttOnOff[1] == buttOff) {
-    // midiA.sendControlChange (storedSettings.CCnumber[1], 0, storedSettings.channel);
+    if (isConnected) {
+      CCbleTXmidi(1, 0x00);
+    }
     buttOnOff[1] = buttOn;
   } else {
-    //  midiA.sendControlChange (storedSettings.CCnumber[1], 127, storedSettings.channel);
+    if (isConnected) {
+      CCbleTXmidi(1, 0x7F);
+    }
     buttOnOff[1] = buttOff;
   }
   ENCMODE = BUTTPRESS;
@@ -698,10 +706,14 @@ void Stomp2ON(void) {
 }
 void Stomp3ON(void) {
   if (buttOnOff[2] == buttOff) {
-    // midiA.sendControlChange (storedSettings.CCnumber[2], 0, storedSettings.channel);
+    if (isConnected) {
+      CCbleTXmidi(2, 0x00);
+    }
     buttOnOff[2] = buttOn;
   } else {
-    // midiA.sendControlChange (storedSettings.CCnumber[2], 127, storedSettings.channel);
+    if (isConnected) {
+      CCbleTXmidi(2, 0x7F);
+    }
     buttOnOff[2] = buttOff;
   }
   ENCMODE = BUTTPRESS;
@@ -709,10 +721,14 @@ void Stomp3ON(void) {
 }
 void Stomp4ON(void) {
   if (buttOnOff[3] == buttOff) {
-    // midiA.sendControlChange (storedSettings.CCnumber[3], 0, storedSettings.channel);
+    if (isConnected) {
+      CCbleTXmidi(3, 0x00);
+    }
     buttOnOff[3] = buttOn;
   } else {
-    //midiA.sendControlChange (storedSettings.CCnumber[3], 127, storedSettings.channel);
+    if (isConnected) {
+      CCbleTXmidi(3, 0x7F);
+    }
     buttOnOff[3] = buttOff;
   }
   ENCMODE = BUTTPRESS;
@@ -757,7 +773,7 @@ void Left (void) {
         channelDisplayUpdate();
         break;
       case GLOBAL:
-        displayUpdate.msdelay -=100;
+        displayUpdate.msdelay -= 100;
         if (displayUpdate.msdelay <= 0) {
           displayUpdate.msdelay = 0;
         }
@@ -768,7 +784,7 @@ void Left (void) {
         presetDisplayUpdate();
         break;
       case LED:
-        displayUpdate.rotary1mod -=7;
+        displayUpdate.rotary1mod -= 7;
         if (displayUpdate.rotary1mod <= 0) {
           displayUpdate.rotary1mod = 0;
         }
@@ -837,62 +853,74 @@ void Right (void) {
 
 /*Fader Callbacks*/
 void slider1Inc (int currentValue) {
-  int Value = map (currentValue, 0, 1023, 0, 127);
-  // midiA.sendControlChange (storedSettings.CCnumber[4], Value, storedSettings.channel);
+  if (isConnected) {
+    CCbleTXmidi(4, map (currentValue, 0, 1023, 0, 127));
+  }
 }
 void slider1Dec (int currentValue) {
-  int Value = map (currentValue, 0, 1023, 0, 127);
-  // midiA.sendControlChange (storedSettings.CCnumber[4], Value, storedSettings.channel);
+  if (isConnected) {
+    CCbleTXmidi(4, map (currentValue, 0, 1023, 0, 127));
+  }
 }
 void slider2Inc (int currentValue) {
-  int Value = map (currentValue, 0, 1023, 0, 127);
-  // midiA.sendControlChange (storedSettings.CCnumber[5], Value, storedSettings.channel);
+  if (isConnected) {
+    CCbleTXmidi(5, map (currentValue, 0, 1023, 0, 127));
+  }
 }
 void slider2Dec (int currentValue) {
-  int Value = map (currentValue, 0, 1023, 0, 127);
-  //midiA.sendControlChange (storedSettings.CCnumber[5], Value, storedSettings.channel);
+  if (isConnected) {
+    CCbleTXmidi(5, map (currentValue, 0, 1023, 0, 127));
+  }
 }
 void slider3Inc (int currentValue) {
-  int Value = map (currentValue, 0, 1023, 0, 127);
-  //midiA.sendControlChange (storedSettings.CCnumber[6], Value, storedSettings.channel);
+  if (isConnected) {
+    CCbleTXmidi(6, map (currentValue, 0, 1023, 0, 127));
+  }
 }
 void slider3Dec (int currentValue) {
-  int Value = map (currentValue, 0, 1023, 0, 127);
-  //midiA.sendControlChange (storedSettings.CCnumber[6], Value, storedSettings.channel);
+  if (isConnected) {
+    CCbleTXmidi(6, map (currentValue, 0, 1023, 0, 127));
+  }
 }
 void slider4Inc (int currentValue) {
-  int Value = map (currentValue, 0, 1023, 0, 127);
-  //midiA.sendControlChange (storedSettings.CCnumber[7], Value, storedSettings.channel);
+  if (isConnected) {
+    CCbleTXmidi(7, map (currentValue, 0, 1023, 0, 127));
+  }
 }
 void slider4Dec (int currentValue) {
-  int Value = map (currentValue, 0, 1023, 0, 127);
-  //midiA.sendControlChange (storedSettings.CCnumber[7], Value, storedSettings.channel);
+  if (isConnected) {
+    CCbleTXmidi(7, map (currentValue, 0, 1023, 0, 127));
+  }
 }
 void slider1SAME (int currentValue) {
   if (GLOBALRESET [0]) {
     GLOBALRESET [0] = false;
-    int Value = map (currentValue, 0, 1023, 0, 127);
-    // midiA.sendControlChange (storedSettings.CCnumber[4], Value, storedSettings.channel);
+    if (isConnected) {
+      CCbleTXmidi(4, map (currentValue, 0, 1023, 0, 127));
+    }
   }
 } void slider2SAME (int currentValue) {
   if (GLOBALRESET[1]) {
     GLOBALRESET[1] = false;
-    int Value = map (currentValue, 0, 1023, 0, 127);
-    // midiA.sendControlChange (storedSettings.CCnumber[5], Value, storedSettings.channel);
+    if (isConnected) {
+      CCbleTXmidi(5, map (currentValue, 0, 1023, 0, 127));
+    }
   }
 }
 void slider3SAME (int currentValue) {
   if (GLOBALRESET[2]) {
     GLOBALRESET[2] = false;
-    int Value = map (currentValue, 0, 1023, 0, 127);
-    // midiA.sendControlChange (storedSettings.CCnumber[6], Value, storedSettings.channel);
+    if (isConnected) {
+      CCbleTXmidi(6, map (currentValue, 0, 1023, 0, 127));
+    }
   }
 }
 void slider4SAME (int currentValue) {
   if (GLOBALRESET[3]) {
     GLOBALRESET[3] = false;
-    int Value = map (currentValue, 0, 1023, 0, 127);
-    // midiA.sendControlChange (storedSettings.CCnumber[7], Value, storedSettings.channel);
+    if (isConnected) {
+      CCbleTXmidi(7, map (currentValue, 0, 1023, 0, 127));
+    }
   }
 }
 
