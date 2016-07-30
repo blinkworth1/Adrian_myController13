@@ -231,7 +231,6 @@ void setup() {
     Serial.println("Could not enable MIDI");
   }
   ble.verbose(false);
-  Serial.println("Waiting for a connection...");
 
   /*FlashStorage management*/
   displayUpdate = my_flash_store.read();
@@ -241,10 +240,9 @@ void setup() {
   else {
     storedSettings = displayUpdate;
   }
-
-  //displayUpdate = storedSettings; //temp fix for FlashStorageissue
+  analogWrite (pwm, storedSettings.rotary1mod);
+  
   // midiA.begin();
-
   /*set callbacks*/
   ble.setConnectCallback(connected);
   ble.setDisconnectCallback(disconnected);
@@ -642,7 +640,7 @@ void EditPress (void) {
 void EditRelease (void) {
   switch (ENCMODE) {
     case PROG: {
-        int time = switchesPressTimer - 1000;
+        int time = switchesPressTimer - 4000;
         if (EXIT == true) {
           EXIT = false;
         }
@@ -770,7 +768,7 @@ void Left (void) {
         presetDisplayUpdate();
         break;
       case LED:
-        displayUpdate.rotary1mod -=10;
+        displayUpdate.rotary1mod -=7;
         if (displayUpdate.rotary1mod <= 0) {
           displayUpdate.rotary1mod = 0;
         }
@@ -827,7 +825,7 @@ void Right (void) {
         presetDisplayUpdate();
         break;
       case LED:
-        displayUpdate.rotary1mod += 10;
+        displayUpdate.rotary1mod += 7;
         if (displayUpdate.rotary1mod >= 1020) {
           displayUpdate.rotary1mod = 1020;
         }
