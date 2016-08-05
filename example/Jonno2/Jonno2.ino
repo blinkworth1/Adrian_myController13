@@ -289,7 +289,7 @@ void setup() {
   delay (2500);
   display.clearDisplay();
   delay (500);
-  display.setCursor(20, 23);
+  display.setCursor(18, 23);
   display.setFont();
   display.setTextSize(2);
   display.println("effects");
@@ -298,16 +298,12 @@ void setup() {
   display.clearDisplay();
   delay (100);
   display.setCursor(20, 23);
-  display.setFont();
-  display.setTextSize(2);
   display.println("control");
   display.display();
   delay (500);
   display.clearDisplay();
   delay (100);
   display.setCursor(24, 23);
-  display.setFont();
-  display.setTextSize(2);
   display.println("system");
   display.display();
   delay (1000);
@@ -430,7 +426,7 @@ void editMenuDisplayUpdate (void) {
   display.setTextSize(1);
   display.setCursor(0, 0);
   if (ms._p_curr_menu == ms._p_root_menu) {
-    display.printf ("%s\n", "   --SETUP MENU--");
+    display.printf ("%s", "   --SETUP MENU--");
   }
   ms.display();
   display.display();
@@ -474,10 +470,10 @@ void SelectRelease (void) {
       my_flash_store.write(storedSettings);
       display.clearDisplay();
       display.setFont ();
-      display.setCursor(0, 4);
+      display.setCursor(20, 4);
       display.setTextSize(1);
       display.println ("CURRENT PRESET");
-      display.setCursor(0, 47);
+      display.setCursor(21, 47);
       presetNumberDisplayUpdate (storedSettings.program, 4);
       display.display();
       delay (storedSettings.msdelay);
@@ -599,11 +595,17 @@ void EditRelease (void) {
         }
         else if (time < 0) {
           display.clearDisplay();
-          display.setFont();
-          display.setCursor(1, 26);
-          display.setTextSize(1);
-          display.println("- faders updated -");
-          display.display();
+          display.setCursor(22, 23);
+  display.setFont();
+  display.setTextSize(2);
+  display.println("faders");
+  display.display();
+  delay (500);
+  display.clearDisplay();
+  delay (100);
+  display.setCursor(20, 23);
+  display.println("updated");
+  display.display();
           delay(500);
           presetDisplayUpdate();
           GLOBALRESET [0] = true;
@@ -721,7 +723,9 @@ void Left (void) {
         }
         peripheralDisplayUpdate(
           peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
-          "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
+          "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], 
+false
+//true
         );
         break;
       case CHANNEL:
@@ -791,7 +795,9 @@ void Right (void) {
         }
         peripheralDisplayUpdate(
           peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
-          "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
+          "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], 
+false
+//true
         );
         break;
       case CHANNEL:

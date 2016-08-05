@@ -7,7 +7,7 @@ displayptr = ptr;
 void MyRenderer::render(Menu const& menu) const
 {
     displayptr->setTextColor(WHITE);
-    displayptr->println(menu.get_name());
+    displayptr->printf("%s\n\n",menu.get_name());
     String buffer;
     MenuComponent const* cp_menu_sel = menu.get_current_component();
     for (int i = 0; i < menu.get_num_menu_components(); ++i)
@@ -20,7 +20,7 @@ void MyRenderer::render(Menu const& menu) const
             displayptr->setTextColor(WHITE);
         }
         cp_m_comp->render(*this);
-        displayptr->println("");
+        displayptr->printf("\n");
     }
 }
 
