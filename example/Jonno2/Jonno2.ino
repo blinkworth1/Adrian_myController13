@@ -80,10 +80,10 @@ const unsigned char mybitmap [] PROGMEM = {
 #define OLED_DATA   20 //i2c pins for Feather, for display
 #define OLED_CLK    21
 #define OLED_RESET  5
-Fader slider1 (A0, 3); //Feather pins and jitter suppression amount
-Fader slider2 (A1, 3);
-Fader slider3 (A4, 3);
-Fader slider4 (A5, 3);
+Fader slider1 (A0, 9); //Feather pins and jitter suppression amount
+Fader slider2 (A1, 9);
+Fader slider3 (A4, 9);
+Fader slider4 (A5, 9);
 Rotary encoder1 (0, 1); // 0 and 1 are Feather pin numbers, left and right, for the rotary encoder
 Switches Buttons (16, 17, 10, 11, 12, 13); //16 and 17 are select and edit, respectively, and 10 thru 13 stomp pins, for Feather
 
@@ -96,7 +96,7 @@ MenuSystem ms(my_renderer);
 elapsedMillis switchesPressTimer;
 //MIDI_CREATE_INSTANCE (HardwareSerial, Serial1, midiA);
 
-enum Preset : uint8_t  {TONESTACK_onSTAGE, TONESTACK_PRESET_MGR, BIASFX, AMPLITUBE, GUITAR_RIG};
+enum Preset : uint8_t  {TONESTACK_onSTAGE, TONESTACK_PRESET_MGR, BIASFX, AMPLITUBE, GUITAR_RIG, LINE6, AXEFX};
 enum RotaryMode : uint8_t {PROG, EDITMENU, CC, CHANNEL, BUTTPRESS, GLOBAL, LED};
 RotaryMode ENCMODE = PROG;
 enum peripheral : uint8_t {Button1, Button2, Button3, Button4, Slider1, Slider2, Slider3, Slider4};
@@ -132,6 +132,8 @@ void on_item2_selected(MenuItem* p_menu_item);
 void on_item3_selected(MenuItem* p_menu_item);
 void on_item4_selected(MenuItem* p_menu_item);
 void on_item5_selected(MenuItem* p_menu_item);
+void on_itemLINE6_selected(MenuItem* p_menu_item);
+void on_itemAXEFX_selected(MenuItem* p_menu_item);
 void on_back1_item_selected (MenuItem* p_menu_item);
 void on_item6_selected(MenuItem* p_menu_item);
 void on_item7_selected(MenuItem* p_menu_item);
@@ -172,9 +174,11 @@ const char ONE$ [] = "TONESTACK MANAGER";
 const char BIASFX$ [] = "BIAS FX";
 const char AMPLITUDE$ [] = "AMPLITUBE";
 const char NI$ [] = "GUITAR RIG";
+const char LINE6$ [] = "LINE 6";
+const char AXE$ [] = "AXEFX"
 const char * presetArrayDisplayUpdate [5] {
   ZERO$, ONE$, BIASFX$,
-  AMPLITUDE$, NI$
+  AMPLITUDE$, NI$, LINE6$, AXE$
 };
 char Butt1 [] = "STOMP 1";
 char Butt2 [] = "STOMP 2";
@@ -194,25 +198,26 @@ const char *buttOnOff [4] {buttOff, buttOff, buttOff, buttOff};
 const int alpha [] {65, 66, 67, 68};
 
 /*Menu structure*/
-Menu mu1("* EXTERNAL FX HOST");
-Menu mu2("* STOMP CC SELECT");
-Menu mu3("* FADER CC SELECT");
-MenuItem mm_mi0 ("* SNAPSHOT DELAY", &on_itemGLOBAL_selected);
-MenuItem mm_mi1 ("* MIDI CHANNEL", &on_item0_selected);
-MenuItem mm_mi2 ("* LED BRIGHTNESS", &on_itemLED_selected);
+Menu mu1("EXTERNAL FX HOST");
+Menu mu2("STOMP CC SELECT");
+Menu mu3("FADER CC SELECT");
+MenuItem mm_mi0 ("SNAPSHOT DELAY", &on_itemGLOBAL_selected);
+MenuItem mm_mi1 ("MIDI CHANNEL", &on_item0_selected);
+MenuItem mm_mi2 ("LED BRIGHTNESS", &on_itemLED_selected);
 MenuItem mu1_mi1("TONESTACK onSTAGE", &on_item1_selected);
 MenuItem mu1_mi2("TONESTACK MANAGER", &on_item2_selected);
-MenuItem mu1_mi3("BIAS FX          ", &on_item3_selected);
-MenuItem mu1_mi4("AMPLITUBE        ", &on_item4_selected);
-MenuItem mu1_mi5("GUITAR RIG    ", &on_item5_selected);
-MenuItem mu2_mi1("STOMP 1   ", &on_item6_selected);
-MenuItem mu2_mi2("STOMP 2   ", &on_item7_selected);
-MenuItem mu2_mi3("STOMP 3   ", &on_item8_selected);
-MenuItem mu2_mi4("STOMP 4   ", &on_item9_selected);
-MenuItem mu3_mi1("FADER 1   ", &on_item10_selected);
-MenuItem mu3_mi2("FADER 2   ", &on_item11_selected);
-MenuItem mu3_mi3("FADER 3   ", &on_item12_selected);
-MenuItem mu3_mi4("FADER 4   ", &on_item13_selected);
+MenuItem mu1_mi3("BIAS FX", &on_item3_selected);
+MenuItem mu1_mi4("AMPLITUBE", &on_item4_selected);
+MenuItem mu1_mi5("GUITAR RIG", &on_item5_selected);
+MenuItem mu1_mi6("LINE 6", &on_itemLINE6_selected);
+MenuItem mu2_mi1("STOMP 1", &on_item6_selected);
+MenuItem mu2_mi2("STOMP 2", &on_item7_selected);
+MenuItem mu2_mi3("STOMP 3", &on_item8_selected);
+MenuItem mu2_mi4("STOMP 4", &on_item9_selected);
+MenuItem mu3_mi1("FADER 1", &on_item10_selected);
+MenuItem mu3_mi2("FADER 2", &on_item11_selected);
+MenuItem mu3_mi3("FADER 3", &on_item12_selected);
+MenuItem mu3_mi4("FADER 4", &on_item13_selected);
 
 void setup() {
   /*BLE setup and debug*/
@@ -272,7 +277,6 @@ void setup() {
   mu1.add_item(&mu1_mi3);
   mu1.add_item(&mu1_mi4);
   mu1.add_item(&mu1_mi5);
-  //mu1.add_item(&mu1_mi0);
   mu2.add_item(&mu2_mi1);
   mu2.add_item(&mu2_mi2);
   mu2.add_item(&mu2_mi3);
@@ -289,7 +293,7 @@ void setup() {
   delay (2500);
   display.clearDisplay();
   delay (500);
-  display.setCursor(18, 23);
+  display.setCursor(23, 22);
   display.setFont();
   display.setTextSize(2);
   display.println("effects");
@@ -297,13 +301,13 @@ void setup() {
   delay (500);
   display.clearDisplay();
   delay (100);
-  display.setCursor(20, 23);
+  display.setCursor(24, 22);
   display.println("control");
   display.display();
   delay (500);
   display.clearDisplay();
   delay (100);
-  display.setCursor(24, 23);
+  display.setCursor(29, 22);
   display.println("system");
   display.display();
   delay (1000);
@@ -311,8 +315,8 @@ void setup() {
   delay (500);
   display.setCursor(0, 4);
   display.setTextSize(1);
-  display.println("current host");
-  display.setCursor(0, 20);
+  display.println("current host:");
+  display.setCursor(0, 25);
   display.setTextSize(2);
   display.println((presetArrayDisplayUpdate [storedSettings.PRESET]) );
   display.display();
@@ -336,15 +340,18 @@ void presetDisplayUpdate (void) {
   display.setCursor(0, 4);
   display.setTextColor(WHITE);
   display.setTextSize(1);
-  display.println("SELECT NEXT PRESET");
-  display.setCursor(0, 47);
+  display.println("SELECT NEXT PRESET:");
+  display.setCursor(0, 50);
   presetNumberDisplayUpdate(displayUpdate.program, 4);
   if (INIT == false) {
     display.setFont ();
     display.setCursor(85, 23);
     display.setTextSize(1);
     display.print ("current");
-    display.setCursor(83, 47);
+    display.setCursor(91, 33);
+    display.setTextSize(1);
+    display.print ("preset");
+    display.setCursor(84, 55);
     presetNumberDisplayUpdate(storedSettings.program, 2);
   }
   display.display();
@@ -380,21 +387,26 @@ void presetNumberDisplayUpdate (int prog, int txtsize) {
 void buttpressDisplayUpdate (void) {
   display.clearDisplay();
   display.setFont ();
-  display.setCursor(0, 4);
+  display.setCursor(0, 3);
   display.setTextColor(WHITE);
   display.setTextSize(1);
   for (int i = 0; i < 4; i++) {
     display.printf("%s", peripheralArrayDisplayUpdate [i]);
     display.setFont (&FreeMono9pt7b);
-    display.printf("%s\n", buttOnOff[i]);
+if (buttOnOff[i] = buttOn){    
+display.printf("%s\n", buttOnOff[i]);
+}
+else {
+display.printf("%s%s\n","      ",buttOnOff[i]);
+}
     display.setFont ();
   }
-  if (INIT == false) {
-    display.setCursor(81, 23);
-    display.print ("current");
-    display.setCursor(81, 47);
-    presetNumberDisplayUpdate(storedSettings.program, 2);
-  }
+//  if (INIT == false) {
+//    display.setCursor(85, 23);
+//    display.print ("current");
+//    display.setCursor(84, 55);
+//    presetNumberDisplayUpdate(storedSettings.program, 2);
+//  }
   display.display();
 }
 
@@ -424,9 +436,9 @@ void editMenuDisplayUpdate (void) {
   display.clearDisplay();
   display.setFont ();
   display.setTextSize(1);
-  display.setCursor(0, 0);
+  display.setCursor(20, 0);
   if (ms._p_curr_menu == ms._p_root_menu) {
-    display.printf ("%s", "   --SETUP MENU--");
+    display.printf ("%s", "- SETUP MENU -");
   }
   ms.display();
   display.display();
@@ -470,10 +482,10 @@ void SelectRelease (void) {
       my_flash_store.write(storedSettings);
       display.clearDisplay();
       display.setFont ();
-      display.setCursor(20, 4);
+      display.setCursor(11, 4);
       display.setTextSize(1);
-      display.println ("CURRENT PRESET");
-      display.setCursor(21, 47);
+      display.println ("- CURRENT PRESET -");
+      display.setCursor(22, 50);
       presetNumberDisplayUpdate (storedSettings.program, 4);
       display.display();
       delay (storedSettings.msdelay);
@@ -489,8 +501,8 @@ void SelectRelease (void) {
         display.setFont ();
         display.setCursor(0, 4);
         display.setTextSize(1);
-        display.println("current host");
-        display.setCursor(0, 20);
+        display.println("host selected:");
+        display.setCursor(0, 25);
         display.setTextSize(2);
         display.println((presetArrayDisplayUpdate [storedSettings.PRESET]) );
         display.display();
@@ -540,7 +552,7 @@ void SelectRelease (void) {
       ENCMODE = EDITMENU;
       peripheralDisplayUpdate(
         "LED BRIGHTNESS", " STORED",
-        "%03d", displayUpdate.rotary1mod / 7, storedSettings.rotary1mod / 7, false
+        "%02d", displayUpdate.rotary1mod / 10, storedSettings.rotary1mod / 10, false
       );
       delay (2500);
       editMenuDisplayUpdate ();
@@ -594,24 +606,26 @@ void EditRelease (void) {
           EXIT = false;
         }
         else if (time < 0) {
-          display.clearDisplay();
-          display.setCursor(22, 23);
-  display.setFont();
-  display.setTextSize(2);
-  display.println("faders");
-  display.display();
-  delay (500);
-  display.clearDisplay();
-  delay (100);
-  display.setCursor(20, 23);
-  display.println("updated");
-  display.display();
-          delay(500);
-          presetDisplayUpdate();
           GLOBALRESET [0] = true;
           GLOBALRESET [1] = true;
           GLOBALRESET [2] = true;
           GLOBALRESET [3] = true;
+delay(400);
+Fader::ReadWrite();          
+display.clearDisplay();
+          display.setFont();
+          display.setTextSize(2);
+          display.setCursor(25, 22);
+          display.println("faders");
+          display.display();
+          delay (400);
+          display.clearDisplay();
+          delay (9000);
+          display.setCursor(22, 22);
+          display.println("updated");
+          display.display();
+          delay(400);
+          presetDisplayUpdate();
         }
         else {
           ENCMODE = EDITMENU;
@@ -635,12 +649,12 @@ void CCbleTXmidi (int CCnumber, int Value) {
 void Stomp1ON(void) {
   if (buttOnOff[0] == buttOff) {
     if (isConnected) {
-      CCbleTXmidi(0, 0x00);
+      CCbleTXmidi(0, 0x7F);
     }
     buttOnOff[0] = buttOn;
   } else {
     if (isConnected) {
-      CCbleTXmidi(0, 0x7F);
+      CCbleTXmidi(0, 0x00);
     }
     buttOnOff[0] = buttOff;
   }
@@ -650,12 +664,12 @@ void Stomp1ON(void) {
 void Stomp2ON(void) {
   if (buttOnOff[1] == buttOff) {
     if (isConnected) {
-      CCbleTXmidi(1, 0x00);
+      CCbleTXmidi(1, 0x7F);
     }
     buttOnOff[1] = buttOn;
   } else {
     if (isConnected) {
-      CCbleTXmidi(1, 0x7F);
+      CCbleTXmidi(1, 0x00);
     }
     buttOnOff[1] = buttOff;
   }
@@ -665,12 +679,12 @@ void Stomp2ON(void) {
 void Stomp3ON(void) {
   if (buttOnOff[2] == buttOff) {
     if (isConnected) {
-      CCbleTXmidi(2, 0x00);
+      CCbleTXmidi(2, 0x7F);
     }
     buttOnOff[2] = buttOn;
   } else {
     if (isConnected) {
-      CCbleTXmidi(2, 0x7F);
+      CCbleTXmidi(2, 0x00);
     }
     buttOnOff[2] = buttOff;
   }
@@ -680,12 +694,12 @@ void Stomp3ON(void) {
 void Stomp4ON(void) {
   if (buttOnOff[3] == buttOff) {
     if (isConnected) {
-      CCbleTXmidi(3, 0x00);
+      CCbleTXmidi(3, 0x7F);
     }
     buttOnOff[3] = buttOn;
   } else {
     if (isConnected) {
-      CCbleTXmidi(3, 0x7F);
+      CCbleTXmidi(3, 0x00);
     }
     buttOnOff[3] = buttOff;
   }
@@ -723,9 +737,7 @@ void Left (void) {
         }
         peripheralDisplayUpdate(
           peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
-          "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], 
-false
-//true
+          "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
         );
         break;
       case CHANNEL:
@@ -753,13 +765,13 @@ false
         presetDisplayUpdate();
         break;
       case LED:
-        displayUpdate.rotary1mod -= 70;
+        displayUpdate.rotary1mod -= 10;
         if (displayUpdate.rotary1mod <= 0) {
           displayUpdate.rotary1mod = 0;
         }
         peripheralDisplayUpdate(
           "LED BRIGHTNESS", " SELECT",
-          "%03d", displayUpdate.rotary1mod / 7, storedSettings.rotary1mod / 7, true
+          "%02d", displayUpdate.rotary1mod / 10, storedSettings.rotary1mod / 10, true
         );
         analogWrite (pwm, displayUpdate.rotary1mod);
         break;
@@ -795,9 +807,7 @@ void Right (void) {
         }
         peripheralDisplayUpdate(
           peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
-          "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], 
-false
-//true
+          "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
         );
         break;
       case CHANNEL:
@@ -825,14 +835,14 @@ false
         presetDisplayUpdate();
         break;
       case LED:
-        displayUpdate.rotary1mod += 70;
-        if (displayUpdate.rotary1mod >= 1020) {
-          displayUpdate.rotary1mod = 1020;
+        displayUpdate.rotary1mod += 10;
+        if (displayUpdate.rotary1mod >= 200) {
+          displayUpdate.rotary1mod = 200;
         }
         analogWrite (pwm, displayUpdate.rotary1mod);
         peripheralDisplayUpdate(
           "LED BRIGHTNESS", " SELECT",
-          "%03d", displayUpdate.rotary1mod / 7, storedSettings.rotary1mod / 7, true
+          "%02d", displayUpdate.rotary1mod / 10, storedSettings.rotary1mod / 10, true
         );
         break;
     }
@@ -918,7 +928,7 @@ void on_itemLED_selected(MenuItem * p_menu_item)
   ENCMODE = LED;
   peripheralDisplayUpdate(
     "LED BRIGHTNESS", " SELECT",
-    "%03d", displayUpdate.rotary1mod / 7, storedSettings.rotary1mod / 7, true
+    "%02d", displayUpdate.rotary1mod / 10, storedSettings.rotary1mod / 10, true
   );
 }
 void on_itemGLOBAL_selected(MenuItem * p_menu_item)
