@@ -374,6 +374,7 @@ void presetNumberDisplayUpdate (int prog, int txtsize) {
     case TONESTACK_onSTAGE:
     case AMPLITUBE:
     case GUITAR_RIG:
+    case AXE:
       display.printf ("%03d", (prog + 1));
       break;
     case BIASFX:
