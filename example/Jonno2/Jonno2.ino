@@ -97,7 +97,7 @@ elapsedMillis switchesPressTimer;
 //MIDI_CREATE_INSTANCE (HardwareSerial, Serial1, midiA);
 
 enum Preset : uint8_t  {TONESTACK_onSTAGE, TONESTACK_PRESET_MGR, BIASFX, AMPLITUBE, GUITAR_RIG, LINE6, AXE};
-enum RotaryMode : uint8_t {PROG, EDITMENU, CC, CHANNEL, BUTTPRESS, GLOBAL, LED};
+enum RotaryMode : uint8_t {PROG, EDITMENU, CC, CHANNEL, BUTTPRESS, GLOBAL, LED, FADEMOVE};
 RotaryMode ENCMODE = PROG;
 enum peripheral : uint8_t {Button1, Button2, Button3, Button4, Slider1, Slider2, Slider3, Slider4};
 peripheral PERIPHERAL;
@@ -196,6 +196,7 @@ const char buttOn [] = "ON";
 const char buttOff [] = "OFF";
 const char *buttOnOff [4] {buttOff, buttOff, buttOff, buttOff};
 const int alpha [] {65, 66, 67, 68};
+int faderValue [4] = {0,0,0,0};
 
 /*Menu structure*/
 Menu mu1("EXTERNAL FX HOST");
@@ -481,6 +482,7 @@ void SelectPress (void) {
     case CC:
     case CHANNEL:
     case BUTTPRESS:
+    case FADEMOVE:
     case GLOBAL:
     case LED:
       break;
@@ -572,6 +574,7 @@ void SelectRelease (void) {
       editMenuDisplayUpdate ();
       break;
     case BUTTPRESS:
+    case FADEMOVE:
       ENCMODE = PROG;
       presetDisplayUpdate ();
       break;
@@ -605,6 +608,7 @@ void EditPress (void) {
       editMenuDisplayUpdate();
       break;
     case BUTTPRESS:
+    case FADEMOVE:
       ENCMODE = PROG;
       ms.reset();
       EXIT = true;
@@ -654,6 +658,7 @@ void EditRelease (void) {
     case GLOBAL:
     case LED:
     case BUTTPRESS:
+    case FADEMOVE:
       break;
   }
 }
@@ -775,6 +780,7 @@ void Left (void) {
         );
         break;
       case BUTTPRESS:
+      case FADEMOVE:
         ENCMODE = PROG;
         presetDisplayUpdate();
         break;
@@ -845,6 +851,7 @@ void Right (void) {
         );
         break;
       case BUTTPRESS:
+      case FADEMOVE:
         ENCMODE = PROG;
         presetDisplayUpdate();
         break;
@@ -867,41 +874,49 @@ void Right (void) {
 void slider1Inc (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(4, map (currentValue, 0, 1023, 0, 127));
+    faderValue [1] = currentValue;
   }
 }
 void slider1Dec (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(4, map (currentValue, 0, 1023, 0, 127));
+    faderValue [0] = currentValue;
   }
 }
 void slider2Inc (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(5, map (currentValue, 0, 1023, 0, 127));
+    faderValue [1] = currentValue;
   }
 }
 void slider2Dec (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(5, map (currentValue, 0, 1023, 0, 127));
+    faderValue [1] = currentValue;
   }
 }
 void slider3Inc (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(6, map (currentValue, 0, 1023, 0, 127));
+    faderValue [2] = currentValue;
   }
 }
 void slider3Dec (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(6, map (currentValue, 0, 1023, 0, 127));
+    faderValue [2] = currentValue;
   }
 }
 void slider4Inc (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(7, map (currentValue, 0, 1023, 0, 127));
+    faderValue [3] = currentValue;
   }
 }
 void slider4Dec (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(7, map (currentValue, 0, 1023, 0, 127));
+    faderValue [3] = currentValue;
   }
 }
 void slider1SAME (int currentValue) {
@@ -909,6 +924,7 @@ void slider1SAME (int currentValue) {
     GLOBALRESET [0] = false;
     if (isConnected) {
       CCbleTXmidi(4, map (currentValue, 0, 1023, 0, 127));
+      faderValue [0] = currentValue;
     }
   }
 } void slider2SAME (int currentValue) {
@@ -916,6 +932,7 @@ void slider1SAME (int currentValue) {
     GLOBALRESET[1] = false;
     if (isConnected) {
       CCbleTXmidi(5, map (currentValue, 0, 1023, 0, 127));
+      faderValue [1] = currentValue;
     }
   }
 }
@@ -924,6 +941,7 @@ void slider3SAME (int currentValue) {
     GLOBALRESET[2] = false;
     if (isConnected) {
       CCbleTXmidi(6, map (currentValue, 0, 1023, 0, 127));
+      faderValue [2] = currentValue;
     }
   }
 }
@@ -932,6 +950,7 @@ void slider4SAME (int currentValue) {
     GLOBALRESET[3] = false;
     if (isConnected) {
       CCbleTXmidi(7, map (currentValue, 0, 1023, 0, 127));
+      faderValue [3] = currentValue;
     }
   }
 }
