@@ -96,7 +96,7 @@ MenuSystem ms(my_renderer);
 elapsedMillis switchesPressTimer;
 //MIDI_CREATE_INSTANCE (HardwareSerial, Serial1, midiA);
 
-enum Preset : uint8_t  {TONESTACK_onSTAGE, TONESTACK_PRESET_MGR, BIASFX, AMPLITUBE, GUITAR_RIG, LINE6, AXEFX};
+enum Preset : uint8_t  {TONESTACK_onSTAGE, TONESTACK_PRESET_MGR, BIASFX, AMPLITUBE, GUITAR_RIG, LINE6, AXE};
 enum RotaryMode : uint8_t {PROG, EDITMENU, CC, CHANNEL, BUTTPRESS, GLOBAL, LED};
 RotaryMode ENCMODE = PROG;
 enum peripheral : uint8_t {Button1, Button2, Button3, Button4, Slider1, Slider2, Slider3, Slider4};
@@ -133,7 +133,7 @@ void on_item3_selected(MenuItem* p_menu_item);
 void on_item4_selected(MenuItem* p_menu_item);
 void on_item5_selected(MenuItem* p_menu_item);
 void on_itemLINE6_selected(MenuItem* p_menu_item);
-void on_itemAXEFX_selected(MenuItem* p_menu_item);
+void on_itemAXE_selected(MenuItem* p_menu_item);
 void on_back1_item_selected (MenuItem* p_menu_item);
 void on_item6_selected(MenuItem* p_menu_item);
 void on_item7_selected(MenuItem* p_menu_item);
@@ -175,8 +175,8 @@ const char BIASFX$ [] = "BIAS FX";
 const char AMPLITUDE$ [] = "AMPLITUBE";
 const char NI$ [] = "GUITAR RIG";
 const char LINE6$ [] = "LINE 6";
-const char AXE$ [] = "AXEFX"
-const char * presetArrayDisplayUpdate [5] {
+const char AXE$ [] = "AXEFX";
+const char * presetArrayDisplayUpdate [7] {
   ZERO$, ONE$, BIASFX$,
   AMPLITUDE$, NI$, LINE6$, AXE$
 };
@@ -210,6 +210,7 @@ MenuItem mu1_mi3("BIAS FX", &on_item3_selected);
 MenuItem mu1_mi4("AMPLITUBE", &on_item4_selected);
 MenuItem mu1_mi5("GUITAR RIG", &on_item5_selected);
 MenuItem mu1_mi6("LINE 6", &on_itemLINE6_selected);
+MenuItem mu1_mi7("AXE FX", &on_itemAXE_selected);
 MenuItem mu2_mi1("STOMP 1", &on_item6_selected);
 MenuItem mu2_mi2("STOMP 2", &on_item7_selected);
 MenuItem mu2_mi3("STOMP 3", &on_item8_selected);
@@ -277,6 +278,8 @@ void setup() {
   mu1.add_item(&mu1_mi3);
   mu1.add_item(&mu1_mi4);
   mu1.add_item(&mu1_mi5);
+mu1.add_item(&mu1_mi6);
+  mu1.add_item(&mu1_mi7);
   mu2.add_item(&mu2_mi1);
   mu2.add_item(&mu2_mi2);
   mu2.add_item(&mu2_mi3);
@@ -391,23 +394,32 @@ void buttpressDisplayUpdate (void) {
   display.setTextColor(WHITE);
   display.setTextSize(1);
   for (int i = 0; i < 4; i++) {
+    display.setFont ();
     display.printf("%s", peripheralArrayDisplayUpdate [i]);
     display.setFont (&FreeMono9pt7b);
-if (buttOnOff[i] = buttOn){    
-display.printf("%s\n", buttOnOff[i]);
-}
-else {
-display.printf("%s%s\n","      ",buttOnOff[i]);
-}
-    display.setFont ();
+    if (buttOnOff[i] = buttOn) {
+      display.printf("%s\n", buttOnOff[i]);
+    }
+    else {
+      display.printf("%s%s\n", "      ", buttOnOff[i]);
+    }
   }
-//  if (INIT == false) {
-//    display.setCursor(85, 23);
-//    display.print ("current");
-//    display.setCursor(84, 55);
-//    presetNumberDisplayUpdate(storedSettings.program, 2);
-//  }
   display.display();
+}
+
+void fadermoveDisplayUpdate (void) {
+  display.clearDisplay();
+  display.setFont ();
+  display.setCursor(0, 3);
+  display.setTextColor(WHITE);
+  display.setTextSize(1);
+  for (int i = 4; i < 8; i++) {
+    display.setFont ();
+    display.printf("%s", peripheralArrayDisplayUpdate [i]);
+    display.setFont (&FreeMono9pt7b);
+    //to come
+  }
+display.display();
 }
 
 void peripheralDisplayUpdate (char * heading, char * description, char *format, int Update, int Stored, bool current) {
@@ -610,9 +622,9 @@ void EditRelease (void) {
           GLOBALRESET [1] = true;
           GLOBALRESET [2] = true;
           GLOBALRESET [3] = true;
-delay(400);
-Fader::ReadWrite();          
-display.clearDisplay();
+          delay(400);
+          Fader::ReadWrite();
+          display.clearDisplay();
           display.setFont();
           display.setTextSize(2);
           display.setCursor(25, 22);
@@ -974,6 +986,18 @@ void on_item4_selected(MenuItem * p_menu_item)
 void on_item5_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = GUITAR_RIG;
+  my_flash_store.write(storedSettings);
+  ENCMODE = PROG;
+}
+void on_itemLINE6_selected(MenuItem * p_menu_item)
+{
+  storedSettings.PRESET = LINE6;
+  my_flash_store.write(storedSettings);
+  ENCMODE = PROG;
+}
+void on_itemAXE_selected(MenuItem * p_menu_item)
+{
+  storedSettings.PRESET = AXE;
   my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
