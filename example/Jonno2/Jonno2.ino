@@ -420,7 +420,7 @@ void fademoveDisplayUpdate (void) {
     display.setFont ();
     display.printf("%s", peripheralArrayDisplayUpdate [i]);
     display.setFont (&FreeMono9pt7b);
-    //to come
+    display.printf("%03d\n",faderValue[i - 4]);
   }
 display.display();
 }
@@ -444,7 +444,6 @@ void peripheralDisplayUpdate (char * heading, char * description, char *format, 
     display.printf (format, Stored);
   }
   display.display();
-
 }
 
 void editMenuDisplayUpdate (void) {
@@ -628,7 +627,7 @@ void EditRelease (void) {
           GLOBALRESET [1] = true;
           GLOBALRESET [2] = true;
           GLOBALRESET [3] = true;
-          delay(400);
+          delay(300);
           Fader::ReadWrite();
           display.clearDisplay();
           display.setFont();
@@ -876,64 +875,64 @@ void slider1Inc (int currentValue) {
     CCbleTXmidi(4, map (currentValue, 0, 1023, 0, 127));
     faderValue [0] = currentValue;
   }
-  ENCMODE = BUTTPRESS;
-  buttpressDisplayUpdate();
+  ENCMODE = FADEMOVE;
+  fademoveDisplayUpdate();
 }
 void slider1Dec (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(4, map (currentValue, 0, 1023, 0, 127));
     faderValue [0] = currentValue;
   }
-  ENCMODE = BUTTPRESS;
-  buttpressDisplayUpdate();
+  ENCMODE = FADEMOVE;
+  fademoveDisplayUpdate();
 }
 void slider2Inc (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(5, map (currentValue, 0, 1023, 0, 127));
     faderValue [1] = currentValue;
   }
-  ENCMODE = BUTTPRESS;
-  buttpressDisplayUpdate();
+  ENCMODE = FADEMOVE;
+  fademoveDisplayUpdate();
 }
 void slider2Dec (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(5, map (currentValue, 0, 1023, 0, 127));
     faderValue [1] = currentValue;
   }
-  ENCMODE = BUTTPRESS;
-  buttpressDisplayUpdate();
+  ENCMODE = FADEMOVE;
+  fademoveDisplayUpdate();
 }
 void slider3Inc (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(6, map (currentValue, 0, 1023, 0, 127));
     faderValue [2] = currentValue;
   }
-  ENCMODE = BUTTPRESS;
-  buttpressDisplayUpdate();
+  ENCMODE = FADEMOVE;
+  fademoveDisplayUpdate();
 }
 void slider3Dec (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(6, map (currentValue, 0, 1023, 0, 127));
     faderValue [2] = currentValue;
   }
- ENCMODE = BUTTPRESS;
-  buttpressDisplayUpdate(); 
+ ENCMODE = FADEMOVE;
+  fademoveDisplayUpdate(); 
 }
 void slider4Inc (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(7, map (currentValue, 0, 1023, 0, 127));
     faderValue [3] = currentValue;
   }
-  ENCMODE = BUTTPRESS;
-  buttpressDisplayUpdate();
+  ENCMODE = FADEMOVE;
+  fademoveDisplayUpdate();
 }
 void slider4Dec (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(7, map (currentValue, 0, 1023, 0, 127));
     faderValue [3] = currentValue;
   }
-  ENCMODE = BUTTPRESS;
-  buttpressDisplayUpdate();
+  ENCMODE = FADEMOVE;
+  fademoveDisplayUpdate();
 }
 void slider1SAME (int currentValue) {
   if (GLOBALRESET [0]) {
