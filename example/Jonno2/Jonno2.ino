@@ -380,6 +380,7 @@ void presetNumberDisplayUpdate (int prog, int txtsize) {
       if (prog >= 32) {
         prog = 31;
       }
+      case LINE6:
       int number = ((prog + 4) / 4);
       int letter = ((prog + 4) % 4);
       display.printf ("%d%c", number, alpha [letter]);
