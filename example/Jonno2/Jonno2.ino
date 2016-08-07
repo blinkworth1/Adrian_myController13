@@ -110,7 +110,7 @@ typedef struct {
   int rotary1mod;
   Preset PRESET;
 } Settings;
-Settings storedSettings = {true, 200, 1, 9, {0, 1, 2, 3, 4, 5, 6, 7}, 200, TONESTACK_onSTAGE};
+Settings storedSettings = {true, 200, 1, 9, {0, 1, 2, 3, 4, 5, 6, 7}, 200, TONESTACK_PRESET_MGR};
 Settings displayUpdate;
 FlashStorage(my_flash_store, Settings);
 
@@ -205,11 +205,11 @@ Menu mu3("FADER CC SELECT");
 MenuItem mm_mi0 ("SNAPSHOT DELAY", &on_itemGLOBAL_selected);
 MenuItem mm_mi1 ("MIDI CHANNEL", &on_item0_selected);
 MenuItem mm_mi2 ("LED BRIGHTNESS", &on_itemLED_selected);
-MenuItem mu1_mi1("TONESTACK onSTAGE", &on_item1_selected);
+//MenuItem mu1_mi1("TONESTACK onSTAGE", &on_item1_selected);
 MenuItem mu1_mi2("TONESTACK MANAGER", &on_item2_selected);
 MenuItem mu1_mi3("BIAS FX", &on_item3_selected);
 MenuItem mu1_mi4("AMPLITUBE", &on_item4_selected);
-MenuItem mu1_mi5("GUITAR RIG", &on_item5_selected);
+//MenuItem mu1_mi5("GUITAR RIG", &on_item5_selected);
 MenuItem mu1_mi6("LINE 6", &on_itemLINE6_selected);
 MenuItem mu1_mi7("AXE FX", &on_itemAXE_selected);
 MenuItem mu2_mi1("STOMP 1", &on_item6_selected);
@@ -274,11 +274,11 @@ void setup() {
   ms.get_root_menu().add_item(&mm_mi0);
   ms.get_root_menu().add_item(&mm_mi1);
   ms.get_root_menu().add_item(&mm_mi2);
-  mu1.add_item(&mu1_mi1);
+  //mu1.add_item(&mu1_mi1);
   mu1.add_item(&mu1_mi2);
   mu1.add_item(&mu1_mi3);
   mu1.add_item(&mu1_mi4);
-  mu1.add_item(&mu1_mi5);
+  //mu1.add_item(&mu1_mi5);
 mu1.add_item(&mu1_mi6);
   mu1.add_item(&mu1_mi7);
   mu2.add_item(&mu2_mi1);
