@@ -410,7 +410,7 @@ void buttpressDisplayUpdate (void) {
   display.display();
 }
 
-void fadermoveDisplayUpdate (void) {
+void fademoveDisplayUpdate (void) {
   display.clearDisplay();
   display.setFont ();
   display.setCursor(0, 3);
@@ -636,13 +636,13 @@ void EditRelease (void) {
           display.setCursor(25, 22);
           display.println("faders");
           display.display();
-          delay (400);
+          delay (300);
           display.clearDisplay();
-          delay (9000);
+          delay (70);
           display.setCursor(22, 22);
           display.println("updated");
           display.display();
-          delay(400);
+          delay(300);
           presetDisplayUpdate();
         }
         else {
@@ -874,50 +874,66 @@ void Right (void) {
 void slider1Inc (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(4, map (currentValue, 0, 1023, 0, 127));
-    faderValue [1] = currentValue;
+    faderValue [0] = currentValue;
   }
+  ENCMODE = BUTTPRESS;
+  buttpressDisplayUpdate();
 }
 void slider1Dec (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(4, map (currentValue, 0, 1023, 0, 127));
     faderValue [0] = currentValue;
   }
+  ENCMODE = BUTTPRESS;
+  buttpressDisplayUpdate();
 }
 void slider2Inc (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(5, map (currentValue, 0, 1023, 0, 127));
     faderValue [1] = currentValue;
   }
+  ENCMODE = BUTTPRESS;
+  buttpressDisplayUpdate();
 }
 void slider2Dec (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(5, map (currentValue, 0, 1023, 0, 127));
     faderValue [1] = currentValue;
   }
+  ENCMODE = BUTTPRESS;
+  buttpressDisplayUpdate();
 }
 void slider3Inc (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(6, map (currentValue, 0, 1023, 0, 127));
     faderValue [2] = currentValue;
   }
+  ENCMODE = BUTTPRESS;
+  buttpressDisplayUpdate();
 }
 void slider3Dec (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(6, map (currentValue, 0, 1023, 0, 127));
     faderValue [2] = currentValue;
   }
+ ENCMODE = BUTTPRESS;
+  buttpressDisplayUpdate(); 
 }
 void slider4Inc (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(7, map (currentValue, 0, 1023, 0, 127));
     faderValue [3] = currentValue;
   }
+  ENCMODE = BUTTPRESS;
+  buttpressDisplayUpdate();
 }
 void slider4Dec (int currentValue) {
   if (isConnected) {
     CCbleTXmidi(7, map (currentValue, 0, 1023, 0, 127));
     faderValue [3] = currentValue;
   }
+  ENCMODE = BUTTPRESS;
+  buttpressDisplayUpdate();
 }
 void slider1SAME (int currentValue) {
   if (GLOBALRESET [0]) {
