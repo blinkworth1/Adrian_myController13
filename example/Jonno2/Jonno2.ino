@@ -80,10 +80,10 @@ const unsigned char mybitmap [] PROGMEM = {
 #define OLED_DATA   20 //i2c pins for Feather, for display
 #define OLED_CLK    21
 #define OLED_RESET  5
-Fader slider1 (A0, 9); //Feather pins and jitter suppression amount
-Fader slider2 (A1, 9);
-Fader slider3 (A4, 9);
-Fader slider4 (A5, 9);
+Fader slider1 (A0, 10); //Feather pins and jitter suppression amount
+Fader slider2 (A1, 10);
+Fader slider3 (A4, 10);
+Fader slider4 (A5, 10);
 Rotary encoder1 (0, 1); // 0 and 1 are Feather pin numbers, left and right, for the rotary encoder
 Switches Buttons (16, 17, 10, 11, 12, 13); //16 and 17 are select and edit, respectively, and 10 thru 13 stomp pins, for Feather
 
