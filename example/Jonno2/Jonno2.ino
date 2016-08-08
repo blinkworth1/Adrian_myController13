@@ -96,7 +96,7 @@ MenuSystem ms(my_renderer);
 elapsedMillis switchesPressTimer;
 //MIDI_CREATE_INSTANCE (HardwareSerial, Serial1, midiA);
 
-enum Preset : uint8_t  {000_127, 001_128, 1A_8D, 1A_32D, AXE};
+enum Preset : uint8_t  {ZERO, ONE, BIAS_FX, LINE_6, AXE_FX};
 enum RotaryMode : uint8_t {PROG, EDITMENU, CC, CHANNEL, BUTTPRESS, GLOBAL, LED, FADEMOVE};
 RotaryMode ENCMODE = PROG;
 enum peripheral : uint8_t {Button1, Button2, Button3, Button4, Slider1, Slider2, Slider3, Slider4};
@@ -110,7 +110,7 @@ typedef struct {
   int rotary1mod;
   Preset PRESET;
 } Settings;
-Settings storedSettings = {true, 200, 1, 9, {0, 1, 2, 3, 4, 5, 6, 7}, 200, TONESTACK_PRESET_MGR};
+Settings storedSettings = {true, 200, 1, 9, {0, 1, 2, 3, 4, 5, 6, 7}, 200, ONE};
 Settings displayUpdate;
 FlashStorage(my_flash_store, Settings);
 
@@ -124,6 +124,7 @@ bool EXIT = false;
 /*Forward Declarations*/
 void connected(void);
 void disconnected(void);
+void presetDisplayUpdate (void);
 void on_itemGLOBAL_selected(MenuItem* p_menu_item);
 void on_itemLED_selected(MenuItem* p_menu_item);
 void on_item0_selected(MenuItem* p_menu_item);
@@ -175,7 +176,7 @@ const char BIAS_FX$ [] = "BIAS FX";
 const char LINE_6$ [] = "LINE 6";
 const char AXE_FX$ [] = "AXE FX";
 const char * presetArrayDisplayUpdate [5] {
-  ZERO$, ONE$, BIASFX$, LINE6$, AXE$
+  ZERO$, ONE$, BIAS_FX$, LINE_6$, AXE_FX$
 };
 char Butt1 [] = "STOMP 1";
 char Butt2 [] = "STOMP 2";
@@ -366,10 +367,10 @@ void presetNumberDisplayUpdate (int prog, int txtsize) {
     display.setFont (&FreeMonoBold24pt7b);
   }
   switch (storedSettings.PRESET) {
-    case 000_127:
+    case ZERO:
       display.printf ("%03d", prog);
       break;
-    case 001_128:
+    case ONE:
       display.printf ("%03d", (prog + 1));
       break;
     case BIAS_FX:
@@ -392,13 +393,12 @@ void buttpressDisplayUpdate (void) {
   display.setTextSize(1);
   for (int i = 0; i < 4; i++) {
     display.setFont ();
-    display.printf("%s", peripheralArrayDisplayUpdate [i]);
-    display.setFont (&FreeMono9pt7b);
+    display.printf("%s",peripheralArrayDisplayUpdate [i]);
     if (buttOnOff[i] == buttOn) {
-      display.printf("%s\n", buttOnOff[i]);
+      display.printf("%s%s\n\n","   ",buttOnOff[i]);
     }
     else {
-      display.printf("%s%s\n", "      ", buttOnOff[i]);
+      display.printf("%s%s\n\n","      ", buttOnOff[i]);
     }
   }
   display.display();
@@ -412,9 +412,8 @@ void fademoveDisplayUpdate (void) {
   display.setTextSize(1);
   for (int i = 4; i < 8; i++) {
     display.setFont ();
-    display.printf("%s", peripheralArrayDisplayUpdate [i]);
-    display.setFont (&FreeMono9pt7b);
-    display.printf("%03d\n",faderValue[i - 4]);
+    display.printf("%s",peripheralArrayDisplayUpdate [i]);
+    display.printf("%s%03d\n\n","   ",faderValue[i - 4]);
   }
 display.display();
 }
@@ -446,7 +445,7 @@ void editMenuDisplayUpdate (void) {
   display.setTextSize(1);
   display.setCursor(20, 0);
   if (ms._p_curr_menu == ms._p_root_menu) {
-    display.printf ("%s", "- SETUP MENU -");
+    display.printf ("%s","- SETUP MENU -");
   }
   ms.display();
   display.display();
@@ -468,7 +467,6 @@ void disconnected(void)
 void SelectPress (void) {
   switch (ENCMODE) {
     case PROG:
-   
       if (INIT == true) INIT = false;
       break;
     case EDITMENU:
@@ -656,18 +654,16 @@ void EditRelease (void) {
   }
 }
 void CCbleTXmidi (int CCnumber, int Value) {
+  if (isConnected) {
   midi.send(0xB0 + (storedSettings.channel - 1), storedSettings.CCnumber[CCnumber], Value);
+  }
 }
 void Stomp1ON(void) {
   if (buttOnOff[0] == buttOff) {
-    if (isConnected) {
       CCbleTXmidi(0, 0x7F);
-    }
     buttOnOff[0] = buttOn;
   } else {
-    if (isConnected) {
       CCbleTXmidi(0, 0x00);
-    }
     buttOnOff[0] = buttOff;
   }
   ENCMODE = BUTTPRESS;
@@ -675,14 +671,10 @@ void Stomp1ON(void) {
 }
 void Stomp2ON(void) {
   if (buttOnOff[1] == buttOff) {
-    if (isConnected) {
       CCbleTXmidi(1, 0x7F);
-    }
     buttOnOff[1] = buttOn;
   } else {
-    if (isConnected) {
       CCbleTXmidi(1, 0x00);
-    }
     buttOnOff[1] = buttOff;
   }
   ENCMODE = BUTTPRESS;
@@ -690,14 +682,10 @@ void Stomp2ON(void) {
 }
 void Stomp3ON(void) {
   if (buttOnOff[2] == buttOff) {
-    if (isConnected) {
       CCbleTXmidi(2, 0x7F);
-    }
     buttOnOff[2] = buttOn;
   } else {
-    if (isConnected) {
       CCbleTXmidi(2, 0x00);
-    }
     buttOnOff[2] = buttOff;
   }
   ENCMODE = BUTTPRESS;
@@ -705,14 +693,10 @@ void Stomp3ON(void) {
 }
 void Stomp4ON(void) {
   if (buttOnOff[3] == buttOff) {
-    if (isConnected) {
       CCbleTXmidi(3, 0x7F);
-    }
     buttOnOff[3] = buttOn;
   } else {
-    if (isConnected) {
       CCbleTXmidi(3, 0x00);
-    }
     buttOnOff[3] = buttOff;
   }
   ENCMODE = BUTTPRESS;
@@ -728,7 +712,7 @@ void Left (void) {
     switch (ENCMODE) {
       case PROG:
         displayUpdate.program--;
-        if (storedSettings.PRESET == BIASFX) {
+        if (storedSettings.PRESET == BIAS_FX) {
           if (displayUpdate.program <= -1) {
             displayUpdate.program = 31;
           }
@@ -799,7 +783,7 @@ void Right (void) {
     switch (ENCMODE) {
       case PROG:
         displayUpdate.program++;
-        if (storedSettings.PRESET == BIASFX) {
+        if (storedSettings.PRESET == BIAS_FX) {
           if (displayUpdate.program >= 32) {
             displayUpdate.program = 0;
           }
@@ -864,103 +848,63 @@ void Right (void) {
 }
 
 /*Fader Callbacks*/
-void slider1Inc (int currentValue) {
-  if (isConnected) {
-    CCbleTXmidi(4, map (currentValue, 0, 1023, 0, 127));
-    faderValue [0] = currentValue;
-  }
+void faderCallback (int index, int currentValue) {
+  int mappedValue = map (currentValue, 0, 1023, 0, 127);
+    CCbleTXmidi(index + 4, mappedValue);
+    faderValue [index] = mappedValue;
   ENCMODE = FADEMOVE;
   fademoveDisplayUpdate();
+}
+void slider1Inc (int currentValue) {
+    faderCallback (0, currentValue);  
 }
 void slider1Dec (int currentValue) {
-  if (isConnected) {
-    CCbleTXmidi(4, map (currentValue, 0, 1023, 0, 127));
-    faderValue [0] = currentValue;
-  }
-  ENCMODE = FADEMOVE;
-  fademoveDisplayUpdate();
+    faderCallback (0, currentValue);
 }
 void slider2Inc (int currentValue) {
-  if (isConnected) {
-    CCbleTXmidi(5, map (currentValue, 0, 1023, 0, 127));
-    faderValue [1] = currentValue;
-  }
-  ENCMODE = FADEMOVE;
-  fademoveDisplayUpdate();
+faderCallback (1, currentValue);
 }
 void slider2Dec (int currentValue) {
-  if (isConnected) {
-    CCbleTXmidi(5, map (currentValue, 0, 1023, 0, 127));
-    faderValue [1] = currentValue;
-  }
-  ENCMODE = FADEMOVE;
-  fademoveDisplayUpdate();
+faderCallback (1, currentValue);
 }
 void slider3Inc (int currentValue) {
-  if (isConnected) {
-    CCbleTXmidi(6, map (currentValue, 0, 1023, 0, 127));
-    faderValue [2] = currentValue;
-  }
-  ENCMODE = FADEMOVE;
-  fademoveDisplayUpdate();
+faderCallback (2, currentValue);
 }
 void slider3Dec (int currentValue) {
-  if (isConnected) {
-    CCbleTXmidi(6, map (currentValue, 0, 1023, 0, 127));
-    faderValue [2] = currentValue;
-  }
- ENCMODE = FADEMOVE;
-  fademoveDisplayUpdate(); 
+faderCallback (2, currentValue);
 }
 void slider4Inc (int currentValue) {
-  if (isConnected) {
-    CCbleTXmidi(7, map (currentValue, 0, 1023, 0, 127));
-    faderValue [3] = currentValue;
-  }
-  ENCMODE = FADEMOVE;
-  fademoveDisplayUpdate();
+faderCallback (3, currentValue);
 }
 void slider4Dec (int currentValue) {
-  if (isConnected) {
-    CCbleTXmidi(7, map (currentValue, 0, 1023, 0, 127));
-    faderValue [3] = currentValue;
-  }
-  ENCMODE = FADEMOVE;
-  fademoveDisplayUpdate();
+faderCallback (3, currentValue);
 }
 void slider1SAME (int currentValue) {
   if (GLOBALRESET [0]) {
     GLOBALRESET [0] = false;
-    if (isConnected) {
       CCbleTXmidi(4, map (currentValue, 0, 1023, 0, 127));
-      faderValue [0] = currentValue;
-    }
+faderValue [0] = map (currentValue, 0, 1023, 0, 127);
   }
-} void slider2SAME (int currentValue) {
+} 
+void slider2SAME (int currentValue) {
   if (GLOBALRESET[1]) {
     GLOBALRESET[1] = false;
-    if (isConnected) {
       CCbleTXmidi(5, map (currentValue, 0, 1023, 0, 127));
-      faderValue [1] = currentValue;
-    }
+faderValue [1] = map (currentValue, 0, 1023, 0, 127);
   }
 }
 void slider3SAME (int currentValue) {
   if (GLOBALRESET[2]) {
     GLOBALRESET[2] = false;
-    if (isConnected) {
       CCbleTXmidi(6, map (currentValue, 0, 1023, 0, 127));
-      faderValue [2] = currentValue;
-    }
+faderValue [2] = map (currentValue, 0, 1023, 0, 127);
   }
 }
 void slider4SAME (int currentValue) {
   if (GLOBALRESET[3]) {
     GLOBALRESET[3] = false;
-    if (isConnected) {
       CCbleTXmidi(7, map (currentValue, 0, 1023, 0, 127));
-      faderValue [3] = currentValue;
-    }
+faderValue [3] = map (currentValue, 0, 1023, 0, 127);
   }
 }
 
@@ -991,13 +935,13 @@ void on_item0_selected(MenuItem * p_menu_item)
 }
 void on_item1_selected(MenuItem * p_menu_item)
 {
-  storedSettings.PRESET = 000_127;
+  storedSettings.PRESET = ZERO;
   my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_item2_selected(MenuItem * p_menu_item)
 {
-  storedSettings.PRESET = 001_128;
+  storedSettings.PRESET = ONE;
   my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
