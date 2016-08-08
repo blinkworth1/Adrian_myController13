@@ -170,11 +170,11 @@ void slider3SAME (int);
 void slider3SAME (int);
 
 /*Pointer Assignments*/
-const char ZERO$ [] = "000 - 127";
-const char ONE$ [] = "001 - 128";
-const char BIAS_FX$ [] = "BIAS FX";
-const char LINE_6$ [] = "LINE 6";
-const char AXE_FX$ [] = "AXE FX";
+const char ZERO$ [] = "000-127";
+const char ONE$ [] = "001-128";
+const char BIAS_FX$ [] = "1A-8D";
+const char LINE_6$ [] = "1A-32D";
+const char AXE_FX$ [] = "001.1-128.8";
 const char * presetArrayDisplayUpdate [5] {
   ZERO$, ONE$, BIAS_FX$, LINE_6$, AXE_FX$
 };
@@ -206,8 +206,6 @@ MenuItem mm_mi2 ("LED BRIGHTNESS", &on_itemLED_selected);
 MenuItem mu1_mi1(ZERO$, &on_item1_selected);
 MenuItem mu1_mi2(ONE$, &on_item2_selected);
 MenuItem mu1_mi3(BIAS_FX$, &on_item3_selected);
-//MenuItem mu1_mi4("AMPLITUBE", &on_item4_selected);
-//MenuItem mu1_mi5("GUITAR RIG", &on_item5_selected);
 MenuItem mu1_mi6(LINE_6$, &on_itemLINE6_selected);
 MenuItem mu1_mi7(AXE_FX$, &on_itemAXE_selected);
 MenuItem mu2_mi1("STOMP 1", &on_item6_selected);
@@ -369,6 +367,7 @@ void presetNumberDisplayUpdate (int prog, int txtsize) {
       display.printf ("%03d", prog);
       break;
     case ONE:
+    case AXE_FX:
       display.printf ("%03d", (prog + 1));
       break;
     case BIAS_FX:
@@ -406,7 +405,7 @@ void buttpressDisplayUpdate (void) {
 void fademoveDisplayUpdate (void) {
   display.clearDisplay();
   display.setFont ();
-  display.setCursor(0, 3);
+  display.setCursor(0, 4);
   display.setTextColor(WHITE);
   display.setTextSize(1);
   for (int i = 4; i < 8; i++) {
@@ -423,7 +422,7 @@ void peripheralDisplayUpdate (char * heading, char * description, char *format, 
   display.setFont ();
   display.setCursor(0, 4);
   display.setTextSize(1);
-  display.printf("%s%s\n", heading, description);
+  display.printf("%s%s\n",heading, description);
   display.setCursor(0, 47);
   display.setFont (&FreeMonoBold24pt7b);
   display.printf (format, Update);
@@ -951,18 +950,6 @@ void on_item3_selected(MenuItem * p_menu_item)
   my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
-/*void on_item4_selected(MenuItem * p_menu_item)
-{
-  storedSettings.PRESET = AMPLITUBE;
-  my_flash_store.write(storedSettings);
-  ENCMODE = PROG;
-}
-void on_item5_selected(MenuItem * p_menu_item)
-{
-  storedSettings.PRESET = GUITAR_RIG;
-  my_flash_store.write(storedSettings);
-  ENCMODE = PROG;
-}*/
 void on_itemLINE6_selected(MenuItem * p_menu_item)
 {
   storedSettings.PRESET = LINE_6;
