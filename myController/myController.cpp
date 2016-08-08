@@ -10,7 +10,7 @@ Fader * FobjArray[4] {NULL, NULL, NULL, NULL};
 const int8_t encState [16] {0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0};
 //elapsedMicros RotaryTimer;
 elapsedMillis FaderTimer;
-//elapsedMicros SwitchesTimer;
+elapsedMicros SwitchesTimer;
 
 Switches::Switches (uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4, uint8_t pin5, uint8_t pin6) {
   numberOfSwitches = 6;
@@ -122,8 +122,8 @@ void Switches::SetHandleB13OFF(void(*fptr) (void)) {
 	switchesPointersOFF[12] = fptr;
 }
 void Switches::ReadWrite() {
-	//if ((SwitchesTimer - 301) > 0) {
-	//	SwitchesTimer = 0;
+	if ((SwitchesTimer - 500) > 0) {
+		SwitchesTimer = 0;
 		SwitchesRead();
 		for (int i = 0; i < Sobj->numberOfSwitches; i++)
 		{
@@ -154,7 +154,7 @@ void Switches::ReadWrite() {
 				}
 			}
 		}
-	//}
+	}
 }
 void Switches::SwitchesRead () {
 Sobj->switchesRaw = 0;	
@@ -162,8 +162,6 @@ Sobj->switchesRaw = 0;
        Sobj->begin = false;
        for (int i = 0; i < Sobj->numberOfSwitches; i++) {
     pinMode(Sobj->switchesPinTable [i], INPUT_PULLUP );
-Serial.println (Sobj->switchesPinTable [i]);
-delay (500);
      }
   }
 for (int i = 0; i < Sobj->numberOfSwitches; i++) {
