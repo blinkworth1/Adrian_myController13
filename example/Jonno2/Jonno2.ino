@@ -400,7 +400,7 @@ void buttpressDisplayUpdate (void) {
     display.setFont ();
     display.printf("%s", peripheralArrayDisplayUpdate [i]);
     display.setFont (&FreeMono9pt7b);
-    if (buttOnOff[i] = buttOn) {
+    if (buttOnOff[i] == buttOn) {
       display.printf("%s\n", buttOnOff[i]);
     }
     else {
@@ -474,7 +474,7 @@ void disconnected(void)
 void SelectPress (void) {
   switch (ENCMODE) {
     case PROG:
-      //switchesPressTimer = 0;
+   
       if (INIT == true) INIT = false;
       break;
     case EDITMENU:
