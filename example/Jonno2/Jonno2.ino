@@ -96,7 +96,7 @@ MenuSystem ms(my_renderer);
 elapsedMillis switchesPressTimer;
 //MIDI_CREATE_INSTANCE (HardwareSerial, Serial1, midiA);
 
-enum Preset : uint8_t  {TONESTACK_onSTAGE, TONESTACK_PRESET_MGR, BIASFX, AMPLITUBE, GUITAR_RIG, LINE6, AXE};
+enum Preset : uint8_t  {000_127, 001_128, 1A_8D, 1A_32D, AXE};
 enum RotaryMode : uint8_t {PROG, EDITMENU, CC, CHANNEL, BUTTPRESS, GLOBAL, LED, FADEMOVE};
 RotaryMode ENCMODE = PROG;
 enum peripheral : uint8_t {Button1, Button2, Button3, Button4, Slider1, Slider2, Slider3, Slider4};
@@ -169,16 +169,13 @@ void slider3SAME (int);
 void slider3SAME (int);
 
 /*Pointer Assignments*/
-const char ZERO$ [] = "TONESTACK onSTAGE";
-const char ONE$ [] = "TONESTACK MANAGER";
-const char BIASFX$ [] = "BIAS FX";
-const char AMPLITUDE$ [] = "AMPLITUBE";
-const char NI$ [] = "GUITAR RIG";
-const char LINE6$ [] = "LINE 6";
-const char AXE$ [] = "AXEFX";
-const char * presetArrayDisplayUpdate [7] {
-  ZERO$, ONE$, BIASFX$,
-  AMPLITUDE$, NI$, LINE6$, AXE$
+const char ZERO$ [] = "000 - 127";
+const char ONE$ [] = "001 - 128";
+const char BIAS_FX$ [] = "BIAS FX";
+const char LINE_6$ [] = "LINE 6";
+const char AXE_FX$ [] = "AXE FX";
+const char * presetArrayDisplayUpdate [5] {
+  ZERO$, ONE$, BIASFX$, LINE6$, AXE$
 };
 char Butt1 [] = "STOMP 1";
 char Butt2 [] = "STOMP 2";
@@ -199,19 +196,19 @@ const int alpha [] {65, 66, 67, 68};
 int faderValue [4] = {0,0,0,0};
 
 /*Menu structure*/
-Menu mu1("EXTERNAL FX HOST");
+Menu mu1("FX HOST NUMBERING");
 Menu mu2("STOMP CC SELECT");
 Menu mu3("FADER CC SELECT");
 MenuItem mm_mi0 ("SNAPSHOT DELAY", &on_itemGLOBAL_selected);
 MenuItem mm_mi1 ("MIDI CHANNEL", &on_item0_selected);
 MenuItem mm_mi2 ("LED BRIGHTNESS", &on_itemLED_selected);
 MenuItem mu1_mi1("TONESTACK onSTAGE", &on_item1_selected);
-MenuItem mu1_mi2("TONESTACK MANAGER", &on_item2_selected);
-MenuItem mu1_mi3("BIAS FX", &on_item3_selected);
+MenuItem mu1_mi2(ZERO$, &on_item2_selected);
+MenuItem mu1_mi3(BIASFX$, &on_item3_selected);
 MenuItem mu1_mi4("AMPLITUBE", &on_item4_selected);
 MenuItem mu1_mi5("GUITAR RIG", &on_item5_selected);
-MenuItem mu1_mi6("LINE 6", &on_itemLINE6_selected);
-MenuItem mu1_mi7("AXE FX", &on_itemAXE_selected);
+MenuItem mu1_mi6(LINE_6$, &on_itemLINE6_selected);
+MenuItem mu1_mi7(AXE_FX$, &on_itemAXE_selected);
 MenuItem mu2_mi1("STOMP 1", &on_item6_selected);
 MenuItem mu2_mi2("STOMP 2", &on_item7_selected);
 MenuItem mu2_mi3("STOMP 3", &on_item8_selected);
@@ -369,20 +366,17 @@ void presetNumberDisplayUpdate (int prog, int txtsize) {
     display.setFont (&FreeMonoBold24pt7b);
   }
   switch (storedSettings.PRESET) {
-    case TONESTACK_PRESET_MGR:
+    case 000_127:
       display.printf ("%03d", prog);
       break;
-    case TONESTACK_onSTAGE:
-    case AMPLITUBE:
-    case GUITAR_RIG:
-    case AXE:
+    case 001_128:
       display.printf ("%03d", (prog + 1));
       break;
-    case BIASFX:
+    case BIAS_FX:
       if (prog >= 32) {
         prog = 31;
       }
-      case LINE6:
+      case LINE_6:
       int number = ((prog + 4) / 4);
       int letter = ((prog + 4) % 4);
       display.printf ("%d%c", number, alpha [letter]);
@@ -1009,7 +1003,7 @@ void on_item2_selected(MenuItem * p_menu_item)
 }
 void on_item3_selected(MenuItem * p_menu_item)
 {
-  storedSettings.PRESET = BIASFX;
+  storedSettings.PRESET = BIAS_FX;
   my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
@@ -1027,13 +1021,13 @@ void on_item5_selected(MenuItem * p_menu_item)
 }
 void on_itemLINE6_selected(MenuItem * p_menu_item)
 {
-  storedSettings.PRESET = LINE6;
+  storedSettings.PRESET = LINE_6;
   my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
 void on_itemAXE_selected(MenuItem * p_menu_item)
 {
-  storedSettings.PRESET = AXE;
+  storedSettings.PRESET = AXE_FX;
   my_flash_store.write(storedSettings);
   ENCMODE = PROG;
 }
