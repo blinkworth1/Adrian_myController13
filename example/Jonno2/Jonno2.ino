@@ -204,7 +204,7 @@ MenuItem mm_mi1 ("MIDI CHANNEL", &on_item0_selected);
 MenuItem mm_mi2 ("LED BRIGHTNESS", &on_itemLED_selected);
 MenuItem mu1_mi1("TONESTACK onSTAGE", &on_item1_selected);
 MenuItem mu1_mi2(ZERO$, &on_item2_selected);
-MenuItem mu1_mi3(BIASFX$, &on_item3_selected);
+MenuItem mu1_mi3(BIAS_FX$, &on_item3_selected);
 MenuItem mu1_mi4("AMPLITUBE", &on_item4_selected);
 MenuItem mu1_mi5("GUITAR RIG", &on_item5_selected);
 MenuItem mu1_mi6(LINE_6$, &on_itemLINE6_selected);
