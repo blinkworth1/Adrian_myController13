@@ -131,8 +131,8 @@ void on_item0_selected(MenuItem* p_menu_item);
 void on_item1_selected(MenuItem* p_menu_item);
 void on_item2_selected(MenuItem* p_menu_item);
 void on_item3_selected(MenuItem* p_menu_item);
-void on_item4_selected(MenuItem* p_menu_item);
-void on_item5_selected(MenuItem* p_menu_item);
+//void on_item4_selected(MenuItem* p_menu_item);
+//void on_item5_selected(MenuItem* p_menu_item);
 void on_itemLINE6_selected(MenuItem* p_menu_item);
 void on_itemAXE_selected(MenuItem* p_menu_item);
 void on_back1_item_selected (MenuItem* p_menu_item);
@@ -225,9 +225,7 @@ void setup() {
   delay(500);
   ble.begin(true); // If set to 'true' enables debug output
   ble.echo(false);
-  if ( ! midi.begin(true) ) {
-    Serial.println("Could not enable MIDI");
-  }
+  midi.begin(true) );
   ble.verbose(false);
 
   /*FlashStorage management*/
@@ -317,7 +315,7 @@ void setup() {
   delay (500);
   display.setCursor(0, 4);
   display.setTextSize(1);
-  display.println("current host:");
+  display.println("current preset numbering:");
   display.setCursor(0, 25);
   display.setTextSize(2);
   display.println((presetArrayDisplayUpdate [storedSettings.PRESET]) );
@@ -388,12 +386,13 @@ void presetNumberDisplayUpdate (int prog, int txtsize) {
 void buttpressDisplayUpdate (void) {
   display.clearDisplay();
   display.setFont ();
-  display.setCursor(0, 3);
+  display.setCursor(0, 4);
   display.setTextColor(WHITE);
   display.setTextSize(1);
   for (int i = 0; i < 4; i++) {
     display.setFont ();
     display.printf("%s",peripheralArrayDisplayUpdate [i]);
+    display.setFont (&FreeMono7pt7b);
     if (buttOnOff[i] == buttOn) {
       display.printf("%s%s\n\n","   ",buttOnOff[i]);
     }
@@ -413,6 +412,7 @@ void fademoveDisplayUpdate (void) {
   for (int i = 4; i < 8; i++) {
     display.setFont ();
     display.printf("%s",peripheralArrayDisplayUpdate [i]);
+    display.setFont (&FreeMono7pt7b);
     display.printf("%s%03d\n\n","   ",faderValue[i - 4]);
   }
 display.display();
@@ -455,11 +455,11 @@ void editMenuDisplayUpdate (void) {
 void connected(void)
 {
   isConnected = true;
-  Serial.println("CONNECTED!");
+  //Serial.println("CONNECTED!");
 }
 void disconnected(void)
 {
-  Serial.println("disconnected");
+  //Serial.println("disconnected");
   isConnected = false;
 }
 
