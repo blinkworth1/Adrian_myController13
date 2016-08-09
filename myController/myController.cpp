@@ -5,8 +5,8 @@
 uint8_t Rotary::objectIndex = 0;
 uint8_t Fader::objectIndex = 0;
 Switches *Sobj;
-Rotary * RobjArray[4] {NULL, NULL, NULL, NULL};
-Fader * FobjArray[4] {NULL, NULL, NULL, NULL};
+Rotary * RobjArray[16] {};
+Fader * FobjArray[16] {};
 const int8_t encState [16] {0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0};
 //elapsedMicros RotaryTimer;
 elapsedMillis FaderTimer;
