@@ -388,15 +388,16 @@ void buttpressDisplayUpdate (void) {
   display.setCursor(0, 4);
   display.setTextColor(WHITE);
   display.setTextSize(1);
+  display.printf("%s\n\n","STOMPS",
   for (int i = 0; i < 4; i++) {
     display.setFont ();
-    display.printf("%s",peripheralArrayDisplayUpdate [i]);
+    display.printf("%d%s",i," -");
     display.setFont (&FreeMono7pt7b);
-    if (buttOnOff[i] == buttOn) {
-      display.printf("%s%s\n\n","   ",buttOnOff[i]);
+    if (buttOnOff[i] == buttOff) {
+      display.printf("%s%s\n","   ",buttOnOff[i]);
     }
     else {
-      display.printf("%s%s\n\n","      ", buttOnOff[i]);
+      display.printf("%s%s\n","      ", buttOnOff[i]);
     }
   }
   display.display();
