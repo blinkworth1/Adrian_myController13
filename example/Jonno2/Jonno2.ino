@@ -223,7 +223,7 @@ void setup() {
   delay(500);
   ble.begin(true); // If set to 'true' enables debug output
   ble.echo(false);
-  midi.begin(true) );
+  midi.begin(true);
   ble.verbose(false);
 
   /*FlashStorage management*/
@@ -388,11 +388,11 @@ void buttpressDisplayUpdate (void) {
   display.setCursor(0, 4);
   display.setTextColor(WHITE);
   display.setTextSize(1);
-  display.printf("%s\n\n","STOMPS",
+  display.printf("%s\n\n","STOMPS");
   for (int i = 0; i < 4; i++) {
     display.setFont ();
     display.printf("%d%s",i," -");
-    display.setFont (&FreeMono7pt7b);
+    display.setFont (&FreeMono9pt7b);
     if (buttOnOff[i] == buttOff) {
       display.printf("%s%s\n","   ",buttOnOff[i]);
     }
@@ -412,7 +412,7 @@ void fademoveDisplayUpdate (void) {
   for (int i = 4; i < 8; i++) {
     display.setFont ();
     display.printf("%s",peripheralArrayDisplayUpdate [i]);
-    display.setFont (&FreeMono7pt7b);
+    display.setFont (&FreeMono9pt7b);
     display.printf("%s%03d\n\n","   ",faderValue[i - 4]);
   }
 display.display();
