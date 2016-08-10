@@ -80,14 +80,14 @@ const unsigned char mybitmap [] PROGMEM = {
 #define OLED_DATA   20 //i2c pins for Feather, for display
 #define OLED_CLK    21
 #define OLED_RESET  5
-Fader slider1 (A0, 10); //Feather pins and jitter suppression amount
-Fader slider2 (A1, 10);
-Fader slider3 (A4, 10);
-Fader slider4 (A5, 10);
+Fader slider1 (A1, 10); //Feather pins and jitter suppression amount
+Fader slider2 (A2, 10);
+Fader slider3 (A3, 10);
+//Fader slider4 (ARf, 10);
 Rotary encoder1 (0, 1); // 0 and 1 are Feather pin numbers, left and right, for the rotary encoder
-Switches Buttons (16, 17, 10, 11, 12, 13); //16 and 17 are select and edit, respectively, and 10 thru 13 stomp pins, for Feather
+Switches Buttons (6, 9, 10, 11, 12, 13); //16 and 17 are select and edit, respectively, and 10 thru 13 stomp pins, for Feather
 
-Adafruit_BluefruitLE_SPI ble(8, 7, 6); //these are internal connections, don't worry about them.
+Adafruit_BluefruitLE_SPI ble(4, 7, 8); //these are internal connections, don't worry about them.
 Adafruit_BLEMIDI midi(ble);
 Adafruit_SSD1306 display(OLED_RESET);
 Adafruit_SSD1306 * dptr = &display;
@@ -256,12 +256,12 @@ void setup() {
   slider2.SetHandleDecrease (slider2Dec);
   slider3.SetHandleIncrease (slider3Inc);
   slider3.SetHandleDecrease (slider3Dec);
-  slider4.SetHandleIncrease (slider4Inc);
-  slider4.SetHandleDecrease (slider4Dec);
+//  slider4.SetHandleIncrease (slider4Inc);
+//  slider4.SetHandleDecrease (slider4Dec);
   slider1.SetHandleSame (slider1SAME);
   slider2.SetHandleSame (slider2SAME);
   slider3.SetHandleSame (slider3SAME);
-  slider4.SetHandleSame (slider3SAME);
+//  slider4.SetHandleSame (slider3SAME);
   ms.get_root_menu().add_menu(&mu1);
   ms.get_root_menu().add_menu(&mu2);
   ms.get_root_menu().add_menu(&mu3);
