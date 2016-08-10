@@ -85,7 +85,7 @@ Fader slider2 (A2, 10);
 Fader slider3 (A3, 10);
 //Fader slider4 (ARf, 10);
 Rotary encoder1 (0, 1); // 0 and 1 are Feather pin numbers, left and right, for the rotary encoder
-Switches Buttons (6, 9, 10, 11, 12, 13); //16 and 17 are select and edit, respectively, and 10 thru 13 stomp pins, for Feather
+Switches Buttons (6, 10, 11, 12, 13, 14); //6 and 10 are select and edit, respectively, and 11 thru 14 stomp pins, for Feather
 
 Adafruit_BluefruitLE_SPI ble(4, 7, 8); //these are internal connections, don't worry about them.
 Adafruit_BLEMIDI midi(ble);
