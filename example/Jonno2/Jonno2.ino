@@ -409,12 +409,11 @@ void fademoveDisplayUpdate (void) {
   display.setCursor(0, 4);
   display.setTextColor(WHITE);
   display.setTextSize(1);
-  for (int i = 4; i < 8; i++) {
+  display.printf("%s\n\n","STOMPS");
     display.setFont ();
-    display.printf("%s",peripheralArrayDisplayUpdate [i]);
+    display.printf("%s\n\n","3 -                 1 -");
+    display.printf("%s","4 -                 2 -");
     display.setFont (&FreeMono9pt7b);
-    display.printf("%s%03d\n\n","   ",faderValue[i - 4]);
-  }
 display.display();
 }
 
