@@ -83,8 +83,8 @@ const unsigned char mybitmap [] PROGMEM = {
 Fader slider1 (A1, 10); //Feather pins and jitter suppression amount
 Fader slider2 (A2, 10);
 Fader slider3 (A3, 10);
-//Fader slider4 (ARf, 10);
-Rotary encoder1 (0, 1); // 0 and 1 are Feather pin numbers, left and right, for the rotary encoder
+Fader slider4 (A8, 10);
+Rotary encoder1 (18, 19); // left and right
 Switches Buttons (6, 10, 11, 12, 13, 14); //6 and 10 are select and edit, respectively, and 11 thru 14 stomp pins, for Feather
 
 Adafruit_BluefruitLE_SPI ble(4, 7, 8); //these are internal connections, don't worry about them.
@@ -135,17 +135,14 @@ void on_item3_selected(MenuItem* p_menu_item);
 //void on_item5_selected(MenuItem* p_menu_item);
 void on_itemLINE6_selected(MenuItem* p_menu_item);
 void on_itemAXE_selected(MenuItem* p_menu_item);
-//void on_back1_item_selected (MenuItem* p_menu_item);
 void on_item6_selected(MenuItem* p_menu_item);
 void on_item7_selected(MenuItem* p_menu_item);
 void on_item8_selected(MenuItem* p_menu_item);
 void on_item9_selected(MenuItem* p_menu_item);
-//void on_back2_item_selected (MenuItem* p_menu_item);
 void on_item10_selected(MenuItem* p_menu_item);
 void on_item11_selected(MenuItem* p_menu_item);
 void on_item12_selected(MenuItem* p_menu_item);
 void on_item13_selected(MenuItem* p_menu_item);
-//void on_back3_item_selected (MenuItem* p_menu_item);
 void SelectPress (void);
 void SelectRelease (void);
 void Left (void);
@@ -256,12 +253,12 @@ void setup() {
   slider2.SetHandleDecrease (slider2Dec);
   slider3.SetHandleIncrease (slider3Inc);
   slider3.SetHandleDecrease (slider3Dec);
-//  slider4.SetHandleIncrease (slider4Inc);
-//  slider4.SetHandleDecrease (slider4Dec);
+  slider4.SetHandleIncrease (slider4Inc);
+  slider4.SetHandleDecrease (slider4Dec);
   slider1.SetHandleSame (slider1SAME);
   slider2.SetHandleSame (slider2SAME);
   slider3.SetHandleSame (slider3SAME);
-//  slider4.SetHandleSame (slider3SAME);
+  slider4.SetHandleSame (slider3SAME);
   ms.get_root_menu().add_menu(&mu1);
   ms.get_root_menu().add_menu(&mu2);
   ms.get_root_menu().add_menu(&mu3);

@@ -293,7 +293,7 @@ void Fader::ReadWrite() {
 	if ((FaderTimer - 167) >= 0) {
 		FaderTimer = 0;
 		FaderRead();
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < Fader::objectIndex; i++) {
 			if (FobjArray[i]) {
 				if (FobjArray[i]->currentPinRead > (FobjArray[i]->hystPinRead + FobjArray[i]->hyst))
 				{
