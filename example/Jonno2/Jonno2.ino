@@ -80,11 +80,11 @@ const unsigned char mybitmap [] PROGMEM = {
 #define OLED_DATA   20 //i2c pins for Feather, for display
 #define OLED_CLK    21
 #define OLED_RESET  5
-Fader slider1 (A1, 10); //Feather pins and jitter suppression amount
-Fader slider2 (A2, 10);
-Fader slider3 (A3, 10);
-Fader slider4 (A8, 10);
-Rotary encoder1 (18, 19); // left and right
+Fader slider1 (A8, 10); //Feather pins and jitter suppression amount
+Fader slider2 (A2, 20);
+Fader slider3 (A3, 20);
+Fader slider4 (A4, 20);
+Rotary encoder1 (15, 19); // left and right
 Switches Buttons (6, 10, 11, 12, 13, 14); //6 and 10 are select and edit, respectively, and 11 thru 14 stomp pins, for Feather
 
 Adafruit_BluefruitLE_SPI ble(4, 7, 8); //these are internal connections, don't worry about them.
@@ -118,6 +118,7 @@ uint8_t lcount = 0;
 uint8_t rcount = 0;
 bool GLOBALRESET [4] = {true, true, true, true};
 bool INIT = true;
+bool INIT2 []= {true, true,true, true};
 bool isConnected = false;
 bool EXIT = false;
 
@@ -194,7 +195,7 @@ const int alpha [] {65, 66, 67, 68};
 int faderValue [4] = {0,0,0,0};
 
 /*Menu structure*/
-Menu mu1("FX HOST NUMBERING");
+Menu mu1("PRESET NUMBERING");
 Menu mu2("STOMP CC SELECT");
 Menu mu3("FADER CC SELECT");
 MenuItem mm_mi0 ("SNAPSHOT DELAY", &on_itemGLOBAL_selected);
@@ -218,10 +219,10 @@ void setup() {
   /*BLE setup and debug*/
   Serial.begin(38400);
   delay(500);
-  ble.begin(true); // If set to 'true' enables debug output
-  ble.echo(false);
-  midi.begin(true);
-  ble.verbose(false);
+ ble.begin(true); // If set to 'true' enables debug output
+ ble.echo(false);
+ midi.begin(true);
+ ble.verbose(false);
 
   /*FlashStorage management*/
   displayUpdate = my_flash_store.read();
@@ -235,8 +236,8 @@ void setup() {
 
   // midiA.begin();
   /*set callbacks*/
-  ble.setConnectCallback(connected);
-  ble.setDisconnectCallback(disconnected);
+ble.setConnectCallback(connected);
+ble.setDisconnectCallback(disconnected);
   encoder1.SetHandleLeft (Left);
   encoder1.SetHandleRight (Right);
   Buttons.SetHandleB1ON (SelectPress);
@@ -310,9 +311,10 @@ void setup() {
   delay (500);
   display.setCursor(0, 4);
   display.setTextSize(1);
-  display.println("current preset numbering:");
-  display.setCursor(0, 25);
-  display.setTextSize(2);
+  display.printf(%s\n\n"preset numbering:");
+        display.setCursor(0, 25);
+        display.setFont (&FreeMono12pt7b);
+  //display.setTextSize(2);
   display.println((presetArrayDisplayUpdate [storedSettings.PRESET]) );
   display.display();
   delay (2500);
@@ -322,7 +324,7 @@ void setup() {
 }
 
 void loop() {
-  ble.update(500); // interval for each scanning ~ 500ms (non blocking)
+ ble.update(500); // interval for each scanning ~ 500ms (non blocking)
   Rotary::ReadWrite();
   Switches::ReadWrite();
   Fader::ReadWrite();
@@ -406,11 +408,11 @@ void fademoveDisplayUpdate (void) {
   display.setCursor(0, 4);
   display.setTextColor(WHITE);
   display.setTextSize(1);
-  display.printf("%s\n\n","STOMPS");
+  display.printf("%s\n\n\n","FADERS");
     display.setFont ();
-    display.printf("%s\n\n","3 -                 1 -");
-    display.printf("%s","4 -                 2 -");
-    display.setFont (&FreeMono9pt7b);
+    display.printf("%s%03d%s%03d\n\n","3 - ",faderValue[2],"       1 - ",faderValue[0]);
+    display.printf("%s%03d%s%03d\n\n","4 - ",faderValue[3],"       2 - ",faderValue[1]);
+    //display.setFont (&FreeMono9pt7b);
 display.display();
 }
 
@@ -504,9 +506,10 @@ void SelectRelease (void) {
         display.setFont ();
         display.setCursor(0, 4);
         display.setTextSize(1);
-        display.println("host selected:");
+        display.printf(%s\n\n"preset numbering:");
         display.setCursor(0, 25);
-        display.setTextSize(2);
+        display.setFont (&FreeMono12pt7b);
+        //display.setTextSize(2);
         display.println((presetArrayDisplayUpdate [storedSettings.PRESET]) );
         display.display();
         delay (2500);
@@ -611,12 +614,11 @@ void EditRelease (void) {
           EXIT = false;
         }
         else if (time < 0) {
+          delay (200);
           GLOBALRESET [0] = true;
           GLOBALRESET [1] = true;
           GLOBALRESET [2] = true;
           GLOBALRESET [3] = true;
-          delay(300);
-          Fader::ReadWrite();
           display.clearDisplay();
           display.setFont();
           display.setTextSize(2);
@@ -775,7 +777,7 @@ void Right (void) {
   rcount++;
   if (rcount > 1) {
     rcount = 0;
-    lcount = 0;
+   lcount = 0;
     switch (ENCMODE) {
       case PROG:
         displayUpdate.program++;
@@ -848,7 +850,9 @@ void faderCallback (int index, int currentValue) {
   int mappedValue = map (currentValue, 0, 1023, 0, 127);
     CCbleTXmidi(index + 4, mappedValue);
     faderValue [index] = mappedValue;
-  ENCMODE = FADEMOVE;
+    GLOBALRESET [index] = false;
+  if (INIT2[index]) {INIT2[index] = false; return;}
+    ENCMODE = FADEMOVE;
   fademoveDisplayUpdate();
 }
 void slider1Inc (int currentValue) {

@@ -5,8 +5,8 @@
 uint8_t Rotary::objectIndex = 0;
 uint8_t Fader::objectIndex = 0;
 Switches *Sobj;
-Rotary * RobjArray[16] {};
-Fader * FobjArray[16] {};
+Rotary * RobjArray[4] {NULL, NULL, NULL, NULL};
+Fader * FobjArray[4] {NULL, NULL, NULL, NULL};
 const int8_t encState [16] {0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0};
 //elapsedMicros RotaryTimer;
 elapsedMillis FaderTimer;
@@ -191,34 +191,11 @@ void Rotary::SetHandleRight (void (*Right) (void)) {
 }
 
 void Rotary::ReadWrite() {
-	//if ((RotaryTimer - 319) >= 0) {
-	//	RotaryTimer = 0;
 		RotaryRead();
 		for (int i = 0; i < Rotary::objectIndex; i++) {
-			if (RobjArray[i]) {
-				RobjArray[i]->rotaryA <<= 1;
-				RobjArray[i]->rotaryB <<= 1;
-				RobjArray[i]->rotaryA |= RobjArray[i]->rotaryAraw;
-				RobjArray[i]->rotaryB |= RobjArray[i]->rotaryBraw;
-				RobjArray[i]->RDDB = 0;
-				RobjArray[i]->rotaryA &= 0x07;
-				RobjArray[i]->rotaryB &= 0x07;
-				if (RobjArray[i]->rotaryA == 7) {
-					RobjArray[i]->RDDB = 1;
-				}
-				else if (RobjArray[i]->rotaryA == 0) {}
-				else {
-					return;
-				}
-				if (RobjArray[i]->rotaryB == 7) {
-					RobjArray[i]->RDDB |= (1 << 1);
-				}
-				else if (RobjArray[i]->rotaryB == 0) {}
-				else {
-					return;
-				}
+			if (RobjArray[i]) {			
 				RobjArray[i]->rotaryData <<= 2;
-				RobjArray[i]->rotaryData |= RobjArray[i]->RDDB;
+				RobjArray[i]->rotaryData |= (RobjArray[i]->rotaryBraw <<1) | RobjArray[i]->rotaryAraw;
 				RobjArray[i]->rotaryState = (encState[(RobjArray[i]->rotaryData & 0x0F)]);
 				if (RobjArray[i]->rotaryState > 0) {
 					if (RobjArray[i]->pLeft) {
@@ -232,7 +209,6 @@ void Rotary::ReadWrite() {
 				}
 			}
 		}
-	//}
 }
 
 void Rotary::RotaryRead () {
@@ -270,7 +246,7 @@ void Fader::SetHandleTouchOFF(void(*ptr) (int)) {
 	pTouchOFF = ptr;
 }
 
-Fader::Fader(uint8_t wiper, uint8_t hysteresis) {
+Fader::Fader(uint8_t wiper, int hysteresis) {
 	FobjArray[Fader::objectIndex] = this;
 	Fader::objectIndex++;
 	wiperPin = wiper;
@@ -293,7 +269,7 @@ void Fader::ReadWrite() {
 	if ((FaderTimer - 167) >= 0) {
 		FaderTimer = 0;
 		FaderRead();
-		for (int i = 0; i < Fader::objectIndex; i++) {
+		for (int i = 0; i < 4; i++) {
 			if (FobjArray[i]) {
 				if (FobjArray[i]->currentPinRead > (FobjArray[i]->hystPinRead + FobjArray[i]->hyst))
 				{

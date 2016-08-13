@@ -94,9 +94,9 @@ class
     bool begin;
     void (*pLeft) (void) = NULL;
     void (*pRight) (void) = NULL;
-    uint8_t RDDB;
-    uint8_t rotaryA;
-    uint8_t rotaryB;
+    //uint8_t RDDB;
+    //uint8_t rotaryA;
+    //uint8_t rotaryB;
     uint8_t rotaryData;
     int8_t rotaryState;
     uint8_t rotaryAraw;
@@ -107,7 +107,7 @@ class
 class
 	Fader {
 public:
-	Fader (uint8_t, uint8_t);
+	Fader (uint8_t, int);
 	void begin(uint8_t, int, uint8_t, uint8_t, uint8_t);
 	void Motor(int);
 	void Halt();
@@ -128,7 +128,7 @@ private:
 	void(*pTouchOFF) (int) = NULL;
 	uint8_t wiperPin;
 	uint8_t touchPin;
-	uint8_t hyst;
+	int hyst;
 	int touchthreshold;
 	int hystPinRead;
 	int currentPinRead = 600;
