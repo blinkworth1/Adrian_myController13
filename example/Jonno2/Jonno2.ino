@@ -116,7 +116,6 @@ FlashStorage(my_flash_store, Settings);
 
 uint8_t lcount = 0;
 uint8_t rcount = 0;
-bool GLOBALRESET [4] = {true, true, true, true};
 bool INIT = true;
 bool INIT2 []= {true, true,true, true};
 bool isConnected = false;
@@ -259,7 +258,7 @@ ble.setDisconnectCallback(disconnected);
   slider1.SetHandleSame (slider1SAME);
   slider2.SetHandleSame (slider2SAME);
   slider3.SetHandleSame (slider3SAME);
-  slider4.SetHandleSame (slider3SAME);
+  slider4.SetHandleSame (slider4SAME);
   ms.get_root_menu().add_menu(&mu1);
   ms.get_root_menu().add_menu(&mu2);
   ms.get_root_menu().add_menu(&mu3);
@@ -387,7 +386,7 @@ void buttpressDisplayUpdate (void) {
   display.setCursor(0, 4);
   display.setTextColor(WHITE);
   display.setTextSize(1);
-  display.printf("%s\n\n","STOMPS");
+  display.printf("%s\n","STOMPS");
   for (int i = 0; i < 4; i++) {
     display.setFont ();
     display.printf("%d%s",i," -");
@@ -494,10 +493,10 @@ void SelectRelease (void) {
       presetNumberDisplayUpdate (storedSettings.program, 4);
       display.display();
       delay (storedSettings.msdelay);
-      GLOBALRESET [0] = true;
-      GLOBALRESET [1] = true;
-      GLOBALRESET [2] = true;
-      GLOBALRESET [3] = true;
+      for (int i = 0; i < 4; i++) {
+      CCbleTXmidi (int storedSettings.CCnumber [i + 4], int faderValue[i])
+      }
+      //global reset
       break;
     case EDITMENU:
       ms.select();
@@ -615,10 +614,9 @@ void EditRelease (void) {
         }
         else if (time < 0) {
           delay (200);
-          GLOBALRESET [0] = true;
-          GLOBALRESET [1] = true;
-          GLOBALRESET [2] = true;
-          GLOBALRESET [3] = true;
+        for (int i = 0; i < 4; i++) {
+      CCbleTXmidi (int storedSettings.CCnumber [i + 4], int faderValue[i])
+      }
           display.clearDisplay();
           display.setFont();
           display.setTextSize(2);
@@ -651,9 +649,9 @@ void EditRelease (void) {
       break;
   }
 }
-void CCbleTXmidi (int CCnumber, int Value) {
+void CCbleTXmidi (int CC, int Value) {
   if (isConnected) {
-  midi.send(0xB0 + (storedSettings.channel - 1), storedSettings.CCnumber[CCnumber], Value);
+  midi.send(0xB0 + (storedSettings.channel - 1), storedSettings.CCnumber[CC], Value);
   }
 }
 void Stomp1ON(void) {
@@ -846,66 +844,55 @@ void Right (void) {
 }
 
 /*Fader Callbacks*/
-void faderCallback (int index, int currentValue) {
-  int mappedValue = map (currentValue, 0, 1023, 0, 127);
-    CCbleTXmidi(index + 4, mappedValue);
-    faderValue [index] = mappedValue;
-    GLOBALRESET [index] = false;
+void faderCallback (int index) {
   if (INIT2[index]) {INIT2[index] = false; return;}
-    ENCMODE = FADEMOVE;
+     CCbleTXmidi(index + 4, faderValue[index]);
+     ENCMODE = FADEMOVE;
   fademoveDisplayUpdate();
 }
 void slider1Inc (int currentValue) {
-    faderCallback (0, currentValue);  
+faderValue [0] = map (currentValue, 0, 1023, 0, 127);
+faderCallback (0);  
 }
 void slider1Dec (int currentValue) {
-    faderCallback (0, currentValue);
+faderValue [0] = map (currentValue, 0, 1023, 0, 127);
+faderCallback (0);
 }
 void slider2Inc (int currentValue) {
-faderCallback (1, currentValue);
+faderValue [1] = map (currentValue, 0, 1023, 0, 127);
+faderCallback (1);
 }
 void slider2Dec (int currentValue) {
-faderCallback (1, currentValue);
+faderValue [1] = map (currentValue, 0, 1023, 0, 127);
+faderCallback (1);
 }
 void slider3Inc (int currentValue) {
-faderCallback (2, currentValue);
+faderValue [2] = map (currentValue, 0, 1023, 0, 127);
+faderCallback (2);
 }
 void slider3Dec (int currentValue) {
-faderCallback (2, currentValue);
+faderValue [2] = map (currentValue, 0, 1023, 0, 127);
+faderCallback (2);
 }
 void slider4Inc (int currentValue) {
-faderCallback (3, currentValue);
+faderValue [3] = map (currentValue, 0, 1023, 0, 127);
+faderCallback (3);
 }
 void slider4Dec (int currentValue) {
-faderCallback (3, currentValue);
+faderValue [3] = map (currentValue, 0, 1023, 0, 127);
+faderCallback (3);
 }
 void slider1SAME (int currentValue) {
-  if (GLOBALRESET [0]) {
-    GLOBALRESET [0] = false;
-      CCbleTXmidi(4, map (currentValue, 0, 1023, 0, 127));
 faderValue [0] = map (currentValue, 0, 1023, 0, 127);
-  }
 } 
 void slider2SAME (int currentValue) {
-  if (GLOBALRESET[1]) {
-    GLOBALRESET[1] = false;
-      CCbleTXmidi(5, map (currentValue, 0, 1023, 0, 127));
 faderValue [1] = map (currentValue, 0, 1023, 0, 127);
-  }
 }
 void slider3SAME (int currentValue) {
-  if (GLOBALRESET[2]) {
-    GLOBALRESET[2] = false;
-      CCbleTXmidi(6, map (currentValue, 0, 1023, 0, 127));
 faderValue [2] = map (currentValue, 0, 1023, 0, 127);
-  }
 }
 void slider4SAME (int currentValue) {
-  if (GLOBALRESET[3]) {
-    GLOBALRESET[3] = false;
-      CCbleTXmidi(7, map (currentValue, 0, 1023, 0, 127));
 faderValue [3] = map (currentValue, 0, 1023, 0, 127);
-  }
 }
 
 /*Menu Callbacks*/
