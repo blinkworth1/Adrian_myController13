@@ -87,7 +87,7 @@ Fader slider4 (A4, 20);
 Rotary encoder1 (15, 19); // left and right
 Switches Buttons (6, 10, 11, 12, 13, 14); //6 and 10 are select and edit, respectively, and 11 thru 14 stomp pins, for Feather
 
-Adafruit_BluefruitLE_SPI ble(4, 7, 8); //these are internal connections, don't worry about them.
+Adafruit_BluefruitLE_SPI ble(8, 7, 4); //these are internal connections, don't worry about them.
 Adafruit_BLEMIDI midi(ble);
 Adafruit_SSD1306 display(OLED_RESET);
 Adafruit_SSD1306 * dptr = &display;
@@ -494,7 +494,7 @@ void SelectRelease (void) {
       display.display();
       delay (storedSettings.msdelay);
       for (int i = 0; i < 4; i++) {
-      CCbleTXmidi (int storedSettings.CCnumber [i + 4], int faderValue[i])
+      CCbleTXmidi (storedSettings.CCnumber [i + 4], faderValue[i]);
       }
       //global reset
       break;
@@ -615,7 +615,7 @@ void EditRelease (void) {
         else if (time < 0) {
           delay (200);
         for (int i = 0; i < 4; i++) {
-      CCbleTXmidi (int storedSettings.CCnumber [i + 4], int faderValue[i])
+      CCbleTXmidi (storedSettings.CCnumber [i + 4], faderValue[i]);
       }
           display.clearDisplay();
           display.setFont();
