@@ -391,10 +391,10 @@ void buttpressDisplayUpdate (void) {
     display.printf("%s%d%s","STOMP ",i+1," -");
     display.setFont (&FreeMono9pt7b);
     if (buttOnOff[i] == buttOff) {
-      display.printf("%s%s\n","   ",buttOnOff[i]);
+      display.printf("%s%s\n"," ",buttOnOff[i]);
     }
     else {
-      display.printf("%s%s\n","      ", buttOnOff[i]);
+      display.printf("%s%s\n","    ", buttOnOff[i]);
     }
   }
   display.display();
