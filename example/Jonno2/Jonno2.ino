@@ -76,16 +76,16 @@ const unsigned char mybitmap [] PROGMEM = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-#define pwm 9 // pwm pin for leds, for Feather
-#define OLED_DATA   20 //i2c pins for Feather, for display
+#define pwm 10 // pwm pin for leds
+#define OLED_DATA   20 //i2c pins for display
 #define OLED_CLK    21
 #define OLED_RESET  5
-Fader slider1 (A8, 10); //Feather pins and jitter suppression amount
-Fader slider2 (A2, 20);
-Fader slider3 (A3, 20);
-Fader slider4 (A4, 20);
-Rotary encoder1 (15, 19); // left and right
-Switches Buttons (6, 10, 11, 12, 13, 14); //6 and 10 are select and edit, respectively, and 11 thru 14 stomp pins, for Feather
+Fader slider1 (A8, 20); //aref and jitter suppression amount
+Fader slider2 (A3, 20);
+Fader slider3 (A4, 20);
+Fader slider4 (A7, 10);
+Rotary encoder1 (15, 16); // left and right
+Switches Buttons (6, 19, 11, 12, 13, 14); //6 and 19 are select and edit, respectively, and 11 thru 14 stomp pins, for Feather
 
 Adafruit_BluefruitLE_SPI ble(8, 7, 4); //these are internal connections, don't worry about them.
 Adafruit_BLEMIDI midi(ble);
@@ -350,7 +350,7 @@ void presetDisplayUpdate (void) {
     display.setCursor(84, 55);
     presetNumberDisplayUpdate(storedSettings.program, 2);
   }
-  display.display();
+  display.display();                                               
 }
 
 void presetNumberDisplayUpdate (int prog, int txtsize) {
@@ -386,10 +386,9 @@ void buttpressDisplayUpdate (void) {
   display.setCursor(0, 4);
   display.setTextColor(WHITE);
   display.setTextSize(1);
-  display.printf("%s\n","STOMPS");
   for (int i = 0; i < 4; i++) {
     display.setFont ();
-    display.printf("%d%s",i," -");
+    display.printf("%s%d%s","STOMP ",i+1," -");
     display.setFont (&FreeMono9pt7b);
     if (buttOnOff[i] == buttOff) {
       display.printf("%s%s\n","   ",buttOnOff[i]);
@@ -409,9 +408,21 @@ void fademoveDisplayUpdate (void) {
   display.setTextSize(1);
   display.printf("%s\n\n\n","FADERS");
     display.setFont ();
-    display.printf("%s%03d%s%03d\n\n","3 - ",faderValue[2],"       1 - ",faderValue[0]);
-    display.printf("%s%03d%s%03d\n\n","4 - ",faderValue[3],"       2 - ",faderValue[1]);
-    //display.setFont (&FreeMono9pt7b);
+    display.printf("%s","3 - ");
+    display.setFont (&FreeMono9pt7b);
+    display.printf("%03d",faderValue[2]);
+    display.setFont ();
+    display.printf("%s","  1 - ");
+    display.setFont (&FreeMono9pt7b);
+    display.printf("%03d\n",faderValue[0]);
+    display.setFont ();
+    display.printf("%s","4 - ");
+    display.setFont (&FreeMono9pt7b);
+    display.printf("%03d",faderValue[3]);
+    display.setFont ();
+    display.printf("%s","  2 - ");
+    display.setFont (&FreeMono9pt7b);
+    display.printf("%03d",faderValue[1]);
 display.display();
 }
 
@@ -766,7 +777,7 @@ void Left (void) {
           "LED BRIGHTNESS", " SELECT",
           "%02d", displayUpdate.rotary1mod / 10, storedSettings.rotary1mod / 10, true
         );
-        analogWrite (pwm, displayUpdate.rotary1mod);
+       analogWrite (pwm, displayUpdate.rotary1mod);
         break;
     }
   }
