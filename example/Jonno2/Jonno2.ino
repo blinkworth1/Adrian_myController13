@@ -359,7 +359,7 @@ void presetNumberDisplayUpdate (int prog, int txtsize) {
     display.setFont (&FreeMono12pt7b);
   }
   if (txtsize == 4) {
-    display.setFont (&FreeMonoBold24pt7b);
+    display.setFont (&FreeMono24pt7b);
   }
   switch (storedSettings.PRESET) {
     case ZERO:
@@ -408,7 +408,6 @@ void fademoveDisplayUpdate (void) {
   display.setTextColor(WHITE);
   display.setTextSize(1);
   display.printf("%s\n\n\n","- FADERS -");
-  
     display.setFont ();
     display.setCursor(0, 27);
     display.printf("%s","1 -");
@@ -442,7 +441,7 @@ void peripheralDisplayUpdate (char * heading, char * description, char *format, 
   display.setTextSize(1);
   display.printf("%s%s\n",heading, description);
   display.setCursor(0, 47);
-  display.setFont (&FreeMonoBold24pt7b);
+  display.setFont (&FreeMono24pt7b);
   display.printf (format, Update);
   if (current) {
     display.setFont ();
@@ -514,7 +513,7 @@ void SelectRelease (void) {
       display.display();
       delay (storedSettings.msdelay);
       for (int i = 0; i < 4; i++) {
-      CCbleTXmidi (storedSettings.CCnumber [i + 4], faderValue[i]);
+      CCbleTXmidi (i + 4, faderValue[i]);
       }
       //global reset
       break;
@@ -637,7 +636,7 @@ void EditRelease (void) {
         else if (time < 0) {
           delay (200);
         for (int i = 0; i < 4; i++) {
-      CCbleTXmidi (storedSettings.CCnumber [i + 4], faderValue[i]);
+      CCbleTXmidi (i + 4, faderValue[i]);
       }
           display.clearDisplay();
           display.setFont();
