@@ -80,10 +80,10 @@ const unsigned char mybitmap [] PROGMEM = {
 #define OLED_DATA   20 //i2c pins for display
 #define OLED_CLK    21
 #define OLED_RESET  5
-Fader slider1 (A8, 20); //aref and jitter suppression amount
+Fader slider1 (A8, 5); //aref and jitter suppression amount
 Fader slider2 (A3, 20);
 Fader slider3 (A4, 20);
-Fader slider4 (A7, 10);
+Fader slider4 (A7, 20);
 Rotary encoder1 (15, 16); // left and right
 Switches Buttons (6, 19, 11, 12, 13, 14); //6 and 19 are select and edit, respectively, and 11 thru 14 stomp pins, for Feather
 
@@ -110,7 +110,7 @@ typedef struct {
   int rotary1mod;
   Preset PRESET;
 } Settings;
-Settings storedSettings = {true, 200, 1, 9, {0, 1, 2, 3, 4, 5, 6, 7}, 200, ONE};
+Settings storedSettings = {true, 200, 1, 0, {21, 22, 23, 24, 31, 32, 33, 34}, 200, ONE};
 Settings displayUpdate;
 FlashStorage(my_flash_store, Settings);
 
@@ -171,7 +171,7 @@ const char ZERO$ [] = "000-127";
 const char ONE$ [] = "001-128";
 const char BIAS_FX$ [] = "1A-8D";
 const char LINE_6$ [] = "1A-32D";
-const char AXE_FX$ [] = "001.1-128.8";
+const char AXE_FX$ [] = "001-128    + SCENES";
 const char * presetArrayDisplayUpdate [5] {
   ZERO$, ONE$, BIAS_FX$, LINE_6$, AXE_FX$
 };
@@ -194,10 +194,10 @@ const int alpha [] {65, 66, 67, 68};
 int faderValue [4] = {0,0,0,0};
 
 /*Menu structure*/
-Menu mu1("PRESET NUMBERING");
+Menu mu1("PRESET FORMAT");
 Menu mu2("STOMP CC SELECT");
 Menu mu3("FADER CC SELECT");
-MenuItem mm_mi0 ("SNAPSHOT DELAY", &on_itemGLOBAL_selected);
+MenuItem mm_mi0 ("AUTO UPDATE DELAY", &on_itemGLOBAL_selected);
 MenuItem mm_mi1 ("MIDI CHANNEL", &on_item0_selected);
 MenuItem mm_mi2 ("LED BRIGHTNESS", &on_itemLED_selected);
 MenuItem mu1_mi1(ZERO$, &on_item1_selected);
@@ -308,20 +308,21 @@ ble.setDisconnectCallback(disconnected);
   delay (1000);
   display.clearDisplay();
   delay (500);
-  display.setCursor(0, 4);
+  display.setCursor(0, 0);
   display.setTextSize(1);
-  display.printf("%s","preset numbering:");
-        display.setCursor(0, 30);
-        display.setFont (&FreeMono12pt7b);
-  //display.setTextSize(2);
+  display.printf("%s","CURRENT");
+  display.setCursor(0, 12);
+  display.printf("%s","PRESET FORMAT:");
+  display.setCursor(0, 34);
+  display.setFont (&FreeMono9pt7b);
   display.println((presetArrayDisplayUpdate [storedSettings.PRESET]) );
   display.display();
-  delay (2500);
+  delay (2000);
   display.clearDisplay();
   delay (500);
   presetDisplayUpdate ();
 }
-
+        
 void loop() {
  ble.update(500); // interval for each scanning ~ 500ms (non blocking)
   Rotary::ReadWrite();
@@ -383,15 +384,15 @@ void presetNumberDisplayUpdate (int prog, int txtsize) {
 void buttpressDisplayUpdate (void) {
   display.clearDisplay();
   display.setFont ();
-  display.setCursor(0, 4);
+  display.setCursor(0, 3);
   display.setTextColor(WHITE);
   display.setTextSize(1);
   for (int i = 0; i < 4; i++) {
     display.setFont ();
-    display.printf("%s%d%s","STOMP ",i+1," -");
+    display.printf("%s%d%s","STOMP ",i+1," : ");
     display.setFont (&FreeMono9pt7b);
     if (buttOnOff[i] == buttOff) {
-      display.printf("%s%s\n"," ",buttOnOff[i]);
+      display.printf("%s%s\n","",buttOnOff[i]);
     }
     else {
       display.printf("%s%s\n","    ", buttOnOff[i]);
@@ -403,26 +404,34 @@ void buttpressDisplayUpdate (void) {
 void fademoveDisplayUpdate (void) {
   display.clearDisplay();
   display.setFont ();
-  display.setCursor(0, 4);
+  display.setCursor(34, 3);
   display.setTextColor(WHITE);
   display.setTextSize(1);
-  display.printf("%s\n\n\n","FADERS");
+  display.printf("%s\n\n\n","- FADERS -");
+  
     display.setFont ();
-    display.printf("%s","3 - ");
+    display.setCursor(0, 27);
+    display.printf("%s","1 -");
     display.setFont (&FreeMono9pt7b);
-    display.printf("%03d",faderValue[2]);
+    display.setCursor(21, 35);
+    display.printf("%03d",faderValue[0]);
+    display.setCursor(72, 35);
+    display.printf("%03d\n",faderValue[2]);
     display.setFont ();
-    display.printf("%s","  1 - ");
-    display.setFont (&FreeMono9pt7b);
-    display.printf("%03d\n",faderValue[0]);
+    display.setCursor(109, 27);
+    display.printf("%s","- 3");
+    
     display.setFont ();
-    display.printf("%s","4 - ");
+    display.setCursor(0, 55);
+    display.printf("%s","2 -");
     display.setFont (&FreeMono9pt7b);
+    display.setCursor(21, 63);
+    display.printf("%03d",faderValue[1]);
+    display.setCursor(72, 63);
     display.printf("%03d",faderValue[3]);
     display.setFont ();
-    display.printf("%s","  2 - ");
-    display.setFont (&FreeMono9pt7b);
-    display.printf("%03d",faderValue[1]);
+    display.setCursor(109, 55);
+    display.printf("%s","- 4");
 display.display();
 }
 
@@ -514,11 +523,13 @@ void SelectRelease (void) {
       if (ENCMODE == PROG) {
         display.clearDisplay();
         display.setFont ();
-        display.setCursor(0, 4);
+        display.setCursor(0, 0);
         display.setTextSize(1);
-        display.printf("%s","preset numbering:");
-        display.setCursor(0, 30);
-        display.setFont (&FreeMono12pt7b);
+        display.printf("%s","CURRENT");
+        display.setCursor(0, 12);
+        display.printf("%s","PRESET FORMAT:");
+        display.setCursor(0, 34);
+        display.setFont (&FreeMono9pt7b);
         //display.setTextSize(2);
         display.println((presetArrayDisplayUpdate [storedSettings.PRESET]) );
         display.display();
@@ -556,8 +567,8 @@ void SelectRelease (void) {
       my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       peripheralDisplayUpdate(
-        "SNAPSHOT DELAY", " STORED",
-        "%03d", displayUpdate.msdelay / 10, storedSettings.msdelay / 10, false
+        "UPDATE DELAY", " STORED",
+        "%02d", displayUpdate.msdelay / 10, storedSettings.msdelay / 10, false
       );
       delay (2500);
       editMenuDisplayUpdate ();
@@ -759,8 +770,8 @@ void Left (void) {
           displayUpdate.msdelay = 0;
         }
         peripheralDisplayUpdate(
-          "SNAPSHOT DELAY", " SELECT",
-          "%03d", displayUpdate.msdelay / 10, storedSettings.msdelay / 10, true
+          "UPDATE DELAY (ms x10)", "",
+          "%02d", displayUpdate.msdelay / 10, storedSettings.msdelay / 10, true
         );
         break;
       case BUTTPRESS:
@@ -830,8 +841,8 @@ void Right (void) {
           displayUpdate.msdelay = 1000;
         }
         peripheralDisplayUpdate(
-          "SNAPSHOT DELAY", " SELECT",
-          "%03d", displayUpdate.msdelay / 10, storedSettings.msdelay / 10, true
+          "UPDATE DELAY (ms x10)", "",
+          "%02d", displayUpdate.msdelay / 10, storedSettings.msdelay / 10, true
         );
         break;
       case BUTTPRESS:
@@ -919,8 +930,8 @@ void on_itemGLOBAL_selected(MenuItem * p_menu_item)
 {
   ENCMODE = GLOBAL;
   peripheralDisplayUpdate(
-    "SNAPSHOT DELAY", " SELECT",
-    "%03d", displayUpdate.msdelay / 10, storedSettings.msdelay / 10, true
+    "UPDATE DELAY (ms x10)", "",
+    "%02d", displayUpdate.msdelay / 10, storedSettings.msdelay / 10, true
   );
 }
 void on_item0_selected(MenuItem * p_menu_item)
