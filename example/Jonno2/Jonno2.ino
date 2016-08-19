@@ -80,12 +80,12 @@ const unsigned char mybitmap [] PROGMEM = {
 #define OLED_DATA   20 //i2c pins for display
 #define OLED_CLK    21
 #define OLED_RESET  5
-Fader slider1 (A8, 5); //aref and jitter suppression amount
-Fader slider2 (A3, 20);
-Fader slider3 (A4, 20);
-Fader slider4 (A7, 20);
-Rotary encoder1 (15, 16); // left and right
-Switches Buttons (6, 19, 11, 12, 13, 14); //6 and 19 are select and edit, respectively, and 11 thru 14 stomp pins, for Feather
+Fader slider1 (A8, 8); //aref and jitter suppression amount
+Fader slider2 (A2, 20);
+Fader slider3 (A3, 20);
+Fader slider4 (A4, 20);
+Rotary encoder1 (19, 0); // left and right
+Switches Buttons (6, 15, 11, 12, 13, 14); //6 and 15 are select and edit, respectively, and 11 thru 14 stomp pins, for Feather
 
 Adafruit_BluefruitLE_SPI ble(8, 7, 4); //these are internal connections, don't worry about them.
 Adafruit_BLEMIDI midi(ble);
