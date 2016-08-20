@@ -14,7 +14,6 @@ elapsedMicros SwitchesTimer;
 
 Switches::Switches (uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4, uint8_t pin5, uint8_t pin6) {
   numberOfSwitches = 6;
-  Sobj = this;
   switchesPinTable [0] = pin1;
   switchesPinTable [1] = pin2;
   switchesPinTable [2] = pin3;
@@ -27,7 +26,6 @@ Switches::Switches (uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4,
   uint8_t pin5, uint8_t pin6, uint8_t pin7, uint8_t pin8, uint8_t pin9, 
   uint8_t pin10, uint8_t pin11, uint8_t pin12, uint8_t pin13) {
   numberOfSwitches = 13;
-  Sobj = this;
   switchesPinTable [0] = pin1;
   switchesPinTable [1] = pin2;
   switchesPinTable [2] = pin3;
@@ -124,54 +122,51 @@ void Switches::SetHandleB13OFF(void(*fptr) (void)) {
 void Switches::ReadWrite() {
 	if ((SwitchesTimer - 500) > 0) {
 		SwitchesTimer = 0;
-		SwitchesRead();
-		for (int i = 0; i < Sobj->numberOfSwitches; i++)
+		
+switchesRaw = 0;	
+    if (begin) {
+       begin = false;
+       for (int i = 0; i < numberOfSwitches; i++) {
+    pinMode(switchesPinTable [i], INPUT_PULLUP );
+     }
+  }
+
+
+for (int i = 0; i < numberOfSwitches; i++)
 		{
-			Sobj->switchesArray[i] <<= 1;
-			Sobj->switchesArray[i] |= ((Sobj->switchesRaw >> i) & 0x001);
-			if ((Sobj->switchesArray[i] & 0x007) == 0x007) {
-				Sobj->switchesData &= ~(1 << i);
+#if defined (__MK20DX128__)
+switchesRaw |= ((digitalReadFast(switchesPinTable[i])) << i;
+#else
+switchesRaw |= (digitalRead(switchesPinTable[i])) << i  ;
+#endif
+switchesArray[i] <<= 1;
+switchesArray[i] |= ((switchesRaw >> i) & 0x001);
+			if ((switchesArray[i] & 0x007) == 0x007) {
+				switchesData &= ~(1 << i);
 			}
-			if ((Sobj->switchesArray[i] & 0x007) == 0x000) {
-				Sobj->switchesData |= (1 << i);
+			if ((switchesArray[i] & 0x007) == 0x000) {
+				switchesData |= (1 << i);
 			}
-			if (Sobj->switchesData & (1 << i)) {
-				if (!(Sobj->pressed & (1 << i))) {
-					if (Sobj->switchesPointersON[i]) {
-						Sobj->switchesPointersON[i]();
+			if (switchesData & (1 << i)) {
+				if (!(pressed & (1 << i))) {
+					if (switchesPointersON[i]) {
+						switchesPointersON[i]();
 					}
-					Sobj->pressed |= (1 << i);
+					pressed |= (1 << i);
 				}
 			}
 			else {
-				if (!(Sobj->switchesData & (1 << i))){
-					if (Sobj->pressed & (1 << i)) {
-						if (Sobj->switchesPointersOFF[i]) {
-							Sobj->switchesPointersOFF[i]();
+				if (!(switchesData & (1 << i))){
+					if (pressed & (1 << i)) {
+						if (switchesPointersOFF[i]) {
+						switchesPointersOFF[i]();
 						}
-						Sobj->pressed &= ~(1 << i);
+						pressed &= ~(1 << i);
 					}
 				}
 			}
 		}
 	}
-}
-void Switches::SwitchesRead () {
-Sobj->switchesRaw = 0;	
-    if (Sobj->begin) {
-       Sobj->begin = false;
-       for (int i = 0; i < Sobj->numberOfSwitches; i++) {
-    pinMode(Sobj->switchesPinTable [i], INPUT_PULLUP );
-     }
-  }
-for (int i = 0; i < Sobj->numberOfSwitches; i++) {
-
-#if defined (__MK20DX128__)
-		Sobj->switchesRaw |= ((digitalReadFast(Sobj->switchesPinTable[i])) << i  ;
-#else
-		Sobj->switchesRaw |= (digitalRead(Sobj->switchesPinTable[i])) << i  ;
-#endif
-        	}	
 }
 
 Rotary::Rotary (uint8_t left, uint8_t right) {
@@ -180,7 +175,6 @@ Rotary::Rotary (uint8_t left, uint8_t right) {
   leftPin = left;
   rightPin = right;
   begin=true;
-  
 }
 
 void Rotary::SetHandleLeft(void (*Left) (void)) {
@@ -191,9 +185,8 @@ void Rotary::SetHandleRight (void (*Right) (void)) {
 }
 
 void Rotary::ReadWrite() {
-		RotaryRead();
 		for (int i = 0; i < Rotary::objectIndex; i++) {
-			if (RobjArray[i]) {			
+		   RobjArray[i]->RotaryRead();			
 				RobjArray[i]->rotaryData <<= 2;
 				RobjArray[i]->rotaryData |= (RobjArray[i]->rotaryBraw <<1) | RobjArray[i]->rotaryAraw;
 				RobjArray[i]->rotaryState = (encState[(RobjArray[i]->rotaryData & 0x0F)]);
@@ -207,27 +200,23 @@ void Rotary::ReadWrite() {
 						RobjArray[i]->pRight();
 					}
 				}
-			}
+			
 		}
 }
 
 void Rotary::RotaryRead () {
-	for (int i = 0; i < Rotary::objectIndex; i++) {
-    if (RobjArray[i]) {
-	if (RobjArray[i]->begin) {
-	RobjArray[i]->begin=false;
-	pinMode(RobjArray[i]->leftPin, INPUT_PULLUP );
-  	pinMode(RobjArray[i]->rightPin, INPUT_PULLUP );
+	if (begin) {
+	begin=false;
+	pinMode(leftPin, INPUT_PULLUP );
+  	pinMode(rightPin, INPUT_PULLUP );
 	}
 #if defined (__MK20DX128__)
-	RobjArray[i]->rotaryAraw = digitalReadFast (RobjArray[i]->leftPin);
-      	RobjArray[i]->rotaryBraw = digitalReadFast (RobjArray[i]->rightPin);
+	rotaryAraw = digitalReadFast (leftPin);
+      	rotaryBraw = digitalReadFast (rightPin);
 #else
-        RobjArray[i]->rotaryAraw = digitalRead (RobjArray[i]->leftPin);
-      	RobjArray[i]->rotaryBraw = digitalRead (RobjArray[i]->rightPin);
+        rotaryAraw = digitalRead (leftPin);
+      	rotaryBraw = digitalRead (rightPin);
 #endif      
-    }
-  }
 }
 
 void Fader::SetHandleIncrease(void(*ptr) (int)) {
@@ -266,11 +255,10 @@ void Fader::begin(uint8_t touch, int touchthresh, uint8_t pwm, uint8_t dirD, uin
 }
 
 void Fader::ReadWrite() {
-	if ((FaderTimer - 167) >= 0) {
+	if ((FaderTimer - 100) >= 0) {
 		FaderTimer = 0;
-		FaderRead();
 		for (int i = 0; i < 4; i++) {
-			if (FobjArray[i]) {
+			FobjArray[i]->FaderRead(); 
 				if (FobjArray[i]->currentPinRead > (FobjArray[i]->hystPinRead + FobjArray[i]->hyst))
 				{
 					FobjArray[i]->currentPinRead = FobjArray[i]->hystPinRead;
@@ -305,22 +293,18 @@ void Fader::ReadWrite() {
 					}
 				}
 			}
-		}
+	
 	}
 }
 
 
 void Fader::FaderRead() {
-	for (int i = 0; i < Fader::objectIndex; i++) {
-		if (FobjArray[i]) {
-			FobjArray[i]->hystPinRead = analogRead(FobjArray[i]->wiperPin);
+	hystPinRead = analogRead(wiperPin);
 #if defined (__MK20DX128__)
-		if (FobjArray[i]->MOTOR) {
-			FobjArray[i]->touchPinRead = touchRead(FobjArray[i]->touchPin);
+		if (MOTOR) {
+touchPinRead = touchRead(touchPin);
 			}
 #endif
-		}
-	}
 }
 
 void Fader::Motor(int moveNo) {

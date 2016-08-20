@@ -9,7 +9,7 @@ class
     uint8_t, uint8_t, uint8_t, uint8_t, 
     uint8_t, uint8_t, uint8_t, uint8_t, 
     uint8_t, uint8_t);
-    static void ReadWrite();
+    void ReadWrite();
     void SetHandleB1ON (void (void));
     void SetHandleB1OFF (void (void));
     void SetHandleB2ON (void (void));
@@ -38,7 +38,6 @@ class
     void SetHandleB13OFF (void (void));
     uint8_t switchesPinTable [13];
  private:
-    static void SwitchesRead();
     bool begin;
     uint8_t switchesArray [13] = {0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007};
     uint16_t switchesRaw;
@@ -85,13 +84,16 @@ class
   Rotary {
   public:
     Rotary (uint8_t, uint8_t );
+Rotary () {};
     static uint8_t objectIndex;
     static void ReadWrite();
+volatile uint8_t rotaryAraw;
+    volatile uint8_t rotaryBraw;
     void SetHandleLeft (void (void));
     void SetHandleRight (void (void));
+void RotaryRead();
   private:
-    static void RotaryRead();
-    bool begin;
+    bool begin = true;
     void (*pLeft) (void) = NULL;
     void (*pRight) (void) = NULL;
     //uint8_t RDDB;
@@ -99,8 +101,7 @@ class
     //uint8_t rotaryB;
     uint8_t rotaryData;
     int8_t rotaryState;
-    uint8_t rotaryAraw;
-    uint8_t rotaryBraw;
+    
     uint8_t leftPin;
     uint8_t rightPin;
 };
@@ -112,7 +113,8 @@ public:
 	void Motor(int);
 	void Halt();
 	static void ReadWrite(); 
-	static uint8_t objectIndex;
+void FaderRead();
+static uint8_t objectIndex;
 	void SetHandleIncrease(void(int));
 	void SetHandleDecrease(void(int));
 	void SetHandleSame(void(int));
@@ -120,7 +122,7 @@ public:
 	void SetHandleTouchOFF(void(int));
 private:
 	bool MOTOR = false;	
-	static void FaderRead();
+	
 	void(*pIncrease) (int) = NULL;
 	void(*pDecrease) (int) = NULL;
 	void(*pSame) (int) = NULL;

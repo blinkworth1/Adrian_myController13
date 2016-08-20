@@ -326,7 +326,7 @@ ble.setDisconnectCallback(disconnected);
 void loop() {
  ble.update(500); // interval for each scanning ~ 500ms (non blocking)
   Rotary::ReadWrite();
-  Switches::ReadWrite();
+  Buttons.ReadWrite();
   Fader::ReadWrite();
 }
 
