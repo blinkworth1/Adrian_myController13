@@ -103,14 +103,14 @@ enum peripheral : uint8_t {Button1, Button2, Button3, Button4, Slider1, Slider2,
 peripheral PERIPHERAL;
 typedef struct {
   bool valid;
-  int msdelay;
+  float msdelay;
   int8_t channel;
   int16_t program;
   int16_t CCnumber [8];
   int rotary1mod;
   Preset PRESET;
 } Settings;
-Settings storedSettings = {true, 200, 1, 0, {21, 22, 23, 24, 31, 32, 33, 34}, 200, ONE};
+Settings storedSettings = {true, 200.0, 1, 0, {21, 22, 23, 24, 31, 32, 33, 34}, 200, ONE};
 Settings displayUpdate;
 FlashStorage(my_flash_store, Settings);
 
@@ -434,7 +434,7 @@ void fademoveDisplayUpdate (void) {
 display.display();
 }
 
-void peripheralDisplayUpdate (char * heading, char * description, char *format, int Update, int Stored, bool current) {
+template <typename T> void peripheralDisplayUpdate (char * heading, char * description, char *format, T Update, T Stored, bool current) {
   display.clearDisplay();
   display.setFont ();
   display.setCursor(0, 4);
@@ -567,7 +567,7 @@ void SelectRelease (void) {
       ENCMODE = EDITMENU;
       peripheralDisplayUpdate(
         "UPDATE DELAY", " STORED",
-        "%02d", displayUpdate.msdelay / 10, storedSettings.msdelay / 10, false
+        "%.1f", displayUpdate.msdelay / 1000.0, storedSettings.msdelay / 1000.0, false
       );
       delay (2500);
       editMenuDisplayUpdate ();
@@ -764,13 +764,13 @@ void Left (void) {
         );
         break;
       case GLOBAL:
-        displayUpdate.msdelay -= 100;
-        if (displayUpdate.msdelay <= 0) {
-          displayUpdate.msdelay = 0;
+        displayUpdate.msdelay -= 100.0;
+        if (displayUpdate.msdelay <= 0.0) {
+          displayUpdate.msdelay = 0.0;
         }
         peripheralDisplayUpdate(
-          "UPDATE DELAY (ms x10)", "",
-          "%02d", displayUpdate.msdelay / 10, storedSettings.msdelay / 10, true
+          "UPDATE DELAY (sec)", "",
+          "%.1f", displayUpdate.msdelay / 1000.0, storedSettings.msdelay / 1000.0, true
         );
         break;
       case BUTTPRESS:
@@ -835,13 +835,13 @@ void Right (void) {
         );
         break;
       case GLOBAL:
-        displayUpdate.msdelay += 100;
-        if (displayUpdate.msdelay >= 1000) {
-          displayUpdate.msdelay = 1000;
+        displayUpdate.msdelay += 100.0;
+        if (displayUpdate.msdelay >= 2000.0) {
+          displayUpdate.msdelay = 2000.0;
         }
         peripheralDisplayUpdate(
-          "UPDATE DELAY (ms x10)", "",
-          "%02d", displayUpdate.msdelay / 10, storedSettings.msdelay / 10, true
+          "UPDATE DELAY (sec)", "",
+          "%.1f", displayUpdate.msdelay / 1000.0, storedSettings.msdelay / 1000.0, true
         );
         break;
       case BUTTPRESS:
@@ -929,8 +929,8 @@ void on_itemGLOBAL_selected(MenuItem * p_menu_item)
 {
   ENCMODE = GLOBAL;
   peripheralDisplayUpdate(
-    "UPDATE DELAY (ms x10)", "",
-    "%02d", displayUpdate.msdelay / 10, storedSettings.msdelay / 10, true
+    "UPDATE DELAY (sec)", "",
+    "%.1f", displayUpdate.msdelay / 1000, storedSettings.msdelay / 1000, true
   );
 }
 void on_item0_selected(MenuItem * p_menu_item)
