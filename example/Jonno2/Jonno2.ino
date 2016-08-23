@@ -195,8 +195,10 @@ int faderValue [4] = {0,0,0,0};
 
 /*Menu structure*/
 Menu mu1("PRESET FORMAT");
-Menu mu2("STOMP CC SELECT");
-Menu mu3("FADER CC SELECT");
+Menu mu2("STOMP/FADER CC SELECT");
+Menu mu3("SCENE SELECT");
+Menu mu5("STOMP CC SELECT");
+Menu mu6("FADER CC SELECT");
 MenuItem mm_mi0 ("AUTO UPDATE DELAY", &on_itemGLOBAL_selected);
 MenuItem mm_mi1 ("MIDI CHANNEL", &on_item0_selected);
 MenuItem mm_mi2 ("LED BRIGHTNESS", &on_itemLED_selected);
@@ -218,7 +220,7 @@ void setup() {
   /*BLE setup and debug*/
   Serial.begin(38400);
   delay(500);
- ble.begin(true); // If set to 'true' enables debug output
+ ble.begin(false); // If set to 'true' enables debug output
  ble.echo(false);
  midi.begin(true);
  ble.verbose(false);
@@ -272,14 +274,16 @@ ble.setDisconnectCallback(disconnected);
   //mu1.add_item(&mu1_mi5);
   mu1.add_item(&mu1_mi6);
   mu1.add_item(&mu1_mi7);
-  mu2.add_item(&mu2_mi1);
-  mu2.add_item(&mu2_mi2);
-  mu2.add_item(&mu2_mi3);
-  mu2.add_item(&mu2_mi4);
-  mu3.add_item(&mu3_mi1);
-  mu3.add_item(&mu3_mi2);
-  mu3.add_item(&mu3_mi3);
-  mu3.add_item(&mu3_mi4);
+  mu2.add_menu(&mu5);
+  mu2.add_menu(&mu6);
+  mu5.add_item(&mu2_mi1);
+  mu5.add_item(&mu2_mi2);
+  mu5.add_item(&mu2_mi3);
+  mu5.add_item(&mu2_mi4);
+  mu6.add_item(&mu3_mi1);
+  mu6.add_item(&mu3_mi2);
+  mu6.add_item(&mu3_mi3);
+  mu6.add_item(&mu3_mi4);
   display.begin (SSD1306_SWITCHCAPVCC, 0x3D);
   display.clearDisplay();
   display.setTextColor(WHITE);
@@ -511,9 +515,11 @@ void SelectRelease (void) {
       display.setCursor(22, 50);
       presetNumberDisplayUpdate (storedSettings.program, 4);
       display.display();
+      if (storedSettings.msdelay > 0.05) {
       delay (storedSettings.msdelay);
       for (int i = 0; i < 4; i++) {
       CCbleTXmidi (i + 4, faderValue[i]);
+      }
       }
       //global reset
       break;
@@ -633,7 +639,7 @@ void EditRelease (void) {
         if (EXIT == true) {
           EXIT = false;
         }
-        else if (time < 0) {
+        else if ((time < 0) &&(storedSettings.msdelay > 0.05)) {
           delay (200);
         for (int i = 0; i < 4; i++) {
       CCbleTXmidi (i + 4, faderValue[i]);
