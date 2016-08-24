@@ -8,21 +8,7 @@
 #include "Adafruit_BLE.h"
 #include "Adafruit_BluefruitLE_SPI.h"
 #include "Adafruit_BLEMIDI.h"
-/*
-template <class T> class Data {
-  public:
-  T Update;
-  char * heading, description, format;
-  bool current;
-  Data (char * heading, description, format, T Update, bool current){
-    heading = heading;
-    description = description;
-    format = format;
-    Update = Update;
-    current = current;
-  }
-}
-*/
+
 const unsigned char mybitmap [] PROGMEM = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -113,7 +99,21 @@ enum RotaryMode : uint8_t {PROG, EDITMENU, CC, CHANNEL, BUTTPRESS, GLOBAL, LED, 
 RotaryMode ENCMODE = PROG;
 enum peripheral : uint8_t {Button1, Button2, Button3, Button4, Slider1, Slider2, Slider3, Slider4};
 peripheral PERIPHERAL;
-
+/*
+template <class T> class Data {
+  public:
+  T Update;
+  char * heading, description, format;
+  bool current;
+  Data (char * _heading, _description, _format, T _Update, bool _current){
+    heading = _heading;
+    description = _description;
+    format = _format;
+    Update = _Update;
+    current = _current;
+  }
+}
+*/
 typedef struct {
   bool valid;
   float msdelay;
@@ -149,11 +149,6 @@ Data stomp4;
 Data midi_channel;
 Data update_delay;
 Data led_brightness;
-//Data Zero;
-//Data One;
-/Data Bias_FX;
-//Data Line_6;
-//Data Axe_FX;
 */
 void connected(void);
 void disconnected(void);
