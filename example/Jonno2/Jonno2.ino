@@ -8,7 +8,21 @@
 #include "Adafruit_BLE.h"
 #include "Adafruit_BluefruitLE_SPI.h"
 #include "Adafruit_BLEMIDI.h"
-
+/*
+template <class T> class Data {
+  public:
+  T Update;
+  char * heading, description, format;
+  bool current;
+  Data (char * heading, description, format, T Update, bool current){
+    heading = heading;
+    description = description;
+    format = format;
+    Update = Update;
+    current = current;
+  }
+}
+*/
 const unsigned char mybitmap [] PROGMEM = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -86,7 +100,6 @@ Fader slider3 (A3, 20);
 Fader slider4 (A4, 20);
 Rotary encoder1 (19, 0); // left and right
 Switches Buttons (6, 15, 11, 12, 13, 14); //6 and 15 are select and edit, respectively, and 11 thru 14 stomp pins, for Feather
-
 Adafruit_BluefruitLE_SPI ble(8, 7, 4); //these are internal connections, don't worry about them.
 Adafruit_BLEMIDI midi(ble);
 Adafruit_SSD1306 display(OLED_RESET);
@@ -95,12 +108,12 @@ MyRenderer my_renderer (dptr);
 MenuSystem ms(my_renderer);
 elapsedMillis switchesPressTimer;
 //MIDI_CREATE_INSTANCE (HardwareSerial, Serial1, midiA);
-
 enum Preset : uint8_t  {ZERO, ONE, BIAS_FX, LINE_6, AXE_FX};
 enum RotaryMode : uint8_t {PROG, EDITMENU, CC, CHANNEL, BUTTPRESS, GLOBAL, LED, FADEMOVE};
 RotaryMode ENCMODE = PROG;
 enum peripheral : uint8_t {Button1, Button2, Button3, Button4, Slider1, Slider2, Slider3, Slider4};
 peripheral PERIPHERAL;
+
 typedef struct {
   bool valid;
   float msdelay;
@@ -110,10 +123,11 @@ typedef struct {
   int rotary1mod;
   Preset PRESET;
 } Settings;
+
 Settings storedSettings = {true, 200.0, 1, 0, {21, 22, 23, 24, 31, 32, 33, 34}, 200, ONE};
 Settings displayUpdate;
+// Settings storedSettings; // get rid of display update
 FlashStorage(my_flash_store, Settings);
-
 uint8_t lcount = 0;
 uint8_t rcount = 0;
 bool INIT = true;
@@ -122,6 +136,18 @@ bool isConnected = false;
 bool EXIT = false;
 
 /*Forward Declarations*/
+Data * currentDataPointer;
+Data fader1;
+Data fader2;
+Data fader3;
+Data fader4;
+Data stomp1;
+Data stomp2;
+Data stomp3;
+Data stomp4;
+Data midi_channel;
+Data update_delay;
+Data led_brightness;
 void connected(void);
 void disconnected(void);
 void presetDisplayUpdate (void);
@@ -233,8 +259,25 @@ void setup() {
   else {
     storedSettings = displayUpdate;
   }
-  analogWrite (pwm, storedSettings.rotary1mod);
+  /*
+    storedSettings = my_flash_store.read();
+  if (!(storedSettings.valid)) {
+  storedSettings = {true, 200.0, 1, 0, {21, 22, 23, 24, 31, 32, 33, 34}, 200, ONE};
+  }
 
+Data fader1 ("FADER 1"," SELECT","%03d",storedSettings.CCnumber[4],true);
+Data fader2 ("FADER 2"," SELECT","%03d",storedSettings.CCnumber[5],true);
+Data fader3 ("FADER 3"," SELECT","%03d",storedSettings.CCnumber[6],true);
+Data fader4 ("FADER 4"," SELECT","%03d",storedSettings.CCnumber[7],true);
+Data stomp1 ("STOMP 1"," SELECT","%03d",storedSettings.CCnumber[0],true);
+Data stomp2 ("STOMP 2"," SELECT","%03d",storedSettings.CCnumber[1],true);
+Data stomp3 ("STOMP 3"," SELECT","%03d",storedSettings.CCnumber[2],true);
+Data stomp4 ("STOMP 4"," SELECT","%03d",storedSettings.CCnumber[3],true);
+Data midi_channel ("MIDI CHANNEL"," SELECT","%02d",storedSettings.channel,true);
+Data update_delay ("UPDATE DELAY (sec)","","%.1f",storedSettings.msdelay,true);
+Data led_brightness ("LED BRIGHTNESS"," SELECT","%02d",storedSettings.rotary1mod,true);
+  */
+  analogWrite (pwm, storedSettings.rotary1mod);
   // midiA.begin();
   /*set callbacks*/
 ble.setConnectCallback(connected);
@@ -423,7 +466,6 @@ void fademoveDisplayUpdate (void) {
     display.setFont ();
     display.setCursor(109, 27);
     display.printf("%s","- 3");
-    
     display.setFont ();
     display.setCursor(0, 55);
     display.printf("%s","2 -");
@@ -572,7 +614,7 @@ void SelectRelease (void) {
       my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       peripheralDisplayUpdate(
-        "UPDATE DELAY", " STORED",
+        "UPDATE DELAY (sec)", " STORED",
         "%.1f", displayUpdate.msdelay / 1000.0, storedSettings.msdelay / 1000.0, false
       );
       delay (2500);
@@ -1017,6 +1059,8 @@ void on_item10_selected(MenuItem * p_menu_item)
 {
   ENCMODE = CC;
   PERIPHERAL = Slider1;
+  //currentDataPointer = &fader1;
+  //peripheralDisplayUpdate(currentDataPointer, storedSettings.CCnumber[PERIPHERAL]);
   peripheralDisplayUpdate(
     peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
     "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
