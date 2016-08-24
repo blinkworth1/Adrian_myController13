@@ -99,13 +99,16 @@ enum RotaryMode : uint8_t {PROG, EDITMENU, CC, CHANNEL, BUTTPRESS, GLOBAL, LED, 
 RotaryMode ENCMODE = PROG;
 enum peripheral : uint8_t {Button1, Button2, Button3, Button4, Slider1, Slider2, Slider3, Slider4};
 peripheral PERIPHERAL;
+//get rid of peripheral enum!
 /*
 template <class T> class Data {
   public:
   T Update;
   char * heading, description, format;
+  uint_8 identifier;
   bool current;
-  Data (char * _heading, _description, _format, T _Update, bool _current){
+  Data (uint_8 _identifier, char * _heading, _description, _format, T _Update, bool _current){
+    identifier = _identifier
     heading = _heading;
     description = _description;
     format = _format;
@@ -267,14 +270,14 @@ void setup() {
   storedSettings = {true, 200.0, 1, 0, {21, 22, 23, 24, 31, 32, 33, 34}, 200, ONE};
   }
 
-Data fader1 ("FADER 1"," SELECT","%03d",storedSettings.CCnumber[4],true);
-Data fader2 ("FADER 2"," SELECT","%03d",storedSettings.CCnumber[5],true);
-Data fader3 ("FADER 3"," SELECT","%03d",storedSettings.CCnumber[6],true);
-Data fader4 ("FADER 4"," SELECT","%03d",storedSettings.CCnumber[7],true);
-Data stomp1 ("STOMP 1"," SELECT","%03d",storedSettings.CCnumber[0],true);
-Data stomp2 ("STOMP 2"," SELECT","%03d",storedSettings.CCnumber[1],true);
-Data stomp3 ("STOMP 3"," SELECT","%03d",storedSettings.CCnumber[2],true);
-Data stomp4 ("STOMP 4"," SELECT","%03d",storedSettings.CCnumber[3],true);
+Data fader1 (4,"FADER 1"," SELECT","%03d",storedSettings.CCnumber[4],true);
+Data fader2 (5,"FADER 2"," SELECT","%03d",storedSettings.CCnumber[5],true);
+Data fader3 (6,"FADER 3"," SELECT","%03d",storedSettings.CCnumber[6],true);
+Data fader4 (7,"FADER 4"," SELECT","%03d",storedSettings.CCnumber[7],true);
+Data stomp1 (0,"STOMP 1"," SELECT","%03d",storedSettings.CCnumber[0],true);
+Data stomp2 (1,"STOMP 2"," SELECT","%03d",storedSettings.CCnumber[1],true);
+Data stomp3 (2,"STOMP 3"," SELECT","%03d",storedSettings.CCnumber[2],true);
+Data stomp4 (3,"STOMP 4"," SELECT","%03d",storedSettings.CCnumber[3],true);
 Data midi_channel ("MIDI CHANNEL"," SELECT","%02d",storedSettings.channel,true);
 Data update_delay ("UPDATE DELAY (sec)","","%.1f",storedSettings.msdelay,true);
 Data led_brightness ("LED BRIGHTNESS"," SELECT","%03d",storedSettings.rotary1mod,true);
@@ -639,7 +642,7 @@ void SelectRelease (void) {
       break;
     case CC:
       storedSettings.CCnumber [PERIPHERAL] = displayUpdate.CCnumber[PERIPHERAL];
-      //storedSettings.CCnumber [PERIPHERAL] = currentDataPointer->Update;
+      //storedSettings.CCnumber [currentDataPointer->identifier] = currentDataPointer->Update;
       my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       peripheralDisplayUpdate(
@@ -648,7 +651,7 @@ void SelectRelease (void) {
       );
      /* currentDataPointer->description = " CC STORED";
         currentDataPointer->current = false;
-        peripheralDisplayUpdate(storedSettings.CCnumber[PERIPHERAL]);
+        peripheralDisplayUpdate(storedSettings.CCnumber[currentDataPointer->identifier]);
         */
       delay (2500);
       editMenuDisplayUpdate ();
@@ -870,13 +873,13 @@ void Left (void) {
           peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
           "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
         );
-        /*currentDataPointer->Update--;
+        /*/currentDataPointer->Update--;
         if (currentDataPointer->Update <= -1) {
           currentDataPointer->Update = 127;
         }
         currentDataPointer->description = " CC SELECT";
         currentDataPointer->current = true
-        peripheralDisplayUpdate(storedSettings.CCnumber[PERIPHERAL]);
+        peripheralDisplayUpdate(storedSettings.CCnumber[currentDataPointer->identifier]);
         */
         break;
       case CHANNEL:
@@ -888,7 +891,7 @@ void Left (void) {
           "MIDI CHANNEL", " SELECT",
           "%02d", displayUpdate.channel, storedSettings.channel, true
         );
-        /*currentDataPointer->Update--;
+        /*/currentDataPointer->Update--;
         if (currentDataPointer->Update <= -1) {
           currentDataPointer->Update = 16;
         }
@@ -906,7 +909,7 @@ void Left (void) {
           "UPDATE DELAY (sec)", "",
           "%.1f", displayUpdate.msdelay / 1000.0, storedSettings.msdelay / 1000.0, true
         );
-        /*currentDataPointer->Update-= 0.1;
+        /*/currentDataPointer->Update-= 0.1;
         if (currentDataPointer->Update <= 0.05) {
           currentDataPointer->Update = 0.0;
         }
@@ -929,7 +932,7 @@ void Left (void) {
           "LED BRIGHTNESS", " SELECT",
           "%02d", displayUpdate.rotary1mod / 10, storedSettings.rotary1mod / 10, true
         );
-        /*currentDataPointer->Update-= 10;
+        /*/currentDataPointer->Update-= 10;
         if (currentDataPointer->Update <= 0) {
           currentDataPointer->Update = 0;
         }
@@ -973,13 +976,13 @@ void Right (void) {
           peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
           "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
         );
-        /*currentDataPointer->Update++;
+        /*/currentDataPointer->Update++;
         if (currentDataPointer->Update >= 128) {
           currentDataPointer->Update = 0;
         }
         currentDataPointer->description = " CC SELECT";
         currentDataPointer->current = true
-        peripheralDisplayUpdate(storedSettings.CCnumber[PERIPHERAL]);
+        peripheralDisplayUpdate(storedSettings.CCnumber[currentDataPointer->identifier]);
         */
         break;
       case CHANNEL:
@@ -991,7 +994,7 @@ void Right (void) {
           "MIDI CHANNEL", " SELECT",
           "%02d", displayUpdate.channel, storedSettings.channel, true
         );
-        /*currentDataPointer->Update++;
+        /*/currentDataPointer->Update++;
         if (currentDataPointer->Update >= 17) {
           currentDataPointer->Update = 1;
         }
@@ -1009,7 +1012,7 @@ void Right (void) {
           "UPDATE DELAY (sec)", "",
           "%.1f", displayUpdate.msdelay / 1000.0, storedSettings.msdelay / 1000.0, true
         );
-        /*currentDataPointer->Update+= 0.1;
+        /*/currentDataPointer->Update+= 0.1;
         if (currentDataPointer->Update >= 2.0) {
           currentDataPointer->Update = 2.0;
         }
@@ -1028,7 +1031,7 @@ void Right (void) {
         if (displayUpdate.rotary1mod >= 250) {
           displayUpdate.rotary1mod = 250;
         }
-        /*currentDataPointer->Update+= 10;
+        /*/currentDataPointer->Update+= 10;
         if (currentDataPointer->Update >= 250) {
           currentDataPointer->Update = 250;
         }
@@ -1106,10 +1109,12 @@ void on_itemLED_selected(MenuItem * p_menu_item)
     "LED BRIGHTNESS", " SELECT",
     "%02d", displayUpdate.rotary1mod / 10, storedSettings.rotary1mod / 10, true
   );
-  //currentDataPointer = &led_brightness;
-  //currentDataPointer->description = " SELECT";
-  //currentDataPointer->current = true;
-  //peripheralDisplayUpdate(storedSettings.rotary1mod);
+  /*/ENCMODE = LED;
+  currentDataPointer = &led_brightness;
+  currentDataPointer->description = " SELECT";
+  currentDataPointer->current = true;
+  peripheralDisplayUpdate(storedSettings.rotary1mod);
+  */
 }
 void on_itemGLOBAL_selected(MenuItem * p_menu_item)
 {
@@ -1118,10 +1123,12 @@ void on_itemGLOBAL_selected(MenuItem * p_menu_item)
     "UPDATE DELAY (sec)", "",
     "%.1f", displayUpdate.msdelay / 1000, storedSettings.msdelay / 1000, true
   );
-  //currentDataPointer = &update_delay;
-  //currentDataPointer->description = "";
-  //currentDataPointer->current = true;
-  //peripheralDisplayUpdate(storedSettings.msdelay);
+ /*/ENCMODE = GLOBAL;
+  currentDataPointer = &update_delay;
+  currentDataPointer->description = "";
+  currentDataPointer->current = true;
+  peripheralDisplayUpdate(storedSettings.msdelay);
+  */
 }
 void on_item0_selected(MenuItem * p_menu_item)
 {
@@ -1130,10 +1137,12 @@ void on_item0_selected(MenuItem * p_menu_item)
     "MIDI CHANNEL", " SELECT",
     "%02d", displayUpdate.channel, storedSettings.channel, true
   );
-  // currentDataPointer = &midi_channel;
-  //currentDataPointer->description = " SELECT";
-  //      currentDataPointer->current = true
-  //      peripheralDisplayUpdate(storedSettings.channel);
+ /*/ ENCMODE = CHANNEL;
+  currentDataPointer = &midi_channel;
+  currentDataPointer->description = " SELECT";
+  currentDataPointer->current = true
+  peripheralDisplayUpdate(storedSettings.channel);
+  */
 }
 void on_item1_selected(MenuItem * p_menu_item)
 {
@@ -1173,10 +1182,12 @@ void on_item6_selected(MenuItem * p_menu_item)
     peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
     "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
   );
-  //currentDataPointer = &stomp1;
-//currentDataPointer->description = " CC SELECT";
-//currentDataPointer->current = true;
-//peripheralDisplayUpdate(storedSettings.CCnumber[PERIPHERAL]);
+ /*/ENCMODE = CC;
+  currentDataPointer = &stomp1;
+currentDataPointer->description = " CC SELECT";
+currentDataPointer->current = true;
+peripheralDisplayUpdate(storedSettings.CCnumber[currentDataPointer->identifier]);
+*/
 }
 void on_item7_selected(MenuItem * p_menu_item)
 {
@@ -1186,10 +1197,12 @@ void on_item7_selected(MenuItem * p_menu_item)
     peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
     "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
   );
-  //currentDataPointer = &stomp2;
-//currentDataPointer->description = " CC SELECT";
-//currentDataPointer->current = true;
-//peripheralDisplayUpdate(storedSettings.CCnumber[PERIPHERAL]);
+ /*/ENCMODE = CC;
+  currentDataPointer = &stomp2;
+currentDataPointer->description = " CC SELECT";
+currentDataPointer->current = true;
+peripheralDisplayUpdate(storedSettings.CCnumber[currentDataPointer->identifier]);
+*/
 }
 void on_item8_selected(MenuItem * p_menu_item)
 {
@@ -1199,10 +1212,12 @@ void on_item8_selected(MenuItem * p_menu_item)
     peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
     "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
   );
-  //currentDataPointer = &stomp3;
-//currentDataPointer->description = " CC SELECT";
-//currentDataPointer->current = true;
-//peripheralDisplayUpdate(storedSettings.CCnumber[PERIPHERAL]);
+ /*/ENCMODE = CC;
+  currentDataPointer = &stomp3;
+currentDataPointer->description = " CC SELECT";
+currentDataPointer->current = true;
+peripheralDisplayUpdate(storedSettings.CCnumber[currentDataPointer->identifier]);
+*/
 }
 void on_item9_selected(MenuItem * p_menu_item)
 {
@@ -1212,10 +1227,12 @@ void on_item9_selected(MenuItem * p_menu_item)
     peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
     "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
   );
-  //currentDataPointer = &stomp4;
-//currentDataPointer->description = " CC SELECT";
-//currentDataPointer->current = true;
-//peripheralDisplayUpdate(storedSettings.CCnumber[PERIPHERAL]);
+ /*/ENCMODE = CC;
+  currentDataPointer = &stomp4;
+currentDataPointer->description = " CC SELECT";
+currentDataPointer->current = true;
+peripheralDisplayUpdate(storedSettings.CCnumber[currentDataPointer->identifier]);
+*/
 }
 void on_item10_selected(MenuItem * p_menu_item)
 {
@@ -1225,10 +1242,12 @@ void on_item10_selected(MenuItem * p_menu_item)
     peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
     "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
   );
-  //currentDataPointer = &fader1;
-  //currentDataPointer->description = " CC SELECT";
-  //currentDataPointer->current = true;
-  //peripheralDisplayUpdate(storedSettings.CCnumber[PERIPHERAL]);
+  /*/ENCMODE = CC;
+  currentDataPointer = &fader1;
+  currentDataPointer->description = " CC SELECT";
+  currentDataPointer->current = true;
+  peripheralDisplayUpdate(storedSettings.CCnumber[currentDataPointer->identifier]);
+  */
 }
 void on_item11_selected(MenuItem * p_menu_item)
 {
@@ -1238,10 +1257,12 @@ void on_item11_selected(MenuItem * p_menu_item)
     peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
     "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
   );
-  //currentDataPointer = &fader2;
-//currentDataPointer->description = " CC SELECT";
-//currentDataPointer->current = true;
-//peripheralDisplayUpdate(storedSettings.CCnumber[PERIPHERAL]);
+  /*/ENCMODE = CC;
+  currentDataPointer = &fader2;
+currentDataPointer->description = " CC SELECT";
+currentDataPointer->current = true;
+peripheralDisplayUpdate(storedSettings.CCnumber[currentDataPointer->identifier]);
+*/
 }
 void on_item12_selected(MenuItem * p_menu_item)
 {
@@ -1251,10 +1272,12 @@ void on_item12_selected(MenuItem * p_menu_item)
     peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
     "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
   );
-  //currentDataPointer = &fader3;
-//currentDataPointer->description = " CC SELECT";
-//currentDataPointer->current = true;
-//peripheralDisplayUpdate(storedSettings.CCnumber[PERIPHERAL]);
+  /*/ENCMODE = CC;
+  currentDataPointer = &fader3;
+currentDataPointer->description = " CC SELECT";
+currentDataPointer->current = true;
+peripheralDisplayUpdate(storedSettings.CCnumber[currentDataPointer->identifier]);
+*/
 }
 void on_item13_selected(MenuItem * p_menu_item)
 {
@@ -1264,10 +1287,12 @@ void on_item13_selected(MenuItem * p_menu_item)
     peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
     "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
   );
-  //currentDataPointer = &fader4;
-//currentDataPointer->description = " CC SELECT";
-//currentDataPointer->current = true;
-//peripheralDisplayUpdate(storedSettings.CCnumber[PERIPHERAL]);
+  /*/ENCMODE = CC;
+  currentDataPointer = &fader4;
+currentDataPointer->description = " CC SELECT";
+currentDataPointer->current = true;
+peripheralDisplayUpdate(storedSettings.CCnumber[currentDataPointer->identifier]);
+*/
 }
 
 
