@@ -153,6 +153,7 @@ Data midi_channel;
 Data update_delay;
 Data led_brightness;
 */
+void CCbleTXmidi (int, int);
 void connected(void);
 void disconnected(void);
 void presetDisplayUpdate (void);
@@ -790,11 +791,7 @@ void EditRelease (void) {
       break;
   }
 }
-void CCbleTXmidi (int CC, int Value) {
-  if (isConnected) {
-  midi.send(0xB0 + (storedSettings.channel - 1), storedSettings.CCnumber[CC], Value);
-  }
-}
+
 void Stomp1ON(void) {
   if (buttOnOff[0] == buttOff) {
       CCbleTXmidi(0, 0x7F);
@@ -1045,6 +1042,12 @@ void Right (void) {
         );
         break;
     }
+  }
+}
+
+void CCbleTXmidi (int CC, int Value) {
+  if (isConnected) {
+  midi.send(0xB0 + (storedSettings.channel - 1), storedSettings.CCnumber[CC], Value);
   }
 }
 
