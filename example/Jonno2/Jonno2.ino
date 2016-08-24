@@ -977,6 +977,14 @@ void Right (void) {
           peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
           "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
         );
+        /*currentDataPointer->Update++;
+        if (currentDataPointer->Update >= 128) {
+          currentDataPointer->Update = 0;
+        }
+        currentDataPointer->description = " CC SELECT";
+        currentDataPointer->current = true
+        peripheralDisplayUpdate(storedSettings.CCnumber[PERIPHERAL]);
+        */
         break;
       case CHANNEL:
         displayUpdate.channel++;
@@ -987,6 +995,14 @@ void Right (void) {
           "MIDI CHANNEL", " SELECT",
           "%02d", displayUpdate.channel, storedSettings.channel, true
         );
+        /*currentDataPointer->Update++;
+        if (currentDataPointer->Update >= 17) {
+          currentDataPointer->Update = 1;
+        }
+        currentDataPointer->description = " SELECT";
+        currentDataPointer->current = true
+        peripheralDisplayUpdate(storedSettings.channel);
+        */
         break;
       case GLOBAL:
         displayUpdate.msdelay += 100.0;
@@ -997,6 +1013,14 @@ void Right (void) {
           "UPDATE DELAY (sec)", "",
           "%.1f", displayUpdate.msdelay / 1000.0, storedSettings.msdelay / 1000.0, true
         );
+        /*currentDataPointer->Update+= 0.1;
+        if (currentDataPointer->Update >= 2.0) {
+          currentDataPointer->Update = 2.0;
+        }
+        currentDataPointer->description = "";
+        currentDataPointer->current = true
+        peripheralDisplayUpdate(storedSettings.msdelay);
+        */
         break;
       case BUTTPRESS:
       case FADEMOVE:
@@ -1008,6 +1032,14 @@ void Right (void) {
         if (displayUpdate.rotary1mod >= 250) {
           displayUpdate.rotary1mod = 250;
         }
+        /*currentDataPointer->Update+= 10;
+        if (currentDataPointer->Update >= 250) {
+          currentDataPointer->Update = 250;
+        }
+        currentDataPointer->description = " SELECT";
+        currentDataPointer->current = true
+        peripheralDisplayUpdate(storedSettings.rotary1mod);
+        */
         analogWrite (pwm, displayUpdate.rotary1mod);
         peripheralDisplayUpdate(
           "LED BRIGHTNESS", " SELECT",
@@ -1145,6 +1177,10 @@ void on_item6_selected(MenuItem * p_menu_item)
     peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
     "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
   );
+  //currentDataPointer = &stomp1;
+//currentDataPointer->description = " CC SELECT";
+//currentDataPointer->current = true;
+//peripheralDisplayUpdate(storedSettings.CCnumber[PERIPHERAL]);
 }
 void on_item7_selected(MenuItem * p_menu_item)
 {
@@ -1154,6 +1190,10 @@ void on_item7_selected(MenuItem * p_menu_item)
     peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
     "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
   );
+  //currentDataPointer = &stomp2;
+//currentDataPointer->description = " CC SELECT";
+//currentDataPointer->current = true;
+//peripheralDisplayUpdate(storedSettings.CCnumber[PERIPHERAL]);
 }
 void on_item8_selected(MenuItem * p_menu_item)
 {
@@ -1163,6 +1203,10 @@ void on_item8_selected(MenuItem * p_menu_item)
     peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
     "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
   );
+  //currentDataPointer = &stomp3;
+//currentDataPointer->description = " CC SELECT";
+//currentDataPointer->current = true;
+//peripheralDisplayUpdate(storedSettings.CCnumber[PERIPHERAL]);
 }
 void on_item9_selected(MenuItem * p_menu_item)
 {
@@ -1172,6 +1216,10 @@ void on_item9_selected(MenuItem * p_menu_item)
     peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
     "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
   );
+  //currentDataPointer = &stomp4;
+//currentDataPointer->description = " CC SELECT";
+//currentDataPointer->current = true;
+//peripheralDisplayUpdate(storedSettings.CCnumber[PERIPHERAL]);
 }
 void on_item10_selected(MenuItem * p_menu_item)
 {
@@ -1194,6 +1242,10 @@ void on_item11_selected(MenuItem * p_menu_item)
     peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
     "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
   );
+  //currentDataPointer = &fader2;
+//currentDataPointer->description = " CC SELECT";
+//currentDataPointer->current = true;
+//peripheralDisplayUpdate(storedSettings.CCnumber[PERIPHERAL]);
 }
 void on_item12_selected(MenuItem * p_menu_item)
 {
@@ -1203,6 +1255,10 @@ void on_item12_selected(MenuItem * p_menu_item)
     peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
     "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
   );
+  //currentDataPointer = &fader3;
+//currentDataPointer->description = " CC SELECT";
+//currentDataPointer->current = true;
+//peripheralDisplayUpdate(storedSettings.CCnumber[PERIPHERAL]);
 }
 void on_item13_selected(MenuItem * p_menu_item)
 {
@@ -1212,6 +1268,10 @@ void on_item13_selected(MenuItem * p_menu_item)
     peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
     "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
   );
+  //currentDataPointer = &fader4;
+//currentDataPointer->description = " CC SELECT";
+//currentDataPointer->current = true;
+//peripheralDisplayUpdate(storedSettings.CCnumber[PERIPHERAL]);
 }
 
 
