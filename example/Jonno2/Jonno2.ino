@@ -101,6 +101,7 @@ int Presetprogram;
 /*enum peripheral : uint8_t {Button1, Button2, Button3, Button4, Slider1, Slider2, Slider3, Slider4};
 peripheral PERIPHERAL;
 /*/
+
 template <class T> class Data {
   public:
   T Update;
@@ -108,7 +109,7 @@ template <class T> class Data {
   uint_8 identifier;
   bool current;
   Data (uint_8 _identifier, char * _heading, _description, _format, T _Update, bool _current){
-    identifier = _identifier
+    identifier = _identifier;
     heading = _heading;
     description = _description;
     format = _format;
@@ -116,6 +117,16 @@ template <class T> class Data {
     current = _current;
   }
 }
+
+/*class PresetBase : public Data {
+  PresetBase (uint_8 _identifier, char * _heading, _format, bool _current){
+    identifier = _identifier;
+    heading = _heading;
+    format = _format;
+    current = _current;
+  
+}*/
+
 typedef struct {
   bool valid;
   float msdelay;
