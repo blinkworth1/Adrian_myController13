@@ -136,7 +136,7 @@ bool isConnected = false;
 bool EXIT = false;
 
 /*Forward Declarations*/
-Data * currentDataPointer;
+/*Data * currentDataPointer;
 Data fader1;
 Data fader2;
 Data fader3;
@@ -147,7 +147,7 @@ Data stomp3;
 Data stomp4;
 Data midi_channel;
 Data update_delay;
-Data led_brightness;
+Data led_brightness;*/
 void connected(void);
 void disconnected(void);
 void presetDisplayUpdate (void);
@@ -500,7 +500,28 @@ template <typename T> void peripheralDisplayUpdate (char * heading, char * descr
   }
   display.display();
 }
-
+/*
+template <typename T> void peripheralDisplayUpdate (T Stored) {
+  display.clearDisplay();
+  display.setFont ();
+  display.setCursor(0, 4);
+  display.setTextSize(1);
+  display.printf("%s%s\n",currentDataPointer->heading,currentDataPointer->description);
+  display.setCursor(0, 47);
+  display.setFont (&FreeMono24pt7b);
+  display.printf (currentDataPointer->format,currentDataPointer->Update);
+  if (currentDataPointer->current) {
+    display.setFont ();
+    display.setCursor(85, 23);
+    display.setTextSize(1);
+    display.print ("current");
+    display.setCursor(83, 47);
+    display.setFont (&FreeMono12pt7b);
+    display.printf (currentDataPointer->format,Stored);
+  }
+  display.display();
+}
+*/
 void editMenuDisplayUpdate (void) {
   display.clearDisplay();
   display.setFont ();
@@ -517,11 +538,9 @@ void editMenuDisplayUpdate (void) {
 void connected(void)
 {
   isConnected = true;
-  //Serial.println("CONNECTED!");
 }
 void disconnected(void)
 {
-  //Serial.println("disconnected");
   isConnected = false;
 }
 
@@ -589,6 +608,7 @@ void SelectRelease (void) {
       break;
     case CC:
       storedSettings.CCnumber [PERIPHERAL] = displayUpdate.CCnumber[PERIPHERAL];
+      //storedSettings.CCnumber [PERIPHERAL] = currentDataPointer->Update;
       my_flash_store.write(storedSettings);
       ENCMODE = EDITMENU;
       peripheralDisplayUpdate(
@@ -1060,7 +1080,7 @@ void on_item10_selected(MenuItem * p_menu_item)
   ENCMODE = CC;
   PERIPHERAL = Slider1;
   //currentDataPointer = &fader1;
-  //peripheralDisplayUpdate(currentDataPointer, storedSettings.CCnumber[PERIPHERAL]);
+  //peripheralDisplayUpdate(storedSettings.CCnumber[PERIPHERAL]);
   peripheralDisplayUpdate(
     peripheralArrayDisplayUpdate [PERIPHERAL], " CC SELECT",
     "%03d", displayUpdate.CCnumber[PERIPHERAL], storedSettings.CCnumber[PERIPHERAL], true
