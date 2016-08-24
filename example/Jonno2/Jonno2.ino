@@ -97,6 +97,7 @@ elapsedMillis switchesPressTimer;
 enum Preset : uint8_t  {ZERO, ONE, BIAS_FX, LINE_6, AXE_FX};
 enum RotaryMode : uint8_t {PROG, EDITMENU, CC, CHANNEL, BUTTPRESS, GLOBAL, LED, FADEMOVE};
 RotaryMode ENCMODE = PROG;
+int Presetprogram;
 /*enum peripheral : uint8_t {Button1, Button2, Button3, Button4, Slider1, Slider2, Slider3, Slider4};
 peripheral PERIPHERAL;
 /*/
@@ -158,8 +159,6 @@ void on_item0_selected(MenuItem* p_menu_item);
 void on_item1_selected(MenuItem* p_menu_item);
 void on_item2_selected(MenuItem* p_menu_item);
 void on_item3_selected(MenuItem* p_menu_item);
-//void on_item4_selected(MenuItem* p_menu_item);
-//void on_item5_selected(MenuItem* p_menu_item);
 void on_itemLINE6_selected(MenuItem* p_menu_item);
 void on_itemAXE_selected(MenuItem* p_menu_item);
 void on_item6_selected(MenuItem* p_menu_item);
@@ -266,7 +265,7 @@ void setup() {
   if (!(storedSettings.valid)) {
   storedSettings = {true, 200.0, 1, 0, {21, 22, 23, 24, 31, 32, 33, 34}, 200, ONE};
   }
-
+  
 Data fader1 (4,"FADER 1"," SELECT","%03d",storedSettings.CCnumber[4],true);
 Data fader2 (5,"FADER 2"," SELECT","%03d",storedSettings.CCnumber[5],true);
 Data fader3 (6,"FADER 3"," SELECT","%03d",storedSettings.CCnumber[6],true);
@@ -386,7 +385,7 @@ void presetDisplayUpdate (void) {
   display.setTextSize(1);
   display.println("SELECT NEXT PRESET:");
   display.setCursor(0, 50);
-  presetNumberDisplayUpdate(displayUpdate.program, 4);
+  presetNumberDisplayUpdate(updateprogram, 4);
   if (INIT == false) {
     display.setFont ();
     display.setCursor(85, 23);
@@ -590,7 +589,7 @@ void SelectPress (void) {
 void SelectRelease (void) {
   switch (ENCMODE) {
     case PROG:
-      storedSettings.program = displayUpdate.program;
+      storedSettings.program = updateprogram;
       if (isConnected) {
         midi.send(0xC0 + (storedSettings.channel - 1), storedSettings.program, storedSettings.program);
       }
@@ -838,14 +837,14 @@ void Left (void) {
     rcount = 0;
     switch (ENCMODE) {
       case PROG:
-        displayUpdate.program--;
+        updateprogram--;
         if (storedSettings.PRESET == BIAS_FX) {
-          if (displayUpdate.program <= -1) {
-            displayUpdate.program = 31;
+          if (updateprogram <= -1) {
+            updateprogram = 31;
           }
         }
-        else if (displayUpdate.program <= -1) {
-          displayUpdate.program = 127;
+        else if (updateprogram <= -1) {
+          updateprogram = 127;
         }
         presetDisplayUpdate ();
         break;
@@ -941,14 +940,14 @@ void Right (void) {
    lcount = 0;
     switch (ENCMODE) {
       case PROG:
-        displayUpdate.program++;
+        updateprogram++;
         if (storedSettings.PRESET == BIAS_FX) {
-          if (displayUpdate.program >= 32) {
-            displayUpdate.program = 0;
+          if (updateprogram >= 32) {
+            updateprogram = 0;
           }
         }
-        else if (displayUpdate.program >= 128) {
-          displayUpdate.program = 0;
+        else if (updateprogram >= 128) {
+          updateprogram = 0;
         }
         presetDisplayUpdate ();
         break;
