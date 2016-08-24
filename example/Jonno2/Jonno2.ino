@@ -116,16 +116,54 @@ template <class T> class Data {
     Update = _Update;
     current = _current;
   }
-}
+};
 
-/*class PresetBase : public Data {
-  PresetBase (uint_8 _identifier, char * _heading, _format, bool _current){
-    identifier = _identifier;
-    heading = _heading;
-    format = _format;
-    current = _current;
-  
-}*/
+/*class PresetBase {
+public:
+virtual updateprogramDisplay();
+};
+
+class Preset1 :
+public PresetBase,
+public Data<int>
+{
+identifier = 0;
+heading = "000-127";
+format = "%3d";
+current = true;
+};
+
+class Preset2 :
+public PresetBase,
+public Data<int>
+{
+identifier = 1;
+heading = "000-127";
+format = "%3d";
+current = true;
+};
+
+class Preset3 :
+public PresetBase,
+public Data<int>
+{
+identifier = 2;
+heading = "000-127";
+format = "%3d";
+current = true;
+};
+
+class Preset4 :
+public PresetBase,
+public Data<int>
+{
+identifier = 3;
+heading = "000-127";
+format = "%3d";
+current = true;
+};
+
+*/
 
 typedef struct {
   bool valid;
