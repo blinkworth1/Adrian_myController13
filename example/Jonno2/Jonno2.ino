@@ -461,7 +461,6 @@ void presetNumberDisplayUpdate (int prog, int txtsize) {
   }
 }
 
-
 void buttpressDisplayUpdate (void) {
   display.clearDisplay();
   display.setFont ();
