@@ -228,10 +228,10 @@ int faderValue [4] = {0,0,0,0};
 
 /*Menu structure*/
 Menu mu1("PRESET FORMAT");
-Menu mu2("STOMP/FADER CC SELECT");
-Menu mu3("SCENE SELECT");
+Menu mu2("CC SELECT");
 Menu mu5("STOMP CC SELECT");
 Menu mu6("FADER CC SELECT");
+Menu mu7("SCENE CC SELECT");
 MenuItem mm_mi0 ("AUTO UPDATE DELAY", &on_itemGLOBAL_selected);
 MenuItem mm_mi1 ("MIDI CHANNEL", &on_item0_selected);
 MenuItem mm_mi2 ("LED BRIGHTNESS", &on_itemLED_selected);
@@ -313,7 +313,7 @@ ble.setDisconnectCallback(disconnected);
   slider4.SetHandleSame (slider4SAME);
   ms.get_root_menu().add_menu(&mu1);
   ms.get_root_menu().add_menu(&mu2);
-  ms.get_root_menu().add_menu(&mu3);
+  //ms.get_root_menu().add_menu(&mu3);
   ms.get_root_menu().add_item(&mm_mi0);
   ms.get_root_menu().add_item(&mm_mi1);
   ms.get_root_menu().add_item(&mm_mi2);
@@ -326,6 +326,7 @@ ble.setDisconnectCallback(disconnected);
   mu1.add_item(&mu1_mi7);
   mu2.add_menu(&mu5);
   mu2.add_menu(&mu6);
+  mu2.add_menu(&mu7);
   mu5.add_item(&mu2_mi1);
   mu5.add_item(&mu2_mi2);
   mu5.add_item(&mu2_mi3);
@@ -755,7 +756,7 @@ void EditRelease (void) {
         if (EXIT == true) {
           EXIT = false;
         }
-        else if ((time < 0) &&(storedSettings.msdelay > 0.05)) {
+        else if (time < 0) {
           delay (200);
         for (int i = 0; i < 4; i++) {
       CCbleTXmidi (i + 4, faderValue[i]);
