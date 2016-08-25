@@ -1083,6 +1083,7 @@ void on_itemGLOBAL_selected(MenuItem * p_menu_item)
 }
 void on_item0_selected(MenuItem * p_menu_item)
 {
+  currentEncoderMode = &encoderChannelMode;
   ENCMODE = CHANNEL;
   currentDataPointer = &midi_channel;
   currentDataPointer->description = " SELECT";
