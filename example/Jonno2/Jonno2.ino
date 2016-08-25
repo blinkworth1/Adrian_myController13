@@ -126,7 +126,7 @@ class PresetBase : public DataBase {
     virtual int updateProgramCalc();
     bool alpha;
 };
-/*
+
   class Preset1 :
   public PresetBase {
   public:
@@ -174,7 +174,39 @@ class PresetBase : public DataBase {
   };
 
   PresetBase * cPParray[] = {&preset1,&preset2,&preset3,&preset4};
-*/
+
+
+DataBase * currentDataPointer;
+PresetBase * currentPresetPointer;
+
+class EncoderModeBase {
+  public: 
+  virtual void plus();
+  virtual void minus ();
+}
+
+class EncoderChannelMode : public EncoderModeBase {
+  void plus () {
+  static_cast<Data<int>*>(currentDataPointer)->Update++;
+        if (static_cast<Data<int>*>(currentDataPointer)->Update >= 17) {
+          static_cast<Data<int>*>(currentDataPointer)->Update = 1;
+        }
+        currentDataPointer->description = " SELECT";
+        currentDataPointer->current = true;
+        peripheralDisplayUpdate(storedSettings.channel);
+  }
+  void minus () {      
+        static_cast<Data<int>*>(currentDataPointer)->Update--;
+        if (static_cast<Data<int>*>(currentDataPointer)->Update <= -1) {
+          static_cast<Data<int>*>(currentDataPointer)->Update = 16;
+        }
+        currentDataPointer->description = " SELECT";
+        currentDataPointer->current = true;
+        peripheralDisplayUpdate(storedSettings.channel);
+  }
+}; EncoderChannelMode encoderChannelMode;
+
+EncoderModeBase * currentEncoderMode; 
 
 typedef struct {
   bool valid;
@@ -191,7 +223,6 @@ FlashStorage(my_flash_store, Settings);
 
 Settings storedSettings = {true, 200.0, 1, 0, {21, 22, 23, 24, 31, 32, 33, 34}, 200, ONE};
 //Settings storedSettings = {true, 200.0, 1, 0, {21, 22, 23, 24, 31, 32, 33, 34}, 200, 1};
-
 
 Data<int> fader1 (4, "FADER 1", " SELECT", "%03d", storedSettings.CCnumber[4], true);
 Data<int> fader2 (5, "FADER 2", " SELECT", "%03d", storedSettings.CCnumber[5], true);
@@ -215,8 +246,7 @@ bool isConnected = false;
 bool EXIT = false;
 
 /*Forward Declarations*/
-DataBase * currentDataPointer;
-PresetBase * currentPresetPointer;
+
 void CCbleTXmidi (int, int);
 void connected(void);
 void disconnected(void);
@@ -892,15 +922,7 @@ void Left (void) {
         presetDisplayUpdate();
         break;
       case LED:
-        /*displayUpdate.rotary1mod -= 10;
-          if (displayUpdate.rotary1mod <= 0) {
-          displayUpdate.rotary1mod = 0;
-          }
-          peripheralDisplayUpdate(
-          "LED BRIGHTNESS", " SELECT",
-          "%02d", displayUpdate.rotary1mod / 10, storedSettings.rotary1mod / 10, true
-          );
-          /*/static_cast<Data<int>*>(currentDataPointer)->Update --;
+        static_cast<Data<int>*>(currentDataPointer)->Update --;
         if (static_cast<Data<float>*>(currentDataPointer)->Update <= 0) {
           static_cast<Data<float>*>(currentDataPointer)->Update = 0;
         }
