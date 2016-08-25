@@ -203,7 +203,7 @@ Data<int> stomp3 (2, "STOMP 3", " SELECT", "%03d", storedSettings.CCnumber[2], t
 Data<int> stomp4 (3, "STOMP 4", " SELECT", "%03d", storedSettings.CCnumber[3], true);
 Data<int> midi_channel (10, "MIDI CHANNEL", " SELECT", "%02d", storedSettings.channel, true);
 Data<float> update_delay (11, "UPDATE DELAY (sec)", "", "%.1f", storedSettings.msdelay, true);
-Data<int> led_brightness (12, "LED BRIGHTNESS", " SELECT", "%03d", storedSettings.rotary1mod, true);
+Data<int> led_brightness (12, "LED BRIGHTNESS", " SELECT", "%02d", storedSettings.rotary1mod, true);
 updateprogram = storedSettings.program;
 //currentPresetPointer = cPParray[storedSettings.preset];
 
@@ -329,7 +329,7 @@ void setup() {
     updateprogram = storedSettings.program;
     //currentPresetPointer = cPParray[storedSettings.preset];
   }
-  analogWrite (pwm, storedSettings.rotary1mod);
+  analogWrite (pwm, storedSettings.rotary1mod * 10);
   // midiA.begin();
   /*set callbacks*/
   ble.setConnectCallback(connected);
@@ -875,18 +875,9 @@ void Left (void) {
         currentDataPointer->description = " SELECT";
         currentDataPointer->current = true;
         peripheralDisplayUpdate(storedSettings.channel);
-        //*/
         break;
       case GLOBAL:
-        /*displayUpdate.msdelay -= 100.0;
-          if (displayUpdate.msdelay <= 0.0) {
-          displayUpdate.msdelay = 0.0;
-          }
-          peripheralDisplayUpdate(
-          "UPDATE DELAY (sec)", "",
-          "%.1f", displayUpdate.msdelay / 1000.0, storedSettings.msdelay / 1000.0, true
-          );
-          /*/static_cast<Data<float>*>(currentDataPointer)->Update -= 0.1;
+        static_cast<Data<float>*>(currentDataPointer)->Update -= 0.1;
         if (static_cast<Data<float>*>(currentDataPointer)->Update <= 0.05) {
           static_cast<Data<float>*>(currentDataPointer)->Update = 0.0;
         }
@@ -909,14 +900,14 @@ void Left (void) {
           "LED BRIGHTNESS", " SELECT",
           "%02d", displayUpdate.rotary1mod / 10, storedSettings.rotary1mod / 10, true
           );
-          /*/static_cast<Data<int>*>(currentDataPointer)->Update -= 10;
+          /*/static_cast<Data<int>*>(currentDataPointer)->Update --;
         if (static_cast<Data<float>*>(currentDataPointer)->Update <= 0) {
           static_cast<Data<float>*>(currentDataPointer)->Update = 0;
         }
         currentDataPointer->description = " SELECT";
         currentDataPointer->current = true;
         peripheralDisplayUpdate(storedSettings.rotary1mod);
-        analogWrite (pwm, static_cast<Data<int>*>(currentDataPointer)->Update);
+        analogWrite (pwm, static_cast<Data<int>*>(currentDataPointer)->Update * 10);
         break;
     }
   }
@@ -976,14 +967,14 @@ void Right (void) {
         presetDisplayUpdate();
         break;
       case LED:
-        static_cast<Data<int>*>(currentDataPointer)->Update += 10;
-        if (static_cast<Data<int>*>(currentDataPointer)->Update >= 250) {
-          static_cast<Data<int>*>(currentDataPointer)->Update = 250;
+        static_cast<Data<int>*>(currentDataPointer)->Update ++;
+        if (static_cast<Data<int>*>(currentDataPointer)->Update >= 20) {
+          static_cast<Data<int>*>(currentDataPointer)->Update = 20;
         }
         currentDataPointer->description = " SELECT";
         currentDataPointer->current = true;
         peripheralDisplayUpdate(storedSettings.rotary1mod);
-        analogWrite (pwm, static_cast<Data<int>*>(currentDataPointer)->Update);
+        analogWrite (pwm, static_cast<Data<int>*>(currentDataPointer)->Update * 10);
         break;
     }
   }
