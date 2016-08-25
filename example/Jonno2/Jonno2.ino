@@ -101,7 +101,7 @@ RotaryMode ENCMODE = PROG;
   peripheral PERIPHERAL;
   /*/
 
-int updateprogram = 0;
+int updateprogram;
 
 class DataBase {
   public:
@@ -194,6 +194,8 @@ typedef struct {
 FlashStorage(my_flash_store, Settings);
 
 Settings storedSettings = {true, 200.0, 1, 0, {21, 22, 23, 24, 31, 32, 33, 34}, 200, ONE};
+//Settings storedSettings = {true, 200.0, 1, 0, {21, 22, 23, 24, 31, 32, 33, 34}, 200, 1};
+
 
 Data<int> fader1 (4, "FADER 1", " SELECT", "%03d", storedSettings.CCnumber[4], true);
 Data<int> fader2 (5, "FADER 2", " SELECT", "%03d", storedSettings.CCnumber[5], true);
@@ -206,6 +208,8 @@ Data<int> stomp4 (3, "STOMP 4", " SELECT", "%03d", storedSettings.CCnumber[3], t
 Data<int> midi_channel (10, "MIDI CHANNEL", " SELECT", "%02d", storedSettings.channel, true);
 Data<float> update_delay (11, "UPDATE DELAY (sec)", "", "%.1f", storedSettings.msdelay, true);
 Data<int> led_brightness (12, "LED BRIGHTNESS", " SELECT", "%03d", storedSettings.rotary1mod, true);
+updateprogram = storedSettings.program;
+//currentPresetPointer = cPParray[storedSettings.preset];
 
 uint8_t lcount = 0;
 uint8_t rcount = 0;
@@ -297,11 +301,11 @@ Menu mu7("SCENE CC SELECT");
 MenuItem mm_mi0 ("AUTO UPDATE DELAY", &on_itemGLOBAL_selected);
 MenuItem mm_mi1 ("MIDI CHANNEL", &on_item0_selected);
 MenuItem mm_mi2 ("LED BRIGHTNESS", &on_itemLED_selected);
-MenuItem mu1_mi1(ZERO$, &on_item1_selected);
-MenuItem mu1_mi2(ONE$, &on_item2_selected);
-MenuItem mu1_mi3(BIAS_FX$, &on_item3_selected);
-MenuItem mu1_mi6(LINE_6$, &on_itemLINE6_selected);
-MenuItem mu1_mi7(AXE_FX$, &on_itemAXE_selected);
+MenuItem mu1_mi1("000-127", &on_item1_selected);
+MenuItem mu1_mi2("001-128", &on_item2_selected);
+MenuItem mu1_mi3("1A-8D", &on_item3_selected);
+MenuItem mu1_mi6("1A-32D", &on_itemLINE6_selected);
+MenuItem mu1_mi7("AXE FX", &on_itemAXE_selected);
 MenuItem mu2_mi1("STOMP 1", &on_item6_selected);
 MenuItem mu2_mi2("STOMP 2", &on_item7_selected);
 MenuItem mu2_mi3("STOMP 3", &on_item8_selected);
@@ -324,6 +328,7 @@ void setup() {
   storedSettings = my_flash_store.read();
   if (!(storedSettings.valid)) {
     storedSettings = {true, 200.0, 1, 0, {21, 22, 23, 24, 31, 32, 33, 34}, 200, ONE};
+    //storedSettings = {true, 200.0, 1, 0, {21, 22, 23, 24, 31, 32, 33, 34}, 200, 1};
   }
   else {
     fader1.Update = storedSettings.CCnumber[4];
@@ -337,9 +342,9 @@ void setup() {
     midi_channel.Update = storedSettings.channel;
     update_delay.Update = storedSettings.msdelay;
     led_brightness.Update = storedSettings.rotary1mod;
+    updateprogram = storedSettings.program;
     //currentPresetPointer = cPParray[storedSettings.preset];
   }
-
   analogWrite (pwm, storedSettings.rotary1mod);
   // midiA.begin();
   /*set callbacks*/
@@ -424,6 +429,7 @@ void setup() {
   display.setCursor(0, 34);
   display.setFont (&FreeMono9pt7b);
   display.println((presetArrayDisplayUpdate [storedSettings.PRESET]) );
+  //display.println(cPParray[storedSettings.preset]->heading);
   display.display();
   delay (2000);
   display.clearDisplay();
