@@ -99,7 +99,13 @@ enum RotaryMode : uint8_t {PROG, EDITMENU, CC, CHANNEL, BUTTPRESS, GLOBAL, LED, 
 RotaryMode ENCMODE = PROG;
 int updateprogram;
 
-class DataBase {
+class Base {
+  public :
+  virtual void plus();
+  virtual void minus();
+};
+
+class DataBase : public Base {
   public:
     char *heading;
     char *description;
@@ -175,38 +181,37 @@ class PresetBase : public DataBase {
 
   PresetBase * cPParray[] = {&preset1,&preset2,&preset3,&preset4};
 
-
-DataBase * currentDataPointer;
+Base * currentDataPointer;
 PresetBase * currentPresetPointer;
 
-class EncoderModeBase {
-  public: 
-  virtual void plus();
-  virtual void minus ();
-}
-
-class EncoderChannelMode : public EncoderModeBase {
-  void plus () {
-  static_cast<Data<int>*>(currentDataPointer)->Update++;
-        if (static_cast<Data<int>*>(currentDataPointer)->Update >= 17) {
-          static_cast<Data<int>*>(currentDataPointer)->Update = 1;
+class Channel: public Data<int> {
+  public:
+  Data (uint8_t _identifier, char * _heading, char * _description, char * _format, T _Update, bool _current) {
+      identifier = _identifier;
+      heading = _heading;
+      description = _description;
+      format = _format;
+      Update = _Update;
+      current = _current;
+      void plus () {
+        Update++;
+        if (Update >= 17) {
+          Update = 1;
         }
-        currentDataPointer->description = " SELECT";
-        currentDataPointer->current = true;
+        description = " SELECT";
+        current = true;
         peripheralDisplayUpdate(storedSettings.channel);
   }
   void minus () {      
-        static_cast<Data<int>*>(currentDataPointer)->Update--;
-        if (static_cast<Data<int>*>(currentDataPointer)->Update <= -1) {
-          static_cast<Data<int>*>(currentDataPointer)->Update = 16;
+        Update--;
+        if (Update <= -1) {
+          Update = 16;
         }
-        currentDataPointer->description = " SELECT";
-        currentDataPointer->current = true;
+        description = " SELECT";
+        current = true;
         peripheralDisplayUpdate(storedSettings.channel);
   }
-}; EncoderChannelMode encoderChannelMode;
-
-EncoderModeBase * currentEncoderMode; 
+}; 
 
 typedef struct {
   bool valid;
