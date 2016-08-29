@@ -97,6 +97,8 @@ elapsedMillis switchesPressTimer;
 
 enum Preset : uint8_t  {ZERO, ONE, BIAS_FX, LINE_6, AXE_FX};
 enum RotaryMode : uint8_t {PROG, EDITMENU, PERIDATA, BUTTPRESS, FADEMOVE};
+enum ControllerMode : uint8_t {SELECT, MENU};
+ControllerMode MODE = SELECT;
 RotaryMode ENCMODE = PROG;
 
 typedef struct {
@@ -106,14 +108,16 @@ typedef struct {
   int program;
   int CCnumber [8];
   int rotary1mod;
-  Preset PRESET;
-  //int preset;
+  //Preset PRESET;
+  uint8_t preset;
 } Settings;
 
-Settings storedSettings = {true, 1.0, 1, 0, {21, 22, 23, 24, 31, 32, 33, 34}, 20, ONE};
-//Settings storedSettings = {true, 200.0, 1, 0, {21, 22, 23, 24, 31, 32, 33, 34}, 200, 1};
+
+Settings storedSettings = {true, 1.0, 1, 0, {21, 22, 23, 24, 31, 32, 33, 34}, 20, 21};
+//Settings storedSettings = {true, 1.0, 1, 0, {21, 22, 23, 24, 31, 32, 33, 34}, 20, ONE};
 
 FlashStorage(my_flash_store, Settings);
+int updateprogram = storedSettings.program;
 
 class Base {
   public :
@@ -154,49 +158,56 @@ template <class T> class Data : public Base {
     }
 };
 
-/*
-
 class PresetControl : public Base {
-public:
-int updateprogram;
-virtual void peripheralDisplayUpdate (void) {
-  display.clearDisplay();
-  display.setFont ();
-  display.setCursor(0, 4);
-  display.setTextColor(WHITE);
-  display.setTextSize(1);
-  display.println("SELECT NEXT PRESET:");
-  display.setCursor(0, 50);
-  presetNumberDisplayUpdate(updateprogram, 4);
-  /*display.setFont (&FreeMono24pt7b);
-    display.printf (currentPresetPointer->format, currentPresetPointer->updateProgramCalc (updateprogram));
-    if (currentPresetPointer->alpha) {
-    display.printf ("%c", alpha [((updateprogram + 4) % 4)];
+  public:
+    virtual void peripheralDisplayUpdate () {
+      display.clearDisplay();
+      display.setFont ();
+      display.setCursor(0, 4);
+      display.setTextColor(WHITE);
+      display.setTextSize(1);
+      display.println("SELECT NEXT PRESET:");
+      display.setCursor(0, 50);
+      bignumber ();
+      display.setFont ();
+      display.setCursor(85, 23);
+      display.setTextSize(1);
+      display.print ("current");
+      display.setCursor(91, 33);
+      display.setTextSize(1);
+      display.print ("preset");
+      display.setCursor(84, 55);
+      smallnumber ();
+      display.display();
     }
-  
-}
- virtual void store (void){
-    display.setFont ();
-    display.setCursor(85, 23);
-    display.setTextSize(1);
-    display.print ("current");
-    display.setCursor(91, 33);
-    display.setTextSize(1);
-    display.print ("preset");
-    display.setCursor(84, 55);
-    presetNumberDisplayUpdate(storedSettings.program, 2);
-    /*display.setFont (&FreeMono12pt7b);
-      display.printf (currentPresetPointer->format, currentPresetPointer->updateProgramCalc (storedSettings.program));
-      if (currentPresetPointer->alpha) {
-      display.printf ("%c", alpha [((storedSettings.program + 4) % 4)];
-      }
-    *//*
-  display.display();
-}
- virtual void presetNumberDisplayUpdate (int, int) {};
+    void currentPreset () {
+      display.clearDisplay();
+      display.setFont ();
+      display.setCursor(11, 4);
+      display.setTextSize(1);
+      display.println ("- CURRENT PRESET -");
+      display.setCursor(22, 50);
+      bignumber();
+      display.display();
+    }
+    void presetSelect () {
+      display.clearDisplay();
+      display.setFont ();
+      display.setCursor(0, 0);
+      display.setTextSize(1);
+      display.printf("%s", "CURRENT");
+      display.setCursor(0, 12);
+      display.printf("%s", "PRESET FORMAT:");
+      display.setCursor(0, 34);
+      display.setFont (&FreeMono9pt7b);
+      display.println(heading);
+      display.display();
+      delay (2500);
+    }
+    virtual void bignumber () {}
+    virtual void smallnumber () {}
 };
 
-*/
 class Control: public Data<int> {
   public:
     Control (uint8_t _identifier, char * _heading, char * _description, char * _format, int _Update, bool _current) {
@@ -342,74 +353,87 @@ class Lights : public Data<int> {
     }
 };
 
-Base * currentDataPointer;
-
-/*  class PresetBase
-    public:
-      virtual int updateProgramCalc();
-      bool alpha;
-      uint8_t identifier;
-      char * heading;
-      char * format;
-  };
-
-  class Preset1 :
-    public PresetBase {
-    public:
-      identifier = 0;
-      heading = "000-127";
-      format = "%3d";
-      current = true;
-      alpha = false;
-      int updateProgramCalc (int prog) {
-        return prog;
+class Preset1 : public PresetControl {
+  public:
+    Preset1 (uint8_t _identifier, char * _heading, char * _format, bool _current) {
+      identifier = _identifier;
+      heading = _heading;
+      format = _format;
+      current = _current;
+    }
+    virtual void plus () {
+      updateprogram++;
+      if (updateprogram >= 128) {
+        updateprogram = 0;
       }
-  };
-  Preset1 preset1;
-
-  class Preset2 :
-    public PresetBase {
-    public:
-      identifier = 1;
-      heading = "001-128";
-      format = "%3d";
-      current = true;
-      alpha = false;
-      int updateProgramCalc (int prog) {
-        return (prog + 1);
+    }
+    virtual void minus () {
+      updateprogram--;
+      if (updateprogram <= -1) {
+        updateprogram = 127;
       }
-  };
-  Preset2 preset2;
-
-  class Preset3 :
-    public PresetBase
-  { public:
-      identifier = 2;
-      heading = "1A-8D";
-      format = "%d";
-      current = true;
-      alpha = true;
-      int updateProgramCalc (int prog) {
-        return ((prog + 4) / 4);
+    }
+    virtual void select () {
+      peripheralDisplayUpdate();
+    }
+    virtual void store () {
+      if (!(current)) {
+        currentPreset();
       }
-  };
-
-  class Preset4 :
-    public PresetBase
-  { public:
-      identifier = 3;
-      heading = "1A-32D";
-      format = "%d";
-      current = true;
-      alpha = true;
-      int updateProgramCalc (int prog) {
-        return ((prog + 4) / 4);
+      else {
+        presetSelect();
       }
-  };
-  PresetBase * currentPresetPointer;
-  PresetBase * cPParray[] = {&preset1, &preset2, &preset3, &preset4};
-*/
+    }
+    virtual void bignumber () {
+      display.setFont (&FreeMono24pt7b);
+      display.printf (format, updateprogram);
+    }
+    virtual void smallnumber () {
+      display.setFont (&FreeMono12pt7b);
+      display.printf (format, storedSettings.program);
+    }
+};
 
+class Preset2 : public PresetControl {
+  public:
+    Preset2 (uint8_t _identifier, char * _heading, char * _format, bool _current) {
+      identifier = _identifier;
+      heading = _heading;
+      format = _format;
+      current = _current;
+    }
+    virtual void plus () {
+      updateprogram++;
+      if (updateprogram >= 128) {
+        updateprogram = 0;
+      }
+    }
+    virtual void minus () {
+      updateprogram--;
+      if (updateprogram <= -1) {
+        updateprogram = 127;
+      }
+    }
+    virtual void select () {
+      peripheralDisplayUpdate();
+    }
+    virtual void store () {
+      if (!(current)) {
+        currentPreset();
+      }
+      else {
+        presetSelect();
+      }
+    }
+    virtual void bignumber () {
+      display.setFont (&FreeMono24pt7b);
+      display.printf (format, updateprogram + 1);
+    }
+    virtual void smallnumber () {
+      display.setFont (&FreeMono12pt7b);
+      display.printf (format, storedSettings.program + 1);
+    }
+};
 
 Control fader1 (4, "FADER 1", " SELECT", "%03d", storedSettings.CCnumber[4], true);
 Control fader2 (5, "FADER 2", " SELECT", "%03d", storedSettings.CCnumber[5], true);
@@ -422,8 +446,11 @@ Control stomp4 (3, "STOMP 4", " SELECT", "%03d", storedSettings.CCnumber[3], tru
 MIDIChannel midi_channel (10, "MIDI CHANNEL", " SELECT", "%02d", storedSettings.channel, true);
 GlobalDelay update_delay (11, "UPDATE DELAY (sec)", "", "%.1f", storedSettings.msdelay, true);
 Lights led_brightness (12, "LED BRIGHTNESS", " SELECT", "%02d", storedSettings.rotary1mod, true);
-int updateprogram = storedSettings.program;
-//currentPresetPointer = cPParray[storedSettings.preset];
+Preset1 preset1 (21, "000-127", "%03d", false);
+Preset2 preset2 (22, "001-128", "%03d", false);
+
+Base * cPParray[] = {&preset1, &preset2};
+Base * currentDataPointer = cPParray[storedSettings.preset - 21];
 
 uint8_t lcount = 0;
 uint8_t rcount = 0;
@@ -528,8 +555,7 @@ void setup() {
   /*FlashStorage management*/
   storedSettings = my_flash_store.read();
   if (!(storedSettings.valid)) {
-    storedSettings = {true, 1.0, 1, 0, {21, 22, 23, 24, 31, 32, 33, 34}, 20, ONE};
-    //storedSettings = {true, 200.0, 1, 0, {21, 22, 23, 24, 31, 32, 33, 34}, 200, 1};
+    storedSettings = {true, 1.0, 1, 0, {21, 22, 23, 24, 31, 32, 33, 34}, 20, 21};
   }
   else {
     fader1.Update = storedSettings.CCnumber[4];
@@ -544,7 +570,7 @@ void setup() {
     update_delay.Update = storedSettings.msdelay;
     led_brightness.Update = storedSettings.rotary1mod;
     updateprogram = storedSettings.program;
-    //currentPresetPointer = cPParray[storedSettings.preset];
+    currentDataPointer = cPParray[storedSettings.preset - 20];
   }
   analogWrite (pwm, storedSettings.rotary1mod * 10);
   // midiA.begin();
@@ -629,13 +655,13 @@ void setup() {
   display.printf("%s", "PRESET FORMAT:");
   display.setCursor(0, 34);
   display.setFont (&FreeMono9pt7b);
-  display.println((presetArrayDisplayUpdate [storedSettings.PRESET]) );
+  display.println(currentDataPointer->heading);
   //display.println(cPParray[storedSettings.preset]->heading);
   display.display();
   delay (2000);
   display.clearDisplay();
   delay (500);
-  presetDisplayUpdate ();
+  currentDataPointer->store();
 }
 
 void loop() {
@@ -643,70 +669,6 @@ void loop() {
   Rotary::ReadWrite();
   Buttons.ReadWrite();
   Fader::ReadWrite();
-}
-
-/*Display functions*/
-void presetDisplayUpdate (void) {
-  display.clearDisplay();
-  display.setFont ();
-  display.setCursor(0, 4);
-  display.setTextColor(WHITE);
-  display.setTextSize(1);
-  display.println("SELECT NEXT PRESET:");
-  display.setCursor(0, 50);
-  presetNumberDisplayUpdate(updateprogram, 4);
-  /*display.setFont (&FreeMono24pt7b);
-    display.printf (currentPresetPointer->format, currentPresetPointer->updateProgramCalc (updateprogram));
-    if (currentPresetPointer->alpha) {
-    display.printf ("%c", alpha [((updateprogram + 4) % 4)];
-    }
-  */
-  if (INIT == false) {
-    display.setFont ();
-    display.setCursor(85, 23);
-    display.setTextSize(1);
-    display.print ("current");
-    display.setCursor(91, 33);
-    display.setTextSize(1);
-    display.print ("preset");
-    display.setCursor(84, 55);
-    presetNumberDisplayUpdate(storedSettings.program, 2);
-    /*display.setFont (&FreeMono12pt7b);
-      display.printf (currentPresetPointer->format, currentPresetPointer->updateProgramCalc (storedSettings.program));
-      if (currentPresetPointer->alpha) {
-      display.printf ("%c", alpha [((storedSettings.program + 4) % 4)];
-      }
-    */
-  }
-  display.display();
-}
-
-void presetNumberDisplayUpdate (int prog, int txtsize) {
-  if (txtsize == 2) {
-    display.setFont (&FreeMono12pt7b);
-  }
-  if (txtsize == 4) {
-    display.setFont (&FreeMono24pt7b);
-  }
-
-  switch (storedSettings.PRESET) {
-    case ZERO:
-      display.printf ("%03d", prog);
-      break;
-    case ONE:
-    case AXE_FX:
-      display.printf ("%03d", (prog + 1));
-      break;
-    case BIAS_FX:
-      if (prog >= 32) {
-        prog = 31;
-      }
-    case LINE_6:
-      int number = ((prog + 4) / 4);
-      int letter = ((prog + 4) % 4);
-      display.printf ("%d%c", number, alpha [letter]);
-      break;
-  }
 }
 
 void buttpressDisplayUpdate (void) {
@@ -784,119 +746,73 @@ void disconnected(void)
 }
 
 /*Button Callbacks*/
-void SelectPress (void) {
-  if (ENCMODE == PROG) {
-      if (INIT == true) {
-        INIT = false;
-      }
-  }
-}
 void SelectRelease (void) {
-  switch (ENCMODE) {
-    case PROG:
-      storedSettings.program = updateprogram;
-      if (isConnected) {
-        midi.send(0xC0 + (storedSettings.channel - 1), storedSettings.program, storedSettings.program);
-      }
-      my_flash_store.write(storedSettings);
-      display.clearDisplay();
-      display.setFont ();
-      display.setCursor(11, 4);
-      display.setTextSize(1);
-      display.println ("- CURRENT PRESET -");
-      display.setCursor(22, 50);
-      presetNumberDisplayUpdate (storedSettings.program, 4);
-      /*display.setFont (&FreeMono24pt7b);
-        display.printf (currentPresetPointer->format, currentPresetPointer->updateProgramCalc (storedSettings.program));
-        if (currentPresetPointer->alpha) {
-        display.printf ("%c", alpha [((storedSettings.program + 4) % 4)];
+}
+
+void SelectPress (void) {
+  switch (MODE) {
+    case SELECT:
+      currentDataPointer->store();
+      if (currentDataPointer->identifier > 20) {
+        storedSettings.program = updateprogram;
+        if (isConnected) {
+          midi.send(0xC0 + (storedSettings.channel - 1), storedSettings.program, storedSettings.program);
         }
-      */
-      display.display();
-      if (storedSettings.msdelay > 0.05) {
-        delay (storedSettings.msdelay * 1000);
-        for (int i = 0; i < 4; i++) {
-          CCbleTXmidi (i + 4, faderValue[i]);
+        my_flash_store.write(storedSettings);
+        if (storedSettings.msdelay > 0.05) {
+          delay (storedSettings.msdelay * 1000);
+          for (int i = 0; i < 4; i++) {
+            CCbleTXmidi (i + 4, faderValue[i]);
+          }
         }
       }
-      //global reset
-      break;
-    case EDITMENU:
-      ms.select();
-      if (ENCMODE == PROG) {
-        display.clearDisplay();
-        display.setFont ();
-        display.setCursor(0, 0);
-        display.setTextSize(1);
-        display.printf("%s", "CURRENT");
-        display.setCursor(0, 12);
-        display.printf("%s", "PRESET FORMAT:");
-        display.setCursor(0, 34);
-        display.setFont (&FreeMono9pt7b);
-        display.println((presetArrayDisplayUpdate [storedSettings.PRESET]) );
-        //display.println(cPParray[storedSettings.preset]->heading);
-        display.display();
+      else {
+        MODE = MENU;
         delay (2500);
-        ENCMODE = EDITMENU;
-      }
-      if (ENCMODE == EDITMENU) {
         editMenuDisplayUpdate ();
       }
       break;
-    case PERIDATA:
-      ENCMODE = EDITMENU;
-      currentDataPointer->store();
-      delay (2500);
+    case MENU:
+      ms.select();
+      if (MODE != SELECT) {
       editMenuDisplayUpdate ();
-      break;
-    case BUTTPRESS:
-    case FADEMOVE:
-      ENCMODE = PROG;
-      presetDisplayUpdate ();
+      }
       break;
   }
 }
 void EditPress (void) {
-  switch (ENCMODE) {
-    case PROG:
-      switchesPressTimer = 0;
-      display.clearDisplay();
-      display.display();
-      break;
-    case EDITMENU:
-      if ((ms._p_curr_menu == ms._p_root_menu)) {
-        ENCMODE = PROG;
-        EXIT = true;
-        ms.reset();
-        presetDisplayUpdate ();
+  switch (MODE) {
+    case SELECT:
+      if (currentDataPointer->identifier > 20) {
+        switchesPressTimer = 0;
+        display.clearDisplay();
+        display.display();
       }
       else {
-        ms.back();
+        MODE = MENU;
+        ms.reset();
         editMenuDisplayUpdate();
+        
       }
       break;
-    case PERIDATA:
-      ENCMODE = EDITMENU;
-      ms.reset();
-      editMenuDisplayUpdate();
+    case MENU:
       break;
-    case BUTTPRESS:
-    case FADEMOVE:
-      ENCMODE = PROG;
-      ms.reset();
-      EXIT = true;
-      presetDisplayUpdate ();
-      break;
+      /*case BUTTPRESS:
+        //case FADEMOVE:
+        //ENCMODE = PROG;
+        //  ms.reset();
+        //  EXIT = true;
+        //   currentDataPointer = cPParray[storedSettings.preset];
+        //     currentDataPointer->store();
+      */break;
   }
 }
 void EditRelease (void) {
-  switch (ENCMODE) {
-    case PROG: {
+  switch (MODE) {
+    case SELECT:
+      if (currentDataPointer->identifier > 20) {
         int time = switchesPressTimer - 2500;
-        if (EXIT == true) {
-          EXIT = false;
-        }
-        else if (time < 0) {
+        if (time < 0) {
           delay (200);
           for (int i = 0; i < 4; i++) {
             CCbleTXmidi (i + 4, faderValue[i]);
@@ -914,19 +830,28 @@ void EditRelease (void) {
           display.println("updated");
           display.display();
           delay(300);
-          presetDisplayUpdate();
+          currentDataPointer->store();
         }
         else {
-          ENCMODE = EDITMENU;
+          MODE = MENU;
           ms.reset();
+          currentDataPointer = &led_brightness;
           editMenuDisplayUpdate();
         }
       }
       break;
-    case EDITMENU:
-    case PERIDATA:
-    case BUTTPRESS:
-    case FADEMOVE:
+    case MENU:
+    if ((ms._p_curr_menu == ms._p_root_menu)) {
+        ms.reset();
+        currentDataPointer = cPParray[storedSettings.preset - 20];
+        currentDataPointer->current = false;
+        currentDataPointer->store();
+        MODE = SELECT;
+      }
+      else {
+        ms.back();
+        editMenuDisplayUpdate();
+      }
       break;
   }
 }
@@ -977,70 +902,36 @@ void Stomp4ON(void) {
 }
 
 /*Rotary Callbacks*/
-void Left (void) {
-  lcount++;
-  if (lcount > 1) {
+void Right (void) {
+  rcount++;
+  if (rcount > 1) {
     lcount = 0;
     rcount = 0;
-    switch (ENCMODE) {
-      case PROG:
-        updateprogram--;
-        if (storedSettings.PRESET == BIAS_FX) {
-          if (updateprogram <= -1) {
-            updateprogram = 31;
-          }
-        }
-        else if (updateprogram <= -1) {
-          updateprogram = 127;
-        }
-        presetDisplayUpdate ();
-        break;
-      case EDITMENU:
-        ms.prev ();
+    switch (MODE) {
+      case MENU:
+        ms.next ();
         editMenuDisplayUpdate();
         break;
-      case PERIDATA:
-        currentDataPointer->minus();
+      case SELECT:
+        currentDataPointer->plus();
         currentDataPointer->select();
-        break;
-      case BUTTPRESS:
-      case FADEMOVE:
-        ENCMODE = PROG;
-        presetDisplayUpdate();
         break;
     }
   }
 }
-void Right (void) {
-  rcount++;
-  if (rcount > 1) {
+void Left (void) {
+  lcount++;
+  if (lcount > 1) {
     rcount = 0;
     lcount = 0;
-    switch (ENCMODE) {
-      case PROG:
-        updateprogram++;
-        if (storedSettings.PRESET == BIAS_FX) {
-          if (updateprogram >= 32) {
-            updateprogram = 0;
-          }
-        }
-        else if (updateprogram >= 128) {
-          updateprogram = 0;
-        }
-        presetDisplayUpdate ();
-        break;
+    switch (MODE) {
       case EDITMENU:
-        ms.next ();
+        ms.prev ();
         editMenuDisplayUpdate();
         break;
-      case PERIDATA:
-        currentDataPointer->plus();
+      case SELECT:
+        currentDataPointer->minus();
         currentDataPointer->select();
-        break;
-      case BUTTPRESS:
-      case FADEMOVE:
-        ENCMODE = PROG;
-        presetDisplayUpdate();
         break;
     }
   }
@@ -1110,109 +1001,103 @@ void slider4SAME (int currentValue) {
 /*Menu Callbacks*/
 void on_itemLED_selected(MenuItem * p_menu_item)
 {
-  ENCMODE = PERIDATA;
+  MODE = SELECT;
   currentDataPointer = &led_brightness;
   currentDataPointer->select();
 }
 void on_itemGLOBAL_selected(MenuItem * p_menu_item)
 {
-  ENCMODE = PERIDATA;
+  MODE = SELECT;
   currentDataPointer = &update_delay;
   currentDataPointer->select();
 }
 void on_item0_selected(MenuItem * p_menu_item)
 {
   ENCMODE = PERIDATA;
+  MODE = SELECT;
   currentDataPointer = &midi_channel;
   currentDataPointer->select();
 }
 void on_item1_selected(MenuItem * p_menu_item)
 {
-  storedSettings.PRESET = ZERO;
+  storedSettings.preset = 20;
   my_flash_store.write(storedSettings);
-  ENCMODE = PROG;
-  //storedSettings.preset=0;
-  //currentPresetPointer = cPParray[0];
+  currentDataPointer = cPParray[0];
+  currentDataPointer->current = true;
 }
 void on_item2_selected(MenuItem * p_menu_item)
 {
-  storedSettings.PRESET = ONE;
+  storedSettings.preset = 21;
   my_flash_store.write(storedSettings);
-  ENCMODE = PROG;
-  //storedSettings.preset=1;
-  //currentPresetPointer = cPParray[1];
+  currentDataPointer = cPParray[1];
+  currentDataPointer->current = true;
 }
 void on_item3_selected(MenuItem * p_menu_item)
 {
-  storedSettings.PRESET = BIAS_FX;
+  storedSettings.preset = 22;
   my_flash_store.write(storedSettings);
-  ENCMODE = PROG;
   //if (updateprogram >= 32) {
   //       updateprogram = 31;
   //    }
-  //storedSettings.preset=2;
-  //currentPresetPointer = cPParray[2];
+  currentDataPointer = cPParray[2];
+  currentDataPointer->current = true;
 }
 void on_itemLINE6_selected(MenuItem * p_menu_item)
 {
-  storedSettings.PRESET = LINE_6;
+  storedSettings.preset = 23;
   my_flash_store.write(storedSettings);
-  ENCMODE = PROG;
-  //storedSettings.preset=3;
-  //currentPresetPointer = cPParray[3];
+  currentDataPointer = cPParray[3];
+  currentDataPointer->current = true;
 }
 void on_itemAXE_selected(MenuItem * p_menu_item)
 {
-  storedSettings.PRESET = AXE_FX;
-  my_flash_store.write(storedSettings);
-  ENCMODE = PROG;
 }
 void on_item6_selected(MenuItem * p_menu_item)
 {
-  ENCMODE = PERIDATA;
+  MODE = SELECT;
   currentDataPointer = &stomp1;
   currentDataPointer->select();
 }
 void on_item7_selected(MenuItem * p_menu_item)
 {
-  ENCMODE = PERIDATA;
+  MODE = SELECT;
   currentDataPointer = &stomp2;
   currentDataPointer->select();
 }
 void on_item8_selected(MenuItem * p_menu_item)
 {
-  ENCMODE = PERIDATA;
+  MODE = SELECT;
   currentDataPointer = &stomp3;
   currentDataPointer->select();
 }
 void on_item9_selected(MenuItem * p_menu_item)
 {
-  ENCMODE = PERIDATA;
+  MODE = SELECT;
   currentDataPointer = &stomp4;
   currentDataPointer->select();
-  
+
 }
 void on_item10_selected(MenuItem * p_menu_item)
 {
-  ENCMODE = PERIDATA;
+  MODE = SELECT;
   currentDataPointer = &fader1;
   currentDataPointer->select();
 }
 void on_item11_selected(MenuItem * p_menu_item)
 {
-  ENCMODE = PERIDATA;
+  MODE = SELECT;
   currentDataPointer = &fader2;
   currentDataPointer->select();
 }
 void on_item12_selected(MenuItem * p_menu_item)
 {
-  ENCMODE = PERIDATA;
+  MODE = SELECT;
   currentDataPointer = &fader3;
   currentDataPointer->select();
 }
 void on_item13_selected(MenuItem * p_menu_item)
 {
-  ENCMODE = PERIDATA;
+  MODE = SELECT;
   currentDataPointer = &fader4;
   currentDataPointer->select();
 }
