@@ -202,9 +202,9 @@ class PresetControl : public Base {
       display.setFont ();
       display.setCursor(0, 0);
       display.setTextSize(1);
-      display.printf("%s", "CURRENT");
+      display.printf("%s", "PRESET");
       display.setCursor(0, 12);
-      display.printf("%s", "PRESET FORMAT:");
+      display.printf("%s", "FORMAT SELECTED:");
       display.setCursor(0, 34);
       display.setFont (&FreeMono9pt7b);
       display.println(heading);
