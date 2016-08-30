@@ -137,6 +137,7 @@ class Base {
     char *format;
     uint8_t identifier;
     bool current;
+    virtual void bignumberstored () {}
 };
 
 template <class T> class Data : public Base {
@@ -212,7 +213,6 @@ class PresetControl : public Base {
     }
     virtual void bignumber () {}
     virtual void smallnumber () {}
-    virtual void bignumberstored () {}
 };
 
 class Control: public Data<int> {
