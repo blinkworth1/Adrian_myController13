@@ -726,6 +726,9 @@ void setup() {
   display.clearDisplay();
   delay (500);
   currentDataPointer->store();
+  if (isConnected) {
+          midi.send(0xC0 + (storedSettings.channel - 1), storedSettings.program, storedSettings.program);
+        }
 }
 
 void loop() {
@@ -852,10 +855,10 @@ void EditPress (void) {
         display.clearDisplay();
         display.display();
       }
-      else {
-        MODE = MENU;
-        ms.reset();
-        editMenuDisplayUpdate();
+      //else {
+        //MODE = MENU;
+        //ms.reset();
+        //editMenuDisplayUpdate();
         
       }
       break;
@@ -891,7 +894,7 @@ void EditRelease (void) {
         else {
           MODE = MENU;
           ms.reset();
-          currentDataPointer = &led_brightness;
+          //currentDataPointer = &led_brightness;
           editMenuDisplayUpdate();
         }
       }
