@@ -193,7 +193,7 @@ class PresetControl : public Base {
       display.setTextSize(1);
       display.println ("- CURRENT PRESET -");
       display.setCursor(22, 50);
-      bignumber();
+      bignumberstored();
       display.display();
     }
     void presetSelect () {
@@ -212,6 +212,7 @@ class PresetControl : public Base {
     }
     virtual void bignumber () {}
     virtual void smallnumber () {}
+    virtual void bignumberstored () {}
 };
 
 class Control: public Data<int> {
@@ -386,6 +387,10 @@ class Preset1 : public PresetControl {
       display.setFont (&FreeMono12pt7b);
       display.printf (format, storedSettings.program);
     }
+    virtual void bignumberstored () {
+      display.setFont (&FreeMono24pt7b);
+      display.printf (format, storedSettings.program);
+    }
 };
 
 class Preset2 : public PresetControl {
@@ -413,6 +418,10 @@ class Preset2 : public PresetControl {
     }
     virtual void smallnumber () {
       display.setFont (&FreeMono12pt7b);
+      display.printf (format, storedSettings.program + 1);
+    }
+    virtual void bignumberstored () {
+      display.setFont (&FreeMono24pt7b);
       display.printf (format, storedSettings.program + 1);
     }
 };
@@ -460,6 +469,12 @@ class Preset3 : public PresetControl {
       int letter = (storedSettings.program + 4) % 4;
       display.printf (format, number, alpha [letter]);
     }
+    virtual void bignumberstored () {
+      display.setFont (&FreeMono24pt7b);
+      int number = (storedSettings.program + 4) / 4;
+      int letter = (storedSettings.program + 4) % 4;
+      display.printf (format, number, alpha [letter]);
+    }
 };
 
 class Preset4 : public PresetControl {
@@ -489,6 +504,12 @@ class Preset4 : public PresetControl {
     }
     virtual void smallnumber () {
       display.setFont (&FreeMono12pt7b);
+      int number = (storedSettings.program + 4) / 4;
+      int letter = (storedSettings.program + 4) % 4;
+      display.printf (format, number, alpha [letter]);
+    }
+    virtual void bignumberstored () {
+      display.setFont (&FreeMono24pt7b);
       int number = (storedSettings.program + 4) / 4;
       int letter = (storedSettings.program + 4) % 4;
       display.printf (format, number, alpha [letter]);
