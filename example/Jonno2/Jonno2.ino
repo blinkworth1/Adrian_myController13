@@ -725,7 +725,15 @@ void setup() {
   delay (2000);
   display.clearDisplay();
   delay (500);
-  currentDataPointer->store();
+  display.clearDisplay();
+display.setFont ();
+display.setCursor(0, 4);
+      display.setTextColor(WHITE);
+      display.setTextSize(1);
+      display.println("SELECT NEXT PRESET:");
+display.setCursor(22, 50);
+currentDataPointer->bignumberstored();
+display.display();
         }
 }
 
