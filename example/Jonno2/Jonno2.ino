@@ -269,7 +269,7 @@ class MIDIChannel: public Data<int> {
     }
     virtual void minus () {
       Update--;
-      if (Update <= -1) {
+      if (Update <= 0) {
         Update = 16;
       }
     }
@@ -726,8 +726,6 @@ void setup() {
   display.clearDisplay();
   delay (500);
   currentDataPointer->store();
-  if (isConnected) {
-          midi.send(0xC0 + (storedSettings.channel - 1), storedSettings.program, storedSettings.program);
         }
 }
 
@@ -819,11 +817,10 @@ void SelectRelease (void) {
 void SelectPress (void) {
   switch (MODE) {
     case SELECT:
-      currentDataPointer->store();
       if (currentDataPointer->identifier > 20) {
         storedSettings.program = updateprogram;
         if (isConnected) {
-          midi.send(0xC0 + (storedSettings.channel - 1), storedSettings.program, storedSettings.program);
+          midi.send(0xC0 + (storedSettings.channel), storedSettings.program, storedSettings.program);
         }
         my_flash_store.write(storedSettings);
         if (storedSettings.msdelay > 0.05) {
@@ -833,6 +830,7 @@ void SelectPress (void) {
           }
         }
       }
+      currentDataPointer->store();
       else {
         MODE = MENU;
         delay (2500);
@@ -994,7 +992,7 @@ void Left (void) {
 
 void CCbleTXmidi (int CC, int Value) {
   if (isConnected) {
-    midi.send(0xB0 + (storedSettings.channel - 1), storedSettings.CCnumber[CC], Value);
+    midi.send(0xB0 + (storedSettings.channel), storedSettings.CCnumber[CC], Value);
   }
 }
 
