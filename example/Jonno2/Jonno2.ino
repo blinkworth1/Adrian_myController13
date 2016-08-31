@@ -80,7 +80,7 @@ const unsigned char mybitmap [] PROGMEM = {
 #define OLED_DATA   20 //i2c pins for display
 #define OLED_CLK    21
 #define OLED_RESET  5
-Fader slider1 (A8, 8); //aref and jitter suppression amount
+Fader slider1 (A8, 9); //aref and jitter suppression amount
 Fader slider2 (A2, 20);
 Fader slider3 (A3, 20);
 Fader slider4 (A4, 20);
@@ -770,7 +770,6 @@ display.setCursor(22, 50);
 currentDataPointer->bignumberstored();
 display.display();
         }
-}
 
 void loop() {
   ble.update(500); // interval for each scanning ~ 500ms (non blocking)
@@ -901,8 +900,7 @@ void EditPress (void) {
         //MODE = MENU;
         //ms.reset();
         //editMenuDisplayUpdate();
-        
-      }
+      //}
       break;
     case MENU:
       break;
@@ -940,6 +938,12 @@ void EditRelease (void) {
           editMenuDisplayUpdate();
         }
       }
+      else {
+        MODE = MENU;
+          //ms.reset();
+          //currentDataPointer = &led_brightness;
+          editMenuDisplayUpdate();
+          }
       break;
     case MENU:
     if ((ms._p_curr_menu == ms._p_root_menu)) {
