@@ -516,6 +516,40 @@ class Preset4 : public PresetControl {
     }
 };
 
+class Preset5 : public PresetControl {
+  public:
+    Preset5 (uint8_t _identifier, char * _heading, char * _format, bool _current) {
+      identifier = _identifier;
+      heading = _heading;
+      format = _format;
+      current = _current;
+    }
+    virtual void select () {
+      peripheralDisplayUpdate();
+    }
+    virtual void store () {
+      if (!(current)) {
+        currentPreset();
+      }
+      else {
+        presetSelect();
+      }
+    }
+    virtual void bignumber () {
+      display.setFont (&FreeMono24pt7b);
+      display.printf (format, updateprogram + 1);
+    }
+    virtual void smallnumber () {
+      display.setFont (&FreeMono12pt7b);
+      display.printf (format, storedSettings.program + 1);
+    }
+    virtual void bignumberstored () {
+      display.setFont (&FreeMono24pt7b);
+      display.printf (format, storedSettings.program + 1);
+    }
+};
+
+
 Control fader1 (4, "FADER 1", " SELECT", "%03d", storedSettings.CCnumber[4], true);
 Control fader2 (5, "FADER 2", " SELECT", "%03d", storedSettings.CCnumber[5], true);
 Control fader3 (6, "FADER 3", " SELECT", "%03d", storedSettings.CCnumber[6], true);
@@ -531,8 +565,9 @@ Preset1 preset1 (21, "000-127", "%03d", false);
 Preset2 preset2 (22, "001-128", "%03d", false);
 Preset3 preset3 (23, "1A-8D", "%d%c", false);
 Preset4 preset4 (24, "1A-32D", "%d%c", false);
+Preset5 preset5 (25, "001-128 + scenes", "%03d", false);
 
-Base * cPParray[] = {&preset1, &preset2, &preset3, &preset4};
+Base * cPParray[] = {&preset1, &preset2, &preset3, &preset4, &preset5};
 Base * currentDataPointer = cPParray[storedSettings.preset - 21];
 
 /*Forward Declarations*/
@@ -598,7 +633,7 @@ MenuItem mu1_mi1("000-127", &on_item1_selected);
 MenuItem mu1_mi2("001-128", &on_item2_selected);
 MenuItem mu1_mi3("1A-8D", &on_item3_selected);
 MenuItem mu1_mi6("1A-32D", &on_itemLINE6_selected);
-MenuItem mu1_mi7("AXE FX", &on_itemAXE_selected);
+MenuItem mu1_mi7("001-128 + scenes", &on_itemAXE_selected);
 MenuItem mu2_mi1("STOMP 1", &on_item6_selected);
 MenuItem mu2_mi2("STOMP 2", &on_item7_selected);
 MenuItem mu2_mi3("STOMP 3", &on_item8_selected);
@@ -1084,7 +1119,7 @@ void on_item1_selected(MenuItem * p_menu_item)
   currentDataPointer = cPParray[0];
   currentDataPointer->current = true;
   currentDataPointer->store();
-  delay (2500);
+  delay (2000);
 }
 void on_item2_selected(MenuItem * p_menu_item)
 {
@@ -1093,7 +1128,7 @@ void on_item2_selected(MenuItem * p_menu_item)
   currentDataPointer = cPParray[1];
   currentDataPointer->current = true;
   currentDataPointer->store();
-  delay (2500);
+  delay (2000);
   
 }
 void on_item3_selected(MenuItem * p_menu_item)
@@ -1106,7 +1141,7 @@ void on_item3_selected(MenuItem * p_menu_item)
   currentDataPointer = cPParray[2];
   currentDataPointer->current = true;
   currentDataPointer->store();
-  delay (2500);
+  delay (2000);
 }
 void on_itemLINE6_selected(MenuItem * p_menu_item)
 {
@@ -1115,7 +1150,7 @@ void on_itemLINE6_selected(MenuItem * p_menu_item)
   currentDataPointer = cPParray[3];
   currentDataPointer->current = true;
   currentDataPointer->store();
-  delay (2500);
+  delay (2000);
 }
 void on_itemAXE_selected(MenuItem * p_menu_item)
 {
