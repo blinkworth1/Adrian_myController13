@@ -862,6 +862,7 @@ void SelectPress (void) {
     case SELECT:
       if (currentDataPointer->identifier > 20) {
         storedSettings.program = updateprogram;
+        currentDataPointer->store();
         if (isConnected) {
           midi.send(0xC0 + (storedSettings.channel), storedSettings.program, storedSettings.program);
         }
@@ -873,10 +874,10 @@ void SelectPress (void) {
           }
         }
       }
-      currentDataPointer->store();
       else {
         MODE = MENU;
-        delay (2500);
+        currentDataPointer->store();
+        delay (2200);
         editMenuDisplayUpdate ();
       }
       break;
