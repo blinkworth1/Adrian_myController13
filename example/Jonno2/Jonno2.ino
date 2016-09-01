@@ -863,7 +863,7 @@ void SelectPress (void) {
         storedSettings.program = updateprogram;
         currentDataPointer->store();
         if (isConnected) {
-          midi.send(0xC0 + (storedSettings.channel), storedSettings.program, storedSettings.program);
+          midi.send(0xC0 + (storedSettings.channel - 1), storedSettings.program, storedSettings.program);
         }
         my_flash_store.write(storedSettings);
         if (storedSettings.msdelay > 0.05) {
@@ -1040,7 +1040,7 @@ void Left (void) {
 
 void CCbleTXmidi (int CC, int Value) {
   if (isConnected) {
-    midi.send(0xB0 + (storedSettings.channel), storedSettings.CCnumber[CC], Value);
+    midi.send(0xB0 + (storedSettings.channel - 1), storedSettings.CCnumber[CC], Value);
   }
 }
 
