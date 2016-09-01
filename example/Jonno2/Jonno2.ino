@@ -593,7 +593,7 @@ void on_item11_selected(MenuItem* p_menu_item);
 void on_item12_selected(MenuItem* p_menu_item);
 void on_item13_selected(MenuItem* p_menu_item);
 void SelectPress (void);
-void SelectRelease (void);
+//void SelectRelease (void);
 void Left (void);
 void Right (void);
 void EditPress (void);
@@ -853,8 +853,8 @@ void disconnected(void)
 }
 
 /*Button Callbacks*/
-void SelectRelease (void) {
-}
+//void SelectRelease (void) {
+//}
 
 void SelectPress (void) {
   switch (MODE) {
@@ -889,8 +889,8 @@ void SelectPress (void) {
   }
 }
 void EditPress (void) {
-  switch (MODE) {
-    case SELECT:
+  //switch (MODE) {
+    //case SELECT:
       if (currentDataPointer->identifier > 20) {
         switchesPressTimer = 0;
         display.clearDisplay();
@@ -901,10 +901,10 @@ void EditPress (void) {
         //ms.reset();
         //editMenuDisplayUpdate();
       //}
-      break;
-    case MENU:
-      break;
-  }
+      //break;
+    //case MENU:
+      //break;
+  //}
 }
 void EditRelease (void) {
   switch (MODE) {
