@@ -646,11 +646,11 @@ class Preset5 : public PresetControl {
       display.setCursor(0, 4);
       display.setTextColor(WHITE);
       display.setTextSize(1);
-      display.println("SELECT NEXT SCENE:");
-      display.setCursor(0, 50);
+      display.println("SELECT SCENE:");
+      display.setCursor(25, 40);
       display.setFont (&FreeMono12pt7b);
       display.printf ("%03d%s%d", storedSettings.program + 1, ":", Update);
-      display.setFont ();
+      /*display.setFont ();
       display.setCursor(85, 23);
       display.setTextSize(1);
       display.print ("current");
@@ -658,7 +658,7 @@ class Preset5 : public PresetControl {
       display.setTextSize(1);
       display.print ("preset");
       display.setCursor(84, 55);
-      smallnumber ();
+      smallnumber ();*/
       display.display();
     }
     virtual void plus () {
@@ -703,11 +703,8 @@ class Preset5 : public PresetControl {
       if (currentState->identifier == 7) {
         presetSelect();
       }
-      else if (currentState->identifier != 2) {
-        currentPreset();
-      }
       else {
-        sceneSelect();
+        currentPreset();
       }
     }
     virtual void bignumber () {
@@ -740,7 +737,7 @@ class Preset5 : public PresetControl {
       display.setFont ();
       display.setCursor(11, 4);
       display.setTextSize(1);
-      display.println (" - CURRENT PRESET - ");
+      display.println (" - SELECTED - ");
       display.setCursor(25, 40);
       storedSettings.scene = Update;
       my_flash_store.write(storedSettings);
@@ -772,14 +769,14 @@ Base * currentDataPointer = cPParray[storedSettings.preset - 21];
 
 void state1 :: execute (int event) {
   switch (event) {
-    case 1:
+    /*case 1:
       currentDataPointer->minus();
       currentDataPointer->select();
       break;
     case 2:
       currentDataPointer->plus();
       currentDataPointer->select();
-      break;
+      break;*/
     case 3:
       storedSettings.program = updateprogram;
       currentDataPointer->store();
@@ -794,7 +791,9 @@ void state1 :: execute (int event) {
         }
       }
       if (currentDataPointer->identifier == 25) {
-        currentState = &stateTwo;
+        currentState = &stateTwo; 
+        delay (1000);
+        currentState->execute(0);
       }
       break;
     case 4:
@@ -808,22 +807,25 @@ void state1 :: execute (int event) {
 void state2 :: execute (int event) {
   switch (event) {
     case 0:
-    delay (100);
-    currentDataPointer->select();
-    break;
-    case 1:
+      delay (100);
+      currentDataPointer->select();
+      break;
+    /*case 1:
       currentDataPointer->minus();
       currentDataPointer->select();
       break;
     case 2:
       currentDataPointer->plus();
       currentDataPointer->select();
+      break;*/
+    case 3:
+      //currentDataPointer->store();
+      preset5.sceneSelect();
       break;
-      case 3:
-      currentDataPointer->store();
-      break;
-      case 4:
+    case 4:
       currentState = &stateOne;
+      delay (1000);
+      currentDataPointer->select();
   }
 }
 
@@ -864,18 +866,18 @@ void state3 :: execute (int event) {
 
 void state4 :: execute (int event) {
   switch (event) {
-    case 1:
+    /*case 1:
       ms.prev ();
       editMenuDisplayUpdate();
       break;
     case 2:
       ms.next ();
       editMenuDisplayUpdate();
-      break;
+      break;*/
     case 3:
-      ms.select();
-      if (currentState->identifier == 4) {
-        editMenuDisplayUpdate ();
+      ms.select(); // calling ms.select will, if the menu is exited out the bottom, change the state to 'not 4'
+      if (currentState->identifier == 4) { //so if the currentState is 'still 4' we are still in the menu, so ...
+        editMenuDisplayUpdate (); //update the display
       }
       break;
     case 4:
@@ -1226,7 +1228,15 @@ void Right (void) {
   if (rcount > 1) {
     lcount = 0;
     rcount = 0;
-    currentState->execute(2);
+    if (currentState->identifier != 4) {
+      currentDataPointer->plus();
+      currentDataPointer->select();
+    }
+    else {
+      ms.next ();
+      editMenuDisplayUpdate();
+      // currentState->execute(2);
+    }
   }
 }
 
@@ -1235,7 +1245,16 @@ void Left (void) {
   if (lcount > 1) {
     rcount = 0;
     lcount = 0;
-    currentState->execute(1);
+    if (currentState->identifier != 4) {
+      currentDataPointer->minus();
+      currentDataPointer->select();
+    }
+    else
+    {
+      ms.prev ();
+      editMenuDisplayUpdate();
+      //currentState->execute(1);
+    }
   }
 }
 
