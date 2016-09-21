@@ -188,14 +188,6 @@ class state4 : public State {
     virtual void execute (int);
 } stateFour;
 
-class state5 : public State {
-  public:
-    state5 () {
-      identifier = 5;
-    }
-    virtual void execute (int);
-} stateFive;
-
 class state6 : public State {
   public:
     state6 () {
@@ -204,14 +196,14 @@ class state6 : public State {
     virtual void execute (int);
 } stateSix;
 
-class state7 : public State {
+/*class state7 : public State {
   public:
     state7 () {
       identifier = 7;
     }
     virtual void execute (int);
 } stateSeven;
-
+*/
 State * currentState = &stateOne;
 
 struct Settings {
@@ -651,14 +643,14 @@ class Preset5 : public PresetControl {
       display.setFont (&FreeMono12pt7b);
       display.printf ("%03d%s%d", storedSettings.program + 1, ":", Update);
       /*display.setFont ();
-      display.setCursor(85, 23);
-      display.setTextSize(1);
-      display.print ("current");
-      display.setCursor(91, 33);
-      display.setTextSize(1);
-      display.print ("preset");
-      display.setCursor(84, 55);
-      smallnumber ();*/
+        display.setCursor(85, 23);
+        display.setTextSize(1);
+        display.print ("current");
+        display.setCursor(91, 33);
+        display.setTextSize(1);
+        display.print ("preset");
+        display.setCursor(84, 55);
+        smallnumber ();*/
       display.display();
     }
     virtual void plus () {
@@ -773,7 +765,7 @@ void state1 :: execute (int event) {
       currentDataPointer->minus();
       currentDataPointer->select();
       break;
-    case 2:
+      case 2:
       currentDataPointer->plus();
       currentDataPointer->select();
       break;*/
@@ -791,8 +783,8 @@ void state1 :: execute (int event) {
         }
       }
       if (currentDataPointer->identifier == 25) {
-        currentState = &stateTwo; 
-        delay (1000);
+        currentState = &stateTwo;
+        preset5.Update = 1;
         currentState->execute(0);
       }
       break;
@@ -807,14 +799,13 @@ void state1 :: execute (int event) {
 void state2 :: execute (int event) {
   switch (event) {
     case 0:
-      delay (100);
       currentDataPointer->select();
       break;
     /*case 1:
       currentDataPointer->minus();
       currentDataPointer->select();
       break;
-    case 2:
+      case 2:
       currentDataPointer->plus();
       currentDataPointer->select();
       break;*/
@@ -824,7 +815,6 @@ void state2 :: execute (int event) {
       break;
     case 4:
       currentState = &stateOne;
-      delay (1000);
       currentDataPointer->select();
   }
 }
@@ -863,14 +853,13 @@ void state3 :: execute (int event) {
   }
 }
 
-
 void state4 :: execute (int event) {
   switch (event) {
     /*case 1:
       ms.prev ();
       editMenuDisplayUpdate();
       break;
-    case 2:
+      case 2:
       ms.next ();
       editMenuDisplayUpdate();
       break;*/
@@ -895,24 +884,18 @@ void state4 :: execute (int event) {
   }
 }
 
-void state5 :: execute (int event) {
-  switch (event) {
-      //to do
-  }
-}
-
 void state6 :: execute (int event) {
   switch (event) {
     case 0: currentDataPointer->select();
       break;
-    case 1:
+    /*case 1:
       currentDataPointer->minus();
       currentDataPointer->select();
       break;
-    case 2:
+      case 2:
       currentDataPointer->plus();
       currentDataPointer->select();
-      break;
+      break;*/
     case 3:
       currentDataPointer->store();
       delay (2000);
@@ -923,7 +906,7 @@ void state6 :: execute (int event) {
   }
 }
 
-void state7 :: execute (int event) {
+/*void state7 :: execute (int event) {
   switch (event) {
     case 0:
       my_flash_store.write(storedSettings);
@@ -932,7 +915,7 @@ void state7 :: execute (int event) {
       currentState = &stateFour;
       editMenuDisplayUpdate ();
   }
-}
+}*/
 
 /*Menu structure*/
 Menu mu1("PRESET FORMAT");
@@ -1101,13 +1084,13 @@ void buttpressDisplayUpdate (void) {
   display.setTextSize(1);
   for (int i = 0; i < 4; i++) {
     display.setFont ();
-    display.printf(" % s % d % s", "STOMP ", i + 1, " : ");
+    display.printf("%s%d%s", "STOMP ", i + 1, " : ");
     display.setFont (&FreeMono9pt7b);
     if (buttOnOff[i] == buttOff) {
-      display.printf(" % s % s\n", "", buttOnOff[i]);
+      display.printf("%s%s\n", "", buttOnOff[i]);
     }
     else {
-      display.printf(" % s % s\n", "    ", buttOnOff[i]);
+      display.printf("%s%s\n", "    ", buttOnOff[i]);
     }
   }
   display.display();
@@ -1119,29 +1102,29 @@ void fademoveDisplayUpdate (void) {
   display.setCursor(34, 3);
   display.setTextColor(WHITE);
   display.setTextSize(1);
-  display.printf(" % s\n\n\n", " - FADERS - ");
+  display.printf("%s\n\n\n", " - FADERS - ");
   display.setFont ();
   display.setCursor(0, 27);
-  display.printf(" % s", "1 - ");
+  display.printf("%s", "1 - ");
   display.setFont (&FreeMono9pt7b);
   display.setCursor(21, 35);
-  display.printf(" % 03d", faderValue[0]);
+  display.printf("%03d", faderValue[0]);
   display.setCursor(72, 35);
-  display.printf(" % 03d\n", faderValue[2]);
+  display.printf("%03d\n", faderValue[2]);
   display.setFont ();
   display.setCursor(109, 27);
-  display.printf(" % s", " - 3");
+  display.printf("%s", " - 3");
   display.setFont ();
   display.setCursor(0, 55);
-  display.printf(" % s", "2 - ");
+  display.printf("%s", "2 - ");
   display.setFont (&FreeMono9pt7b);
   display.setCursor(21, 63);
-  display.printf(" % 03d", faderValue[1]);
+  display.printf("%03d", faderValue[1]);
   display.setCursor(72, 63);
-  display.printf(" % 03d", faderValue[3]);
+  display.printf("%03d", faderValue[3]);
   display.setFont ();
   display.setCursor(109, 55);
-  display.printf(" % s", " - 4");
+  display.printf("%s", " - 4");
   display.display();
 }
 
@@ -1341,15 +1324,25 @@ void on_item1_selected(MenuItem * p_menu_item)
 {
   storedSettings.preset = 20;
   currentDataPointer = cPParray[0];
-  currentState = &stateSeven;
-  currentState->execute(0);
+  my_flash_store.write(storedSettings);
+  currentDataPointer->store();
+  delay (2000);
+  currentState = &stateFour;
+  editMenuDisplayUpdate ();
+  //currentState = &stateSeven;
+  // currentState->execute(0);
 }
 void on_item2_selected(MenuItem * p_menu_item)
 {
   storedSettings.preset = 21;
   currentDataPointer = cPParray[1];
-  currentState = &stateSeven;
-  currentState->execute(0);
+  my_flash_store.write(storedSettings);
+  currentDataPointer->store();
+  delay (2000);
+  currentState = &stateFour;
+  editMenuDisplayUpdate ();
+  //currentState = &stateSeven;
+  // currentState->execute(0);
 }
 void on_item3_selected(MenuItem * p_menu_item)
 {
@@ -1359,22 +1352,39 @@ void on_item3_selected(MenuItem * p_menu_item)
     storedSettings.program = updateprogram;
   }
   currentDataPointer = cPParray[2];
-  currentState = &stateSeven;
-  currentState->execute(0);
+  my_flash_store.write(storedSettings);
+  currentDataPointer->store();
+  delay (2000);
+  currentState = &stateFour;
+  editMenuDisplayUpdate ();
+
+
+  // currentState = &stateSeven;
+  //currentState->execute(0);
 }
 void on_itemLINE6_selected(MenuItem * p_menu_item)
 {
   storedSettings.preset = 23;
   currentDataPointer = cPParray[3];
-  currentState = &stateSeven;
-  currentState->execute(0);
+  my_flash_store.write(storedSettings);
+  currentDataPointer->store();
+  delay (2000);
+  currentState = &stateFour;
+  editMenuDisplayUpdate ();
+  // currentState = &stateSeven;
+  // currentState->execute(0);
 }
 void on_itemAXE_selected(MenuItem * p_menu_item)
 {
   storedSettings.preset = 24;
   currentDataPointer = cPParray[4];
-  currentState = &stateSeven;
-  currentState->execute(0);
+  my_flash_store.write(storedSettings);
+  currentDataPointer->store();
+  delay (2000);
+  currentState = &stateFour;
+  editMenuDisplayUpdate ();
+  // currentState = &stateSeven;
+  // currentState->execute(0);
 }
 void on_item6_selected(MenuItem * p_menu_item)
 {
