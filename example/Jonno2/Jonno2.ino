@@ -118,6 +118,8 @@ void on_item10_selected(MenuItem* p_menu_item);
 void on_item11_selected(MenuItem* p_menu_item);
 void on_item12_selected(MenuItem* p_menu_item);
 void on_item13_selected(MenuItem* p_menu_item);
+void on_item14_selected(MenuItem* p_menu_item);
+void on_item15_selected(MenuItem* p_menu_item);
 void SelectPress (void);
 //void SelectRelease (void);
 void Left (void);
@@ -247,6 +249,7 @@ class Base {
     uint8_t identifier;
     bool current;
     virtual void bignumberstored () {}
+    virtual void bignumber() {}
 };
 
 template <class T> class Data : public Base {
@@ -761,17 +764,8 @@ Base * currentDataPointer = cPParray[storedSettings.preset - 21];
 
 void state1 :: execute (int event) {
   switch (event) {
-    /*case 1:
-      currentDataPointer->minus();
-      currentDataPointer->select();
-      break;
-      case 2:
-      currentDataPointer->plus();
-      currentDataPointer->select();
-      break;*/
     case 3:
       storedSettings.program = updateprogram;
-      currentDataPointer->store();
       if (isConnected) {
         midi.send(0xC0 + (storedSettings.channel - 1), storedSettings.program, storedSettings.program);
       }
@@ -781,14 +775,21 @@ void state1 :: execute (int event) {
         for (int i = 0; i < 4; i++) {
           CCbleTXmidi (i + 4, faderValue[i]);
         }
-      }
+      } 
+      // case 3 is the select button ...in state 1, we are in the preset
+     // select mode, so we send and store, then we check if we are in "identifier 25"
+     //which is  ... if so, go to state 2, set the scene Update to 1, and then display
+     //or else display the preset selectd / stored screen if we are not in "secenes" / preset 5 
+      
       if (currentDataPointer->identifier == 25) {
         currentState = &stateTwo;
         preset5.Update = 1;
-        currentState->execute(0);
+        currentDataPointer->select();
       }
+      else {currentDataPointer->store();}
       break;
     case 4:
+    
       switchesPressTimer = 0;
       display.clearDisplay();
       display.display();
@@ -797,18 +798,8 @@ void state1 :: execute (int event) {
 }
 
 void state2 :: execute (int event) {
+  // state 2 is for the special scene (preset 5 / identifier 25) mode
   switch (event) {
-    case 0:
-      currentDataPointer->select();
-      break;
-    /*case 1:
-      currentDataPointer->minus();
-      currentDataPointer->select();
-      break;
-      case 2:
-      currentDataPointer->plus();
-      currentDataPointer->select();
-      break;*/
     case 3:
       //currentDataPointer->store();
       preset5.sceneSelect();
@@ -855,21 +846,20 @@ void state3 :: execute (int event) {
 
 void state4 :: execute (int event) {
   switch (event) {
-    /*case 1:
-      ms.prev ();
-      editMenuDisplayUpdate();
-      break;
-      case 2:
-      ms.next ();
-      editMenuDisplayUpdate();
-      break;*/
     case 3:
-      ms.select(); // calling ms.select will, if the menu is exited out the bottom, change the state to 'not 4'
-      if (currentState->identifier == 4) { //so if the currentState is 'still 4' we are still in the menu, so ...
-        editMenuDisplayUpdate (); //update the display
+      ms.select(); 
+      // case 3 is the select button.  we are in state 4 which is the menu state
+      //calling ms.select will, if a bottom level menu item is selected,
+      // mean that the menu is exited out the bottom, with the state changed to 'not 4' ...
+      //so if the currentState is 'still 4' we are still in the menu, so ...
+      if (currentState->identifier == 4) {
+        editMenuDisplayUpdate (); 
+        //update the display
       }
       break;
     case 4:
+    // case 4 is edit button ...check for top level menu case and switch back
+    // to preset state (state one) if at the top ...
       if ((ms._p_curr_menu == ms._p_root_menu)) {
         ms.reset();
         currentDataPointer = cPParray[storedSettings.preset - 20];
@@ -886,16 +876,6 @@ void state4 :: execute (int event) {
 
 void state6 :: execute (int event) {
   switch (event) {
-    case 0: currentDataPointer->select();
-      break;
-    /*case 1:
-      currentDataPointer->minus();
-      currentDataPointer->select();
-      break;
-      case 2:
-      currentDataPointer->plus();
-      currentDataPointer->select();
-      break;*/
     case 3:
       currentDataPointer->store();
       delay (2000);
@@ -905,17 +885,6 @@ void state6 :: execute (int event) {
       break;
   }
 }
-
-/*void state7 :: execute (int event) {
-  switch (event) {
-    case 0:
-      my_flash_store.write(storedSettings);
-      currentDataPointer->store();
-      delay (2000);
-      currentState = &stateFour;
-      editMenuDisplayUpdate ();
-  }
-}*/
 
 /*Menu structure*/
 Menu mu1("PRESET FORMAT");
@@ -939,6 +908,8 @@ MenuItem mu3_mi1("FADER 1", &on_item10_selected);
 MenuItem mu3_mi2("FADER 2", &on_item11_selected);
 MenuItem mu3_mi3("FADER 3", &on_item12_selected);
 MenuItem mu3_mi4("FADER 4", &on_item13_selected);
+MenuItem mu4_mi1("AXE FX scene CC XX", &on_item14_selected);
+MenuItem mu4_mi2("LINE 6 scene CC XX", &on_item15_selected);
 
 void setup() {
   /*BLE setup and debug*/
@@ -1018,6 +989,8 @@ void setup() {
   mu6.add_item(&mu3_mi2);
   mu6.add_item(&mu3_mi3);
   mu6.add_item(&mu3_mi4);
+  mu7.add_item(&mu4_mi1);
+  mu7.add_item(&mu4_mi2);
   display.begin (SSD1306_SWITCHCAPVCC, 0x3D);
   display.clearDisplay();
   display.setTextColor(WHITE);
@@ -1065,7 +1038,7 @@ void setup() {
   display.setTextSize(1);
   display.println("SELECT NEXT PRESET: ");
   display.setCursor(22, 50);
-  currentDataPointer->bignumberstored();
+  currentDataPointer->bignumber();
   display.display();
 }
 
@@ -1087,7 +1060,7 @@ void buttpressDisplayUpdate (void) {
     display.printf("%s%d%s", "STOMP ", i + 1, " : ");
     display.setFont (&FreeMono9pt7b);
     if (buttOnOff[i] == buttOff) {
-      display.printf("%s%s\n", "", buttOnOff[i]);
+      display.printf("%s%s\n","", buttOnOff[i]);
     }
     else {
       display.printf("%s%s\n", "    ", buttOnOff[i]);
@@ -1306,19 +1279,19 @@ void on_itemLED_selected(MenuItem * p_menu_item)
 {
   currentDataPointer = &led_brightness;
   currentState = &stateSix;
-  currentState->execute(0);
+  currentDataPointer->select();
 }
 void on_itemGLOBAL_selected(MenuItem * p_menu_item)
 {
   currentDataPointer = &update_delay;
   currentState = &stateSix;
-  currentState->execute(0);
+  currentDataPointer->select();
 }
 void on_item0_selected(MenuItem * p_menu_item)
 {
   currentDataPointer = &midi_channel;
   currentState = &stateSix;
-  currentState->execute(0);
+  currentDataPointer->select();
 }
 void on_item1_selected(MenuItem * p_menu_item)
 {
@@ -1329,8 +1302,6 @@ void on_item1_selected(MenuItem * p_menu_item)
   delay (2000);
   currentState = &stateFour;
   editMenuDisplayUpdate ();
-  //currentState = &stateSeven;
-  // currentState->execute(0);
 }
 void on_item2_selected(MenuItem * p_menu_item)
 {
@@ -1341,8 +1312,6 @@ void on_item2_selected(MenuItem * p_menu_item)
   delay (2000);
   currentState = &stateFour;
   editMenuDisplayUpdate ();
-  //currentState = &stateSeven;
-  // currentState->execute(0);
 }
 void on_item3_selected(MenuItem * p_menu_item)
 {
@@ -1357,10 +1326,6 @@ void on_item3_selected(MenuItem * p_menu_item)
   delay (2000);
   currentState = &stateFour;
   editMenuDisplayUpdate ();
-
-
-  // currentState = &stateSeven;
-  //currentState->execute(0);
 }
 void on_itemLINE6_selected(MenuItem * p_menu_item)
 {
@@ -1371,8 +1336,6 @@ void on_itemLINE6_selected(MenuItem * p_menu_item)
   delay (2000);
   currentState = &stateFour;
   editMenuDisplayUpdate ();
-  // currentState = &stateSeven;
-  // currentState->execute(0);
 }
 void on_itemAXE_selected(MenuItem * p_menu_item)
 {
@@ -1383,56 +1346,66 @@ void on_itemAXE_selected(MenuItem * p_menu_item)
   delay (2000);
   currentState = &stateFour;
   editMenuDisplayUpdate ();
-  // currentState = &stateSeven;
-  // currentState->execute(0);
 }
 void on_item6_selected(MenuItem * p_menu_item)
 {
   currentDataPointer = &stomp1;
   currentState = &stateSix;
-  currentState->execute(0);
+  currentDataPointer->select();
 }
 void on_item7_selected(MenuItem * p_menu_item)
 {
   currentDataPointer = &stomp2;
   currentState = &stateSix;
-  currentState->execute(0);
+  currentDataPointer->select();
 }
 void on_item8_selected(MenuItem * p_menu_item)
 {
   currentDataPointer = &stomp3;
   currentState = &stateSix;
-  currentState->execute(0);
+  currentDataPointer->select();
 }
 void on_item9_selected(MenuItem * p_menu_item)
 {
   currentDataPointer = &stomp4;
   currentState = &stateSix;
-  currentState->execute(0);
+  currentDataPointer->select();
 }
 void on_item10_selected(MenuItem * p_menu_item)
 {
   currentDataPointer = &fader1;
   currentState = &stateSix;
-  currentState->execute(0);
+  currentDataPointer->select();
 }
 void on_item11_selected(MenuItem * p_menu_item)
 {
   currentDataPointer = &fader2;
   currentState = &stateSix;
-  currentState->execute(0);
+  currentDataPointer->select();
 }
 void on_item12_selected(MenuItem * p_menu_item)
 {
   currentDataPointer = &fader3;
   currentState = &stateSix;
-  currentState->execute(0);
+  currentDataPointer->select();
 }
 void on_item13_selected(MenuItem * p_menu_item)
 {
   currentDataPointer = &fader4;
   currentState = &stateSix;
-  currentState->execute(0);
+  currentDataPointer->select();
 }
 
+void on_item14_selected(MenuItem * p_menu_item)
+{
+ // currentDataPointer = &fader4;
+ // currentState = &stateSix;
+ // currentDataPointer->select();
+}
+void on_item15_selected(MenuItem * p_menu_item)
+{
+ // currentDataPointer = &fader4;
+ // currentState = &stateSix;
+ // currentDataPointer->select();
+}
 
