@@ -667,12 +667,7 @@ class Preset5 : public PresetControl {
       }
     }
     virtual void select () {
-      if (!(currentState->identifier == 2)) {
         peripheralDisplayUpdate();
-      }
-      else {
-        sceneDisplayUpdate ();
-      }
     }
     virtual void store () {
         currentPreset();
@@ -754,12 +749,12 @@ void state1 :: execute (int event) {
       // case 3 is the select button ...in state 1, we are in the preset
      // select mode, so we send and store, then we check if we are in "identifier 25"
      //which is  ... if so, go to state 2, set the scene Update to 1, and then display
-     //or else display the preset selectd / stored screen if we are not in "secenes" / preset 5 
+     //or else display the preset selected / stored screen if we are not in "secenes" / preset 5 
       
       if (currentDataPointer->identifier == 25) {
         currentState = &stateTwo;
         preset5.Update = 1;
-        currentDataPointer->select();
+        preset5.sceneDisplayUpdate ();
       }
       else {currentDataPointer->store();}
       break;
