@@ -486,12 +486,7 @@ class Preset1 : public PresetControl {
       peripheralDisplayUpdate();
     }
     virtual void store () {
-      if (!(currentState->identifier == 7)) {
-        currentPreset();
-      }
-      else {
         presetSelect();
-      }
     }
     virtual void bignumber () {
       display.setFont (&FreeMono24pt7b);
@@ -518,12 +513,7 @@ class Preset2 : public PresetControl {
       peripheralDisplayUpdate();
     }
     virtual void store () {
-      if (!(currentState->identifier == 7)) {
-        currentPreset();
-      }
-      else {
         presetSelect();
-      }
     }
     virtual void bignumber () {
       display.setFont (&FreeMono24pt7b);
@@ -550,12 +540,7 @@ class Preset3 : public PresetControl {
       peripheralDisplayUpdate();
     }
     virtual void store () {
-      if (!(currentState->identifier == 7)) {
-        currentPreset();
-      }
-      else {
         presetSelect();
-      }
     }
     virtual void plus () {
       updateprogram++;
@@ -600,12 +585,7 @@ class Preset4 : public PresetControl {
       peripheralDisplayUpdate();
     }
     virtual void store () {
-      if (!(currentState->identifier == 7)) {
-        currentPreset();
-      }
-      else {
         presetSelect();
-      }
     }
     virtual void bignumber () {
       display.setFont (&FreeMono24pt7b);
@@ -695,12 +675,7 @@ class Preset5 : public PresetControl {
       }
     }
     virtual void store () {
-      if (currentState->identifier == 7) {
-        presetSelect();
-      }
-      else {
         currentPreset();
-      }
     }
     virtual void bignumber () {
       display.setFont (&FreeMono24pt7b);
@@ -725,8 +700,8 @@ class Preset5 : public PresetControl {
       display.setFont (&FreeMono24pt7b);
       display.printf (format, storedSettings.program + 1);
       display.display();
-
     }
+  
     void sceneSelect () {
       display.clearDisplay();
       display.setFont ();
@@ -1298,7 +1273,7 @@ void on_item1_selected(MenuItem * p_menu_item)
   storedSettings.preset = 20;
   currentDataPointer = cPParray[0];
   my_flash_store.write(storedSettings);
-  currentDataPointer->store();
+  preset1.presetSelect();
   delay (2000);
   currentState = &stateFour;
   editMenuDisplayUpdate ();
@@ -1308,7 +1283,7 @@ void on_item2_selected(MenuItem * p_menu_item)
   storedSettings.preset = 21;
   currentDataPointer = cPParray[1];
   my_flash_store.write(storedSettings);
-  currentDataPointer->store();
+  preset2.presetSelect();
   delay (2000);
   currentState = &stateFour;
   editMenuDisplayUpdate ();
@@ -1322,7 +1297,7 @@ void on_item3_selected(MenuItem * p_menu_item)
   }
   currentDataPointer = cPParray[2];
   my_flash_store.write(storedSettings);
-  currentDataPointer->store();
+  preset3.presetSelect();
   delay (2000);
   currentState = &stateFour;
   editMenuDisplayUpdate ();
@@ -1332,7 +1307,7 @@ void on_itemLINE6_selected(MenuItem * p_menu_item)
   storedSettings.preset = 23;
   currentDataPointer = cPParray[3];
   my_flash_store.write(storedSettings);
-  currentDataPointer->store();
+  preset4.presetSelect();
   delay (2000);
   currentState = &stateFour;
   editMenuDisplayUpdate ();
@@ -1342,7 +1317,7 @@ void on_itemAXE_selected(MenuItem * p_menu_item)
   storedSettings.preset = 24;
   currentDataPointer = cPParray[4];
   my_flash_store.write(storedSettings);
-  currentDataPointer->store();
+  preset5.presetSelect();
   delay (2000);
   currentState = &stateFour;
   editMenuDisplayUpdate ();
@@ -1398,14 +1373,37 @@ void on_item13_selected(MenuItem * p_menu_item)
 
 void on_item14_selected(MenuItem * p_menu_item)
 {
- // currentDataPointer = &fader4;
- // currentState = &stateSix;
- // currentDataPointer->select();
+ 
+  currentState = &stateFour;
+   display.clearDisplay();
+      display.setFont ();
+      display.setCursor(0, 0);
+      display.setTextSize(1);
+      display.printf("%s", "PRESET");
+      display.setCursor(0, 12);
+      display.printf("%s", "SCENE CC SELECTED:");
+      display.setCursor(0, 34);
+      display.setFont (&FreeMono24pt7b);
+      display.println("73 LINE 6");
+      display.display();
+      delay (2500);
+  editMenuDisplayUpdate ();
 }
 void on_item15_selected(MenuItem * p_menu_item)
 {
- // currentDataPointer = &fader4;
- // currentState = &stateSix;
- // currentDataPointer->select();
+ currentState = &stateFour;
+  display.clearDisplay();
+      display.setFont ();
+      display.setCursor(0, 0);
+      display.setTextSize(1);
+      display.printf("%s", "PRESET");
+      display.setCursor(0, 12);
+      display.printf("%s", "SCENE CC SELECTED:");
+      display.setCursor(0, 34);
+      display.setFont (&FreeMono24pt7b);
+      display.println("69 AXE FX");
+      display.display();
+      delay (2500);
+  editMenuDisplayUpdate ();
 }
 
