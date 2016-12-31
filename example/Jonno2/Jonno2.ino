@@ -198,6 +198,8 @@ class state6 : public State {
     state6 () {
       identifier = 6;
     }
+    void execute1();
+    void execute2();
     void execute3();
     void execute4();
 } stateSix;
@@ -514,10 +516,10 @@ class PresetControl : public Base {
       display.println(heading);
       display.display();
       if (storedSettings.msdelay > 0.05) {
-    delay (storedSettings.msdelay * 1000);
-    for (int i = 0; i < 4; i++) {
-      CCbleTXmidi (i + 4, faderValue[i]);
-    }
+        delay (storedSettings.msdelay * 1000);
+        for (int i = 0; i < 4; i++) {
+          CCbleTXmidi (i + 4, faderValue[i]);
+        }
       }
     }
     virtual void bignumber () {}
@@ -600,11 +602,11 @@ class Preset2 : public PresetControl {
       }
       display.display();
       if (storedSettings.msdelay > 0.05) {
-    delay (storedSettings.msdelay * 1000);
-    for (int i = 0; i < 4; i++) {
-      CCbleTXmidi (i + 4, faderValue[i]);
-    }
-    }
+        delay (storedSettings.msdelay * 1000);
+        for (int i = 0; i < 4; i++) {
+          CCbleTXmidi (i + 4, faderValue[i]);
+        }
+      }
     }
 };
 
@@ -735,12 +737,12 @@ void state1 :: execute3 () { //press select button is execute3
     midi.send(0xC0 + (storedSettings.channel - 1), storedSettings.program, storedSettings.program);
   }
   my_flash_store.write(storedSettings);
- // if (storedSettings.msdelay > 0.05) {
- //   delay (storedSettings.msdelay * 1000);
- //   for (int i = 0; i < 4; i++) {
- //     CCbleTXmidi (i + 4, faderValue[i]);
- //   }
- // }
+  // if (storedSettings.msdelay > 0.05) {
+  //   delay (storedSettings.msdelay * 1000);
+  //   for (int i = 0; i < 4; i++) {
+  //     CCbleTXmidi (i + 4, faderValue[i]);
+  //   }
+  // }
   currentDataPointer->store();
 }
 
@@ -801,19 +803,25 @@ void state4 :: execute3 () { //execute3 is the select button
 void state4 :: execute4 () { // execute4 is edit button
   if ((ms._p_curr_menu == ms._p_root_menu)) {//if top level menu, exir and go to state1/preset select mode
     ms.reset();
-    display.clearDisplay();
-    display.println(storedSettings.preset - 20);
-    display.display();
-    delay (3000);
     currentDataPointer = cPParray[storedSettings.preset - 20];
     currentDataPointer->presetSelect();
     currentState = &stateOne;
   }
-  else { //else still in menu, so update
+  else { //else still in menu, so back up and update
     ms.back();
     editMenuDisplayUpdate();
   }
 }
+
+void state6 :: execute1 () {
+  currentDataPointer->minus();
+  currentDataPointer->select();
+}
+void state6 :: execute2 () {
+  currentDataPointer->plus();
+  currentDataPointer->select();
+}
+
 
 void state6 :: execute3 () {
   currentDataPointer->store();
@@ -1056,11 +1064,11 @@ void editMenuDisplayUpdate (void) {
 }
 
 /* BLE callbacks*/
-void connected(void){
+void connected(void) {
   isConnected = true;
 }
 
-void disconnected(void){
+void disconnected(void) {
   isConnected = false;
 }
 
@@ -1213,25 +1221,25 @@ void slider4SAME (int currentValue) {
 }
 
 /*Menu Callbacks*/
-void on_itemLED_selected(MenuItem * p_menu_item){
+void on_itemLED_selected(MenuItem * p_menu_item) {
   currentDataPointer = &led_brightness;
   currentState = &stateSix;
   currentDataPointer->select();
 }
 
-void on_itemGLOBAL_selected(MenuItem * p_menu_item){
+void on_itemGLOBAL_selected(MenuItem * p_menu_item) {
   currentDataPointer = &update_delay;
   currentState = &stateSix;
   currentDataPointer->select();
 }
 
-void on_item0_selected(MenuItem * p_menu_item){
+void on_item0_selected(MenuItem * p_menu_item) {
   currentDataPointer = &midi_channel;
   currentState = &stateSix;
   currentDataPointer->select();
 }
 
-void on_item1_selected(MenuItem * p_menu_item){
+void on_item1_selected(MenuItem * p_menu_item) {
   storedSettings.preset = 20;
   currentDataPointer = cPParray[0];
   my_flash_store.write(storedSettings);
@@ -1241,7 +1249,7 @@ void on_item1_selected(MenuItem * p_menu_item){
   editMenuDisplayUpdate ();
 }
 
-void on_item2_selected(MenuItem * p_menu_item){
+void on_item2_selected(MenuItem * p_menu_item) {
   storedSettings.SS = false;
   storedSettings.preset = 21;
   currentDataPointer = cPParray[1];
@@ -1253,7 +1261,7 @@ void on_item2_selected(MenuItem * p_menu_item){
   editMenuDisplayUpdate ();
 }
 
-void on_item3_selected(MenuItem * p_menu_item){
+void on_item3_selected(MenuItem * p_menu_item) {
   storedSettings.preset = 22;
   if (updateprogram >= 32) {
     updateprogram = 31;
@@ -1267,7 +1275,7 @@ void on_item3_selected(MenuItem * p_menu_item){
   editMenuDisplayUpdate ();
 }
 
-void on_itemLINE6_selected(MenuItem * p_menu_item){
+void on_itemLINE6_selected(MenuItem * p_menu_item) {
   storedSettings.preset = 23;
   currentDataPointer = cPParray[3];
   my_flash_store.write(storedSettings);
@@ -1277,7 +1285,7 @@ void on_itemLINE6_selected(MenuItem * p_menu_item){
   editMenuDisplayUpdate ();
 }
 
-void on_itemAXE_selected(MenuItem * p_menu_item){
+void on_itemAXE_selected(MenuItem * p_menu_item) {
   storedSettings.preset = 21;
   storedSettings.SS = true;
   currentDataPointer = cPParray[1];
@@ -1289,53 +1297,53 @@ void on_itemAXE_selected(MenuItem * p_menu_item){
   editMenuDisplayUpdate ();
 }
 
-void on_item6_selected(MenuItem * p_menu_item){
+void on_item6_selected(MenuItem * p_menu_item) {
   currentDataPointer = &stomp1;
   currentState = &stateSix;
   currentDataPointer->select();
 }
 
-void on_item7_selected(MenuItem * p_menu_item){
+void on_item7_selected(MenuItem * p_menu_item) {
   currentDataPointer = &stomp2;
   currentState = &stateSix;
   currentDataPointer->select();
 }
 
-void on_item8_selected(MenuItem * p_menu_item){
+void on_item8_selected(MenuItem * p_menu_item) {
   currentDataPointer = &stomp3;
   currentState = &stateSix;
   currentDataPointer->select();
 }
 
-void on_item9_selected(MenuItem * p_menu_item){
+void on_item9_selected(MenuItem * p_menu_item) {
   currentDataPointer = &stomp4;
   currentState = &stateSix;
   currentDataPointer->select();
 }
-void on_item10_selected(MenuItem * p_menu_item){
+void on_item10_selected(MenuItem * p_menu_item) {
   currentDataPointer = &fader1;
   currentState = &stateSix;
   currentDataPointer->select();
 }
 
-void on_item11_selected(MenuItem * p_menu_item){
+void on_item11_selected(MenuItem * p_menu_item) {
   currentDataPointer = &fader2;
   currentState = &stateSix;
   currentDataPointer->select();
 }
-void on_item12_selected(MenuItem * p_menu_item){
+void on_item12_selected(MenuItem * p_menu_item) {
   currentDataPointer = &fader3;
   currentState = &stateSix;
   currentDataPointer->select();
 }
 
-void on_item13_selected(MenuItem * p_menu_item){
+void on_item13_selected(MenuItem * p_menu_item) {
   currentDataPointer = &fader4;
   currentState = &stateSix;
   currentDataPointer->select();
 }
 
-void on_item14_selected(MenuItem * p_menu_item){
+void on_item14_selected(MenuItem * p_menu_item) {
   currentState = &stateFour;
   display.clearDisplay();
   display.setFont ();
@@ -1346,15 +1354,15 @@ void on_item14_selected(MenuItem * p_menu_item){
   display.printf("%s", "SCENE CC SELECTED:");
   display.setCursor(0, 34);
   display.setFont (&FreeMono12pt7b);
-  display.println("34 AXE  FX");
+  display.println("34 AXE FX");
   display.display();
   storedSettings.sceneCC = 34;
-      my_flash_store.write(storedSettings);
+  my_flash_store.write(storedSettings);
   delay (2000);
   editMenuDisplayUpdate ();
 }
 
-void on_item15_selected(MenuItem * p_menu_item){
+void on_item15_selected(MenuItem * p_menu_item) {
   currentState = &stateFour;
   display.clearDisplay();
   display.setFont ();
@@ -1368,7 +1376,7 @@ void on_item15_selected(MenuItem * p_menu_item){
   display.println("69 LINE 6");
   display.display();
   storedSettings.sceneCC = 69;
-      my_flash_store.write(storedSettings);
+  my_flash_store.write(storedSettings);
   delay (2000);
   editMenuDisplayUpdate ();
 }
