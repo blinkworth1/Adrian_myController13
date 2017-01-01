@@ -244,6 +244,7 @@ class Base {
     virtual void select() = 0;
     virtual void store() = 0;
     virtual void presetSelect() {};
+    virtual void currentPreset() {};
     char *heading;
     char *description;
     char *format;
@@ -467,7 +468,7 @@ class Scene : public Data<int> {
       display.display();
     }
     void store ();
-    void presetSelect ();
+    void currentPreset ();
 };
 Scene scene (25, storedSettings.scene);
 
@@ -502,6 +503,13 @@ class PresetControl : public Base {
       display.setCursor(22, 50);
       bignumberstored();
       display.display();
+      updateprogram = storedSettings.program;
+      if (storedSettings.msdelay > 0.05) {
+        delay (storedSettings.msdelay * 1000);
+        for (int i = 0; i < 4; i++) {
+          CCbleTXmidi (i + 4, faderValue[i]);
+        }
+      }
     }
     virtual void presetSelect () {
       display.clearDisplay();
@@ -515,12 +523,6 @@ class PresetControl : public Base {
       display.setFont (&FreeMono9pt7b);
       display.println(heading);
       display.display();
-      if (storedSettings.msdelay > 0.05) {
-        delay (storedSettings.msdelay * 1000);
-        for (int i = 0; i < 4; i++) {
-          CCbleTXmidi (i + 4, faderValue[i]);
-        }
-      }
     }
     virtual void bignumber () {}
     virtual void smallnumber () {}
@@ -537,7 +539,7 @@ class Preset1 : public PresetControl {
       peripheralDisplayUpdate();
     }
     void store () {
-      presetSelect();
+      currentPreset();
     }
     virtual void bignumber () {
       display.setFont (&FreeMono24pt7b);
@@ -570,7 +572,7 @@ class Preset2 : public PresetControl {
         scene.select();
       } else
       {
-        presetSelect();
+        currentPreset();
       }
     }
     virtual void bignumber () {
@@ -623,7 +625,7 @@ class Preset3 : public PresetControl {
       peripheralDisplayUpdate();
     }
     void store () {
-      presetSelect();
+      currentPreset();
     }
     virtual void plus () {
       updateprogram++;
@@ -669,7 +671,7 @@ class Preset4 : public PresetControl {
       peripheralDisplayUpdate();
     }
     virtual void store () {
-      presetSelect();
+      currentPreset();
     }
     virtual void bignumber () {
       display.setFont (&FreeMono24pt7b);
@@ -713,12 +715,12 @@ void Scene :: store () {
   }
   currentDataPointer = &preset2;
   delay (1500);
-  preset2.presetSelect();
+  preset2.currentPreset();
 
 }
-void Scene :: presetSelect () {
+void Scene :: currentPreset () {
   currentDataPointer = &preset2;
-  preset2.presetSelect();
+  preset2.currentPreset();
 }
 
 void state1 :: execute1 () {// state1 is preset select mode, execute1 is leftrotary
@@ -774,7 +776,7 @@ void state3 :: execute5 () { //timer mode, release edit button is execute5
     display.display();
     delay(300);
     currentState = &stateOne;
-    currentDataPointer->presetSelect();
+    currentDataPointer->currentPreset();
   }
   else {
     currentState = &stateFour;
@@ -804,7 +806,9 @@ void state4 :: execute4 () { // execute4 is edit button
   if ((ms._p_curr_menu == ms._p_root_menu)) {//if top level menu, exir and go to state1/preset select mode
     ms.reset();
     currentDataPointer = cPParray[storedSettings.preset - 20];
-    currentDataPointer->presetSelect();
+    currentDataPointer->presetSelect(); 
+    delay (1000);
+    currentDataPointer->currentPreset();
     currentState = &stateOne;
   }
   else { //else still in menu, so back up and update
@@ -1243,6 +1247,7 @@ void on_item1_selected(MenuItem * p_menu_item) {
   storedSettings.preset = 20;
   currentDataPointer = cPParray[0];
   my_flash_store.write(storedSettings);
+  currentState = &stateFour;
   preset1.presetSelect();
   delay (2000);
   currentState = &stateFour;
@@ -1254,10 +1259,10 @@ void on_item2_selected(MenuItem * p_menu_item) {
   storedSettings.preset = 21;
   currentDataPointer = cPParray[1];
   SCENE = false;
+  currentState = &stateFour;
   my_flash_store.write(storedSettings);
   preset2.presetSelect();
   delay (2000);
-  currentState = &stateFour;
   editMenuDisplayUpdate ();
 }
 
@@ -1269,6 +1274,7 @@ void on_item3_selected(MenuItem * p_menu_item) {
   }
   currentDataPointer = cPParray[2];
   my_flash_store.write(storedSettings);
+  currentState = &stateFour;
   preset3.presetSelect();
   delay (2000);
   currentState = &stateFour;
@@ -1279,21 +1285,21 @@ void on_itemLINE6_selected(MenuItem * p_menu_item) {
   storedSettings.preset = 23;
   currentDataPointer = cPParray[3];
   my_flash_store.write(storedSettings);
+  currentState = &stateFour;
   preset4.presetSelect();
   delay (2000);
-  currentState = &stateFour;
   editMenuDisplayUpdate ();
 }
 
 void on_itemAXE_selected(MenuItem * p_menu_item) {
   storedSettings.preset = 21;
   storedSettings.SS = true;
+  currentState = &stateFour;
   currentDataPointer = cPParray[1];
   SCENE = true;
   my_flash_store.write(storedSettings);
   preset2.presetSelect();
   delay (2000);
-  currentState = &stateFour;
   editMenuDisplayUpdate ();
 }
 
