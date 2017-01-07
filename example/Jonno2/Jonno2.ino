@@ -2,7 +2,7 @@
 #include <SPI.h>
 #include <Wire.h>
 #include "MyRenderer.h"
-#include <myController.h>
+#include "myController.h"
 #include "FlashStorage.h"
 #include "elapsedMillis.h"
 #include "Adafruit_BLE.h"
@@ -81,11 +81,11 @@ const unsigned char mybitmap [] PROGMEM = {
 #define OLED_CLK    21
 #define OLED_RESET  5
 Fader slider1 (A8, 9); //aref and jitter suppression amount
-Fader slider2 (A2, 20);
-Fader slider3 (A3, 20);
-Fader slider4 (A4, 20);
+Fader slider2 (A2, 9);
+Fader slider3 (A3, 9);
+Fader slider4 (A4, 9);
 Rotary encoder1 (19, 0); // left and right
-Switches Buttons (6, 15, 11, 12, 13, 14); //6 and 15 are select and edit, respectively, and 11 thru 14 stomp pins, for Feather
+Switches Buttons (6); //the mux data pin
 Adafruit_BluefruitLE_SPI ble(8, 7, 4); //these are internal connections, don't worry about them.
 Adafruit_BLEMIDI midi(ble);
 Adafruit_SSD1306 display(OLED_RESET);
@@ -98,6 +98,8 @@ elapsedMillis switchesPressTimer;
 /*Forward Declarations*/
 class Base;
 Base * currentDataPointer;
+void fademoveDisplayUpdate(void);
+void buttpressDisplayUpdate (void);
 void editMenuDisplayUpdate();
 void CCbleTXmidi (int, int);
 void connected(void);
@@ -149,9 +151,6 @@ const char *buttOnOff [4] {buttOff, buttOff, buttOff, buttOff};
 int faderValue [4] = {0, 0, 0, 0};
 
 bool SCENE;
-
-//enum ControllerMode : uint8_t {SELECT, MENU};
-//ControllerMode MODE = SELECT;
 
 class State {
   public:
@@ -455,7 +454,6 @@ class Scene : public Data<int> {
       }
     }
     void select () {
-      //
       display.clearDisplay();
       display.setFont ();
       display.setCursor(0, 4);
@@ -776,7 +774,8 @@ void state3 :: execute5 () { //timer mode, release edit button is execute5
     display.display();
     delay(300);
     currentState = &stateOne;
-    currentDataPointer->currentPreset();
+    fademoveDisplayUpdate();
+    //currentDataPointer->currentPreset();
   }
   else {
     currentState = &stateFour;
@@ -806,8 +805,6 @@ void state4 :: execute4 () { // execute4 is edit button
   if ((ms._p_curr_menu == ms._p_root_menu)) {//if top level menu, exir and go to state1/preset select mode
     ms.reset();
     currentDataPointer = cPParray[storedSettings.preset - 20];
-    currentDataPointer->presetSelect(); 
-    delay (1000);
     currentDataPointer->currentPreset();
     currentState = &stateOne;
   }
@@ -830,6 +827,8 @@ void state6 :: execute2 () {
 void state6 :: execute3 () {
   currentDataPointer->store();
   delay (2000);
+  currentState = &stateFour;
+  editMenuDisplayUpdate ();
 }
 
 void state6 :: execute4( ) {
@@ -863,6 +862,15 @@ MenuItem mu4_mi1("AXE FX scene CC 34", &on_item14_selected);
 MenuItem mu4_mi2("LINE 6 scene CC 69", &on_item15_selected);
 
 void setup() {
+ 
+  pinMode(6, INPUT_PULLUP );
+  pinMode(19, INPUT_PULLUP );
+  pinMode(0, INPUT_PULLUP );
+  pinMode(15, OUTPUT);  //A all off is select aka first position aka 0 pin ...  A on only is edit aka second position aka 1 pin
+  pinMode(11, OUTPUT ); //B 
+  pinMode(12, OUTPUT ); //C
+  
+  
   /*BLE setup and debug*/
   Serial.begin(38400);
   delay(500);
@@ -973,15 +981,7 @@ void setup() {
   delay (1000);
   display.clearDisplay();
   delay (500);
-  display.setCursor(0, 0);
-  display.setTextSize(1);
-  display.printf(" % s", "CURRENT");
-  display.setCursor(0, 12);
-  display.printf(" % s", "PRESET FORMAT: ");
-  display.setCursor(0, 34);
-  display.setFont (&FreeMono9pt7b);
-  display.println(currentDataPointer->heading);
-  display.display();
+  currentDataPointer->presetSelect();
   delay (2000);
   display.clearDisplay();
   delay (500);
@@ -998,7 +998,7 @@ void setup() {
 
 void loop() {
   ble.update(500); // interval for each scanning ~ 500ms (non blocking)
-  Rotary::ReadWrite();
+  encoder1.ReadWrite();
   Buttons.ReadWrite();
   Fader::ReadWrite();
 }

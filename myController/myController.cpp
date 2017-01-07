@@ -2,44 +2,17 @@
 #include <myController.h>
 #include "elapsedMillis.h"
 
-uint8_t Rotary::objectIndex = 0;
 uint8_t Fader::objectIndex = 0;
 Switches *Sobj;
-Rotary * RobjArray[4] {NULL, NULL, NULL, NULL};
 Fader * FobjArray[4] {NULL, NULL, NULL, NULL};
 const int8_t encState [16] {0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0};
 //elapsedMicros RotaryTimer;
 elapsedMillis FaderTimer;
-elapsedMicros SwitchesTimer;
+//elapsedMicros SwitchesTimer;
 
-Switches::Switches (uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4, uint8_t pin5, uint8_t pin6) {
-  numberOfSwitches = 6;
-  switchesPinTable [0] = pin1;
-  switchesPinTable [1] = pin2;
-  switchesPinTable [2] = pin3;
-  switchesPinTable [3] = pin4;
-  switchesPinTable [4] = pin5;
-  switchesPinTable [5] = pin6;
-begin = true;
-}
-Switches::Switches (uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4, 
-  uint8_t pin5, uint8_t pin6, uint8_t pin7, uint8_t pin8, uint8_t pin9, 
-  uint8_t pin10, uint8_t pin11, uint8_t pin12, uint8_t pin13) {
-  numberOfSwitches = 13;
-  switchesPinTable [0] = pin1;
-  switchesPinTable [1] = pin2;
-  switchesPinTable [2] = pin3;
-  switchesPinTable [3] = pin4;
-  switchesPinTable [4] = pin5;
-  switchesPinTable [5] = pin6;
-  switchesPinTable [6] = pin6;
-  switchesPinTable [7] = pin6;
-  switchesPinTable [8] = pin6;
-  switchesPinTable [9] = pin6;
-  switchesPinTable [10] = pin6;
-  switchesPinTable [11] = pin6;
-  switchesPinTable [12] = pin6;
-begin=true;
+Switches::Switches (uint8_t pin1) {
+datapin = pin1; 
+numberOfSwitches = 8;
 }
 void Switches::SetHandleB1ON (void (*fptr) (void)) {
   switchesPointersON[0] = fptr;
@@ -120,25 +93,20 @@ void Switches::SetHandleB13OFF(void(*fptr) (void)) {
 	switchesPointersOFF[12] = fptr;
 }
 void Switches::ReadWrite() {
-	if ((SwitchesTimer - 500) > 0) {
-		SwitchesTimer = 0;
+	//if ((SwitchesTimer - 500) > 0) {
+		//SwitchesTimer = 0;
 		
-switchesRaw = 0;	
-    if (begin) {
-       begin = false;
-       for (int i = 0; i < numberOfSwitches; i++) {
-    pinMode(switchesPinTable [i], INPUT_PULLUP );
-     }
-  }
-
+switchesRaw = 0;	 
 
 for (int i = 0; i < numberOfSwitches; i++)
 		{
-#if defined (__MK20DX128__)
-switchesRaw |= ((digitalReadFast(switchesPinTable[i])) << i;
-#else
-switchesRaw |= (digitalRead(switchesPinTable[i])) << i  ;
-#endif
+Acmd = i & 0x01;
+      Bcmd = (i >> 1) & 0x01;
+     Ccmd = (i >> 2) & 0x01;
+     digitalWrite(15, Acmd);
+ digitalWrite(11, Bcmd);
+ digitalWrite(12, Ccmd);
+switchesRaw |= (digitalRead(datapin)) << i  ;
 switchesArray[i] <<= 1;
 switchesArray[i] |= ((switchesRaw >> i) & 0x001);
 			if ((switchesArray[i] & 0x007) == 0x007) {
@@ -166,15 +134,15 @@ switchesArray[i] |= ((switchesRaw >> i) & 0x001);
 				}
 			}
 		}
-	}
+	//}
 }
 
 Rotary::Rotary (uint8_t left, uint8_t right) {
-  RobjArray[Rotary::objectIndex] = this;
-  Rotary::objectIndex++;
+  //RobjArray[Rotary::objectIndex] = this;
+  //Rotary::objectIndex++;
   leftPin = left;
   rightPin = right;
-  begin=true;
+  //begin=true;
 }
 
 void Rotary::SetHandleLeft(void (*Left) (void)) {
@@ -185,39 +153,26 @@ void Rotary::SetHandleRight (void (*Right) (void)) {
 }
 
 void Rotary::ReadWrite() {
-		for (int i = 0; i < Rotary::objectIndex; i++) {
-		   RobjArray[i]->RotaryRead();			
-				RobjArray[i]->rotaryData <<= 2;
-				RobjArray[i]->rotaryData |= (RobjArray[i]->rotaryBraw <<1) | RobjArray[i]->rotaryAraw;
-				RobjArray[i]->rotaryState = (encState[(RobjArray[i]->rotaryData & 0x0F)]);
-				if (RobjArray[i]->rotaryState > 0) {
-					if (RobjArray[i]->pLeft) {
-						RobjArray[i]->pLeft();
-					}
+		//for (int i = 0; i < Rotary::objectIndex; i++) {
+rotaryAraw = digitalRead (leftPin);
+      	rotaryBraw = digitalRead (rightPin);
+		   
+rotaryData <<= 2;
+
+rotaryData |= (rotaryBraw <<1) | rotaryAraw;
+				
+rotaryState = (encState[(rotaryData & 0x0F)]);
+				
+if (rotaryState > 0) {
+					if (pLeft) {pLeft();}
 				}
-				if (RobjArray[i]->rotaryState < 0) {
-					if (RobjArray[i]->pRight) {
-						RobjArray[i]->pRight();
-					}
+				if (rotaryState < 0) {
+					if (pRight) {pRight();}
 				}
 			
-		}
+		//}
 }
 
-void Rotary::RotaryRead () {
-	if (begin) {
-	begin=false;
-	pinMode(leftPin, INPUT_PULLUP );
-  	pinMode(rightPin, INPUT_PULLUP );
-	}
-#if defined (__MK20DX128__)
-	rotaryAraw = digitalReadFast (leftPin);
-      	rotaryBraw = digitalReadFast (rightPin);
-#else
-        rotaryAraw = digitalRead (leftPin);
-      	rotaryBraw = digitalRead (rightPin);
-#endif      
-}
 
 void Fader::SetHandleIncrease(void(*ptr) (int)) {
 	pIncrease = ptr;

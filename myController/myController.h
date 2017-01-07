@@ -3,12 +3,7 @@
 class
   Switches {
   public:
-    Switches (uint8_t, uint8_t, uint8_t, 
-    uint8_t, uint8_t, uint8_t);
-    Switches (uint8_t, uint8_t, uint8_t, 
-    uint8_t, uint8_t, uint8_t, uint8_t, 
-    uint8_t, uint8_t, uint8_t, uint8_t, 
-    uint8_t, uint8_t);
+    Switches (uint8_t);
     void ReadWrite();
     void SetHandleB1ON (void (void));
     void SetHandleB1OFF (void (void));
@@ -38,9 +33,12 @@ class
     void SetHandleB13OFF (void (void));
     uint8_t switchesPinTable [13];
  private:
-    bool begin;
     uint8_t switchesArray [13] = {0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007, 0x007};
-    uint16_t switchesRaw;
+uint8_t datapin;    
+uint16_t switchesRaw;
+int Acmd;
+int Bcmd;
+int Ccmd;
     uint16_t switchesData;
     uint16_t pressed = 0; // pressedmask
     uint8_t numberOfSwitches;
@@ -85,21 +83,17 @@ class
   public:
     Rotary (uint8_t, uint8_t );
 Rotary () {};
-    static uint8_t objectIndex;
-    static void ReadWrite();
-volatile uint8_t rotaryAraw;
-    volatile uint8_t rotaryBraw;
+    //static uint8_t objectIndex;
+void ReadWrite();
+uint8_t rotaryAraw;
+    uint8_t rotaryBraw;
     void SetHandleLeft (void (void));
     void SetHandleRight (void (void));
-void RotaryRead();
+//void RotaryRead();
   private:
-    bool begin = true;
     void (*pLeft) (void) = NULL;
     void (*pRight) (void) = NULL;
-    //uint8_t RDDB;
-    //uint8_t rotaryA;
-    //uint8_t rotaryB;
-    uint8_t rotaryData;
+        uint8_t rotaryData;
     int8_t rotaryState;
     
     uint8_t leftPin;
