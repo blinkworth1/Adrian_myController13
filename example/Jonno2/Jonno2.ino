@@ -133,6 +133,8 @@ void Stomp1ON(void);
 void Stomp2ON(void);
 void Stomp3ON(void);
 void Stomp4ON(void);
+void Tog1ON(void);
+void Tog2ON(void);
 void slider1Inc (int);
 void slider1Dec (int);
 void slider2Inc (int);
@@ -1012,6 +1014,8 @@ void setup() {
   Buttons.SetHandleB4ON (Stomp2ON);
   Buttons.SetHandleB5ON (Stomp3ON);
   Buttons.SetHandleB6ON (Stomp4ON);
+  Buttons.SetHandleB7ON (Tog1ON);
+  Buttons.SetHandleB8ON (Tog2ON);
   slider1.SetHandleIncrease (slider1Inc);
   slider1.SetHandleDecrease (slider1Dec);
   slider2.SetHandleIncrease (slider2Inc);
@@ -1256,6 +1260,15 @@ void Left (void) {
     currentState->execute1();
   }
 }
+
+/*Toggle callback*/
+void  Tog1ON (void) {
+    currentState->execute2();
+  }
+
+void  Tog2ON (void) {
+    currentState->execute1();
+  }
 
 void CCbleTXmidi (int CC, int Value) {
   if (isConnected) {
